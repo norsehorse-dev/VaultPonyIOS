@@ -24,6 +24,18 @@ struct HomeView: View {
                             VaultRow(vault: vault)
                         }
                         .buttonStyle(.plain)
+                        .contextMenu {
+                            Button {
+                                path.append(ChangePasswordRoute(vault: vault))
+                            } label: {
+                                Label("Change Password", systemImage: "key")
+                            }
+                            Button {
+                                path.append(RecoveryRoute(vault: vault))
+                            } label: {
+                                Label("Recovery", systemImage: "wrench.and.screwdriver")
+                            }
+                        }
                     }
                     .onDelete(perform: removeVaults)
                 }
@@ -43,6 +55,12 @@ struct HomeView: View {
             }
             .navigationDestination(for: CreatedVaultSummary.self) { summary in
                 VaultCreatedView(summary: summary, path: $path)
+            }
+            .navigationDestination(for: ChangePasswordRoute.self) { route in
+                ChangePasswordView(vault: route.vault)
+            }
+            .navigationDestination(for: RecoveryRoute.self) { route in
+                RecoveryView(vault: route.vault)
             }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {

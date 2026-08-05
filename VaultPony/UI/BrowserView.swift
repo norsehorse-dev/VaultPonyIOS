@@ -350,7 +350,7 @@ private struct EntryRow: View {
 
 /// Thin wrapper so UIActivityViewController (export's share sheet) can be
 /// presented from SwiftUI.
-private struct ShareSheet: UIViewControllerRepresentable {
+struct ShareSheet: UIViewControllerRepresentable {
     let activityItems: [Any]
 
     func makeUIViewController(context: Context) -> UIActivityViewController {

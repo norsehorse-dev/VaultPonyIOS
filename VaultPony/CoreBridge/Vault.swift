@@ -81,4 +81,52 @@ enum Vault {
     static func encryptionSchemeOptions() -> [String] { encryptionSchemes() }
     static func hashOptions() -> [String] { hashes() }
     static func filesystemOptions() -> [String] { filesystems() }
+
+    // MARK: - P4: custody — change password, header backup/restore
+    //
+    // Same naming rule as P3: every wrapper name here is distinct from
+    // its generated global counterpart (changePassword, exportHeaderBackup,
+    // restoreHeaderFromFile, restoreHeaderFromEmbedded).
+    //
+    // These operate on a raw fd, not an active VaultSession — the caller
+    // opens the bookmark itself (FdOpener.openForUnlock), same as an
+    // unlock, but never actually unlocks a session for these.
+
+    /// Re-keys a container's header under a new password/PIM/keyfiles;
+    /// the data area is untouched. `fd` must be opened read-write. The
+    /// old credentials are verified before anything is written — a wrong
+    /// old password changes nothing.
+    static func changeContainerPassword(fd: Int32, oldPassphrase: String, oldPim: UInt32, oldKeyfiles: [Data], newPassphrase: String, newPim: UInt32, newKeyfiles: [Data]) async throws {
+        try await Task.detached(priority: .userInitiated) {
+            try changePassword(fd: fd, oldPassphrase: oldPassphrase, oldPim: oldPim, oldKeyfiles: oldKeyfiles, newPassphrase: newPassphrase, newPim: newPim, newKeyfiles: newKeyfiles)
+        }.value
+    }
+
+    /// Reads the container's 128 KiB header backup over a read-only `fd`,
+    /// for the caller to save externally (doc §6). The bytes are
+    /// ciphertext under the container's current password — no auth
+    /// needed to export, but the caller must warn the user to guard the
+    /// exported file, since it keeps accepting that password forever.
+    static func backupHeader(fd: Int32) async throws -> Data {
+        try await Task.detached { try exportHeaderBackup(fd: fd) }.value
+    }
+
+    /// Restores the primary header from a previously-exported `backup`'s
+    /// bytes over a writable `fd`. Verifies against
+    /// passphrase/pim/keyfiles before writing; a wrong password leaves
+    /// the container untouched.
+    static func restoreHeaderFromBackupFile(fd: Int32, backup: Data, passphrase: String, pim: UInt32, keyfiles: [Data]) async throws {
+        try await Task.detached(priority: .userInitiated) {
+            try restoreHeaderFromFile(fd: fd, backup: backup, passphrase: passphrase, pim: pim, keyfiles: keyfiles)
+        }.value
+    }
+
+    /// Restores the primary header from the container's own embedded
+    /// tail backup over a writable `fd` — no external file needed. Same
+    /// verify-before-write guarantee as the file-based restore.
+    static func restoreHeaderFromEmbeddedBackup(fd: Int32, passphrase: String, pim: UInt32, keyfiles: [Data]) async throws {
+        try await Task.detached(priority: .userInitiated) {
+            try restoreHeaderFromEmbedded(fd: fd, passphrase: passphrase, pim: pim, keyfiles: keyfiles)
+        }.value
+    }
 }

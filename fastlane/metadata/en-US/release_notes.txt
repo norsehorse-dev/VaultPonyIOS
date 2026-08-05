@@ -1,0 +1,1 @@
+First release. Create and open VeraCrypt-compatible encrypted vaults on iPhone and iPad, including hidden volumes, header backup and recovery, Face ID unlock, no-trace mode, and a full iPad split-view layout. Localized in six languages.

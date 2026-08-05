@@ -48,7 +48,7 @@ targets:
           - ru
           - pt-BR
         UILaunchScreen: {}
-        ITSAppUsesNonExemptEncryption: false
+        ITSAppUsesNonExemptEncryption: true
         NSFaceIDUsageDescription: "VaultPony uses Face ID to unlock vaults you've enrolled for biometric access."
     settings:
       base:
@@ -95,5 +95,15 @@ schemes:
     test:
       targets:
         - VaultPonyTests
+    run:
+      config: Debug
+  VaultPonySnapshots:
+    build:
+      targets:
+        VaultPony: all
+        VaultPonyUITests: [test]
+    test:
+      targets:
+        - VaultPonyUITests
     run:
       config: Debug

@@ -17,6 +17,7 @@ struct VaultPonyApp: App {
 }
 
 private struct RootView: View {
+    @Environment(VaultStore.self) private var vaultStore
     @Environment(SessionRegistry.self) private var sessionRegistry
     @Environment(AppPrefs.self) private var appPrefs
     @Environment(\.scenePhase) private var scenePhase
@@ -33,6 +34,11 @@ private struct RootView: View {
         .onAppear {
             sessionRegistry.autoLockSeconds = appPrefs.autoLockSeconds
         }
+        #if DEBUG
+        .task {
+            await DemoSeed.seedIfNeeded(vaultStore: vaultStore)
+        }
+        #endif
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .background {
                 sessionRegistry.flush()

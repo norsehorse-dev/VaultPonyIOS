@@ -1,0 +1,19 @@
+VaultPony crea y abre contenedores cifrados en iPhone y iPad. Una bóveda es un único archivo cifrado que contiene un sistema de archivos privado, y solo tu contraseña lo abre. Los contenedores son compatibles con VeraCrypt, así que puedes abrir las mismas bóvedas en el escritorio y viceversa.
+
+No hay cuenta, ni nube, ni acceso a la red. Tus bóvedas son simplemente archivos, guardados donde tú elijas: en el iPhone, en iCloud Drive o en otro proveedor de almacenamiento.
+
+Funciones:
+
+Crea y abre contenedores compatibles con VeraCrypt, eligiendo cifrado, hash y sistema de archivos (FAT o exFAT).
+
+Volúmenes ocultos: oculta una segunda bóveda dentro de la primera. Dos contraseñas, y la externa no da ninguna señal de que exista la oculta. El volumen externo puede protegerse contra escritura para que el uso normal no sobrescriba los datos ocultos.
+
+Copia de seguridad y recuperación del encabezado, cambio de contraseña in situ, y archivos clave.
+
+Desbloqueo con Face ID, bloqueo automático al salir la app de primer plano, una pantalla de privacidad que oculta el contenido en el selector de apps, y un modo sin rastro que nunca escribe contenido descifrado fuera de la bóveda.
+
+Diseño de vista dividida completa en iPad: explora y previsualiza en paralelo.
+
+Disponible en inglés, alemán, español, francés, ruso y portugués de Brasil.
+
+VaultPony es gratuito y de código abierto, construido sobre un núcleo Rust compartido que puedes inspeccionar. No está afiliado ni respaldado por IDRIX; VeraCrypt es una marca registrada de IDRIX.

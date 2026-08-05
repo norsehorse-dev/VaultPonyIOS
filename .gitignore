@@ -28,6 +28,8 @@ fastlane/test_output
 # Env / secrets
 .env
 .env.*
+*.p8
+fastlane/README.md
 
 # macOS
 .DS_Store

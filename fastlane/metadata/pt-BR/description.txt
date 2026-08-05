@@ -1,0 +1,19 @@
+O VaultPony cria e abre contêineres criptografados no iPhone e iPad. Um cofre é um único arquivo criptografado que contém um sistema de arquivos privado, e somente sua senha o abre. Os contêineres são compatíveis com o VeraCrypt, então você pode abrir os mesmos cofres no desktop e vice-versa.
+
+Não há conta, nuvem ou acesso à rede. Seus cofres são apenas arquivos, guardados onde você escolher — no iPhone, no iCloud Drive ou em outro provedor de armazenamento.
+
+Recursos:
+
+Crie e abra contêineres compatíveis com VeraCrypt, escolhendo cifra, hash e sistema de arquivos (FAT ou exFAT).
+
+Volumes ocultos: oculte um segundo cofre dentro do primeiro. Duas senhas, e a externa não dá nenhum sinal de que a oculta existe. O volume externo pode ser protegido contra gravação para que o uso normal não sobrescreva os dados ocultos.
+
+Backup e recuperação do cabeçalho, alteração de senha no próprio arquivo, e arquivos-chave.
+
+Desbloqueio por Face ID, bloqueio automático quando o app sai de primeiro plano, uma tela de privacidade que oculta o conteúdo do cofre no alternador de apps, e um modo sem rastro que nunca grava conteúdo descriptografado fora do cofre.
+
+Layout de tela dividida completo no iPad — navegue e pré-visualize lado a lado.
+
+Disponível em inglês, alemão, espanhol, francês, russo e português do Brasil.
+
+O VaultPony é gratuito e de código aberto, construído sobre um núcleo Rust compartilhado que você pode inspecionar. Não é afiliado nem endossado pela IDRIX; VeraCrypt é uma marca registrada da IDRIX.

@@ -1,0 +1,1 @@
+Primeira versão. Crie e abra cofres criptografados compatíveis com VeraCrypt no iPhone e iPad, incluindo volumes ocultos, backup e recuperação do cabeçalho, desbloqueio por Face ID, modo sem rastro e tela dividida completa no iPad. Disponível em seis idiomas.

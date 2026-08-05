@@ -1,0 +1,1 @@
+Primera versión. Crea y abre bóvedas cifradas compatibles con VeraCrypt en iPhone y iPad, incluidos volúmenes ocultos, copia de seguridad y recuperación del encabezado, desbloqueo con Face ID, modo sin rastro y vista dividida completa en iPad. Disponible en seis idiomas.

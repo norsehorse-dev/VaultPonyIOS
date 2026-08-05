@@ -30,7 +30,7 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
+	<true/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>VaultPony uses Face ID to unlock vaults you've enrolled for biometric access.</string>
 	<key>UILaunchScreen</key>

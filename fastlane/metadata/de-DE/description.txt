@@ -1,0 +1,19 @@
+VaultPony erstellt und öffnet verschlüsselte Container auf iPhone und iPad. Ein Tresor ist eine einzelne verschlüsselte Datei mit einem privaten Dateisystem, die nur dein Passwort öffnet. Die Container sind kompatibel mit VeraCrypt, sodass du dieselben Tresore auch am Desktop öffnen kannst — und umgekehrt.
+
+Es gibt kein Konto, keine Cloud und keinen Netzwerkzugriff. Deine Tresore sind einfach Dateien, gespeichert wo du willst — auf dem iPhone, in iCloud Drive oder bei einem anderen Speicheranbieter.
+
+Funktionen:
+
+Erstelle und öffne VeraCrypt-kompatible Container mit Wahl von Verschlüsselung, Hash und Dateisystem (FAT oder exFAT).
+
+Versteckte Datenträger: verberge einen zweiten Tresor innerhalb des ersten. Zwei Passwörter, und das äußere zeigt keinerlei Hinweis auf das versteckte. Der äußere Datenträger kann schreibgeschützt werden, damit normale Nutzung die versteckten Daten nicht überschreibt.
+
+Header-Sicherung und -Wiederherstellung, Passwortänderung ohne Neuerstellung, und Schlüsseldateien.
+
+Entsperrung per Face ID, automatische Sperre beim Verlassen der App, ein Sichtschutz, der Tresorinhalte im App-Wechsler verbirgt, und ein spurenloser Modus, der niemals entschlüsselte Inhalte außerhalb des Tresors schreibt.
+
+Vollständiges Split-View-Layout auf dem iPad — durchsuchen und Vorschau nebeneinander.
+
+Verfügbar in Englisch, Deutsch, Spanisch, Französisch, Russisch und brasilianischem Portugiesisch.
+
+VaultPony ist kostenlos und quelloffen, aufgebaut auf einem gemeinsamen Rust-Kern, den du selbst einsehen kannst. Nicht verbunden mit oder unterstützt von IDRIX; VeraCrypt ist eine eingetragene Marke von IDRIX.

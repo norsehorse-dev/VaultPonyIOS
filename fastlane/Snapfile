@@ -1,0 +1,21 @@
+scheme("VaultPonySnapshots")
+
+devices([
+  "iPhone 17 Pro Max",
+  "iPad Pro 13-inch (M4)",
+])
+
+languages([
+  "en-US",
+  "de-DE",
+  "es-ES",
+  "fr-FR",
+  "ru",
+  "pt-BR",
+])
+
+launch_arguments(["-seedDemoVault"])
+
+output_directory("./fastlane/screenshots")
+clear_previous_screenshots(true)
+override_status_bar(true)

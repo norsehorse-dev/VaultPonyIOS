@@ -157,6 +157,7 @@ struct RecoveryView: View {
             }
             try await Vault.restoreHeaderFromBackupFile(fd: fd, backup: backupData, passphrase: passphrase, pim: pim, keyfiles: keyfiles)
             successMessage = String(localized: "Header restored from backup file. Try unlocking again.")
+            clearSecrets()
         } catch let error as VaultError {
             errorMessage = error.message
         } catch let error as FdOpenError {
@@ -178,6 +179,7 @@ struct RecoveryView: View {
             }
             try await Vault.restoreHeaderFromEmbeddedBackup(fd: fd, passphrase: passphrase, pim: pim, keyfiles: keyfiles)
             successMessage = String(localized: "Header restored from embedded backup. Try unlocking again.")
+            clearSecrets()
         } catch let error as VaultError {
             errorMessage = error.message
         } catch let error as FdOpenError {
@@ -185,5 +187,17 @@ struct RecoveryView: View {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    /// Both restore actions succeed only after they've verified this
+    /// password/keyfiles against the container — nothing left to retype,
+    /// so drop them immediately rather than let them linger in memory
+    /// for the rest of the screen's lifetime (P7 secrets-lifetime audit,
+    /// matching the pattern already used in Unlock/CreateContainer/
+    /// ChangePassword).
+    private func clearSecrets() {
+        passphrase = ""
+        keyfiles = []
+        keyfileCount = 0
     }
 }

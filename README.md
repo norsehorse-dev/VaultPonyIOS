@@ -7,7 +7,7 @@ edit containers, including hidden volumes, backed by the shared Rust core
 Not affiliated with or endorsed by IDRIX. VeraCrypt is a registered trademark
 of IDRIX.
 
-**Status: pre-release scaffolding. Nothing here is public yet.**
+**Status: feature-complete (P0–P6), release prep underway (P7).**
 
 ## Layout
 

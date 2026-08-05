@@ -1,0 +1,1 @@
+Erste Version. Erstelle und öffne VeraCrypt-kompatible verschlüsselte Tresore auf iPhone und iPad, einschließlich versteckter Datenträger, Header-Sicherung und -Wiederherstellung, Face-ID-Entsperrung, spurenlosem Modus und vollständigem iPad-Split-View. In sechs Sprachen verfügbar.

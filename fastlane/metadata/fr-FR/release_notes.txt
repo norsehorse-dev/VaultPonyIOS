@@ -1,0 +1,1 @@
+Première version. Créez et ouvrez des coffres chiffrés compatibles VeraCrypt sur iPhone et iPad, y compris les volumes cachés, la sauvegarde et restauration de l'en-tête, le déverrouillage par Face ID, le mode sans trace et la vue partagée complète sur iPad. Disponible en six langues.

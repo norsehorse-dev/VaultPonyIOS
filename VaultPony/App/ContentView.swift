@@ -10,15 +10,15 @@ struct ContentView: View {
                 .font(.system(size: 48))
             Text("VaultPony")
                 .font(.title.bold())
-            Text("core_version(): \(coreVersion)")
+            Text("coreVersion(): \(coreVersionText)")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
         .padding()
     }
 
-    private var coreVersion: String {
-        core_version()
+    private var coreVersionText: String {
+        coreVersion()
     }
 }
 

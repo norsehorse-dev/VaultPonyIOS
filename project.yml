@@ -13,6 +13,18 @@ settings:
     # build-core.sh shells out to cargo/xcodebuild and touches paths outside
     # the declared script inputs; the default sandbox blocks that.
     ENABLE_USER_SCRIPT_SANDBOXING: NO
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: 4AVJZV35G8
+
+aggregateTargets:
+  VaultFFIBuild:
+    buildScripts:
+      - name: "Build VaultPonyCore (Rust) + generate bindings"
+        script: |
+          "${SRCROOT}/scripts/build-core.sh"
+        outputFiles:
+          - "${SRCROOT}/Generated/VaultFFI.xcframework"
+          - "${SRCROOT}/Generated/bindings/vault_ffi.swift"
 
 targets:
   VaultPony:
@@ -21,6 +33,8 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - path: VaultPony
+      - path: Generated/bindings
+        name: Generated
     info:
       path: VaultPony/Info.plist
       properties:
@@ -36,15 +50,8 @@ targets:
         CURRENT_PROJECT_VERSION: "1"
         SUPPORTS_MACCATALYST: NO
         TARGETED_DEVICE_FAMILY: "1,2"
-    preBuildScripts:
-      - name: "Build VaultPonyCore (Rust) + generate bindings"
-        script: |
-          "${SRCROOT}/scripts/build-core.sh"
-        basedOnDependencyAnalysis: false
-        outputFiles:
-          - "${SRCROOT}/Generated/VaultFFI.xcframework"
-          - "${SRCROOT}/Generated/bindings/vault_ffi.swift"
     dependencies:
+      - target: VaultFFIBuild
       - framework: Generated/VaultFFI.xcframework
         embed: true
 

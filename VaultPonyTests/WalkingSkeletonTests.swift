@@ -4,6 +4,6 @@ import XCTest
 final class WalkingSkeletonTests: XCTestCase {
     /// P0 gate: proves the test target links against VaultFFI too.
     func testCoreVersionIsNonEmpty() {
-        XCTAssertFalse(core_version().isEmpty)
+        XCTAssertFalse(coreVersion().isEmpty)
     }
 }

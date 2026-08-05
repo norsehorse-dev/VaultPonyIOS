@@ -13,6 +13,11 @@
 # real — expect the first ./scripts/build-core.sh to need a fix or two.
 set -euo pipefail
 
+# Xcode Run Script build phases execute via a plain /bin/sh, not a login
+# shell, so they never see PATH additions from ~/.zshrc (rustup, cargo).
+# Add the standard install locations explicitly.
+export PATH="$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GENERATED="$ROOT/Generated"
 

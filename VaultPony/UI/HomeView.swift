@@ -62,7 +62,17 @@ struct HomeView: View {
             .navigationDestination(for: RecoveryRoute.self) { route in
                 RecoveryView(vault: route.vault)
             }
+            .navigationDestination(for: SettingsRoute.self) { _ in
+                SettingsView()
+            }
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        path.append(SettingsRoute())
+                    } label: {
+                        Image(systemName: "gearshape")
+                    }
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Menu {
                         Button {

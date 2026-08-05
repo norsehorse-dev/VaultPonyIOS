@@ -13,6 +13,7 @@ struct BrowserView: View {
     let path: String
 
     @Environment(SessionRegistry.self) private var sessionRegistry
+    @Environment(AppPrefs.self) private var appPrefs
     @State private var entries: [DirEntry] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
@@ -26,6 +27,7 @@ struct BrowserView: View {
     @State private var entryToRename: DirEntry?
     @State private var renameText = ""
 
+    @State private var pendingExportEntry: DirEntry?
     @State private var exportURL: URL?
     @State private var showExportSheet = false
 
@@ -95,6 +97,17 @@ struct BrowserView: View {
             Button("Cancel", role: .cancel) { entryToRename = nil }
             Button("Rename") { Task { await performRename(entry) } }
         }
+        .alert("Export Decrypted File?", isPresented: Binding(
+            get: { pendingExportEntry != nil },
+            set: { if !$0 { pendingExportEntry = nil } }
+        ), presenting: pendingExportEntry) { entry in
+            Button("Export", role: .destructive) {
+                Task { await export(entry) }
+            }
+            Button("Cancel", role: .cancel) { pendingExportEntry = nil }
+        } message: { entry in
+            Text("No-trace mode is on. Exporting \"\(entry.name)\" writes a decrypted copy outside the vault.")
+        }
         .fileImporter(isPresented: $showFileImporter, allowedContentTypes: [.item], allowsMultipleSelection: true) { result in
             guard let urls = try? result.get() else { return }
             Task { await importFiles(urls) }
@@ -103,6 +116,15 @@ struct BrowserView: View {
             if let exportURL {
                 ShareSheet(activityItems: [exportURL])
             }
+        }
+        .onChange(of: showExportSheet) { _, isShowing in
+            // The share sheet is our only signal the export is done with
+            // — clean up the decrypted temp copy the moment it closes
+            // rather than leaving it in tmp/ (P5 no-trace/file-protection
+            // audit).
+            guard !isShowing, let exportURL else { return }
+            try? FileManager.default.removeItem(at: exportURL)
+            self.exportURL = nil
         }
         .overlay {
             if isBusy {
@@ -154,7 +176,11 @@ struct BrowserView: View {
             }
             if !entry.isDir {
                 Button {
-                    Task { await export(entry) }
+                    if appPrefs.noTraceMode {
+                        pendingExportEntry = entry
+                    } else {
+                        Task { await export(entry) }
+                    }
                 } label: {
                     Label("Export", systemImage: "square.and.arrow.up")
                 }
@@ -294,7 +320,10 @@ struct BrowserView: View {
     }
 
     /// Chunked export: reads the vault file in bounded pieces into a
-    /// temp file, then hands that off to the system share sheet.
+    /// temp file, then hands that off to the system share sheet. The
+    /// temp file gets complete file protection immediately (P5
+    /// file-protection audit) and is deleted as soon as the share sheet
+    /// closes, regardless of no-trace mode.
     private func export(_ entry: DirEntry) async {
         guard let session = sessionRegistry.session else { return }
         isBusy = true
@@ -302,7 +331,7 @@ struct BrowserView: View {
 
         let chunkSize: UInt32 = 4 << 20 // 4 MiB
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(entry.name)
-        FileManager.default.createFile(atPath: tempURL.path, contents: nil)
+        FileManager.default.createFile(atPath: tempURL.path, contents: nil, attributes: [.protectionKey: FileProtectionType.complete])
 
         do {
             guard let handle = FileHandle(forWritingAtPath: tempURL.path) else {

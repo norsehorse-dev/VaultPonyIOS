@@ -6,6 +6,7 @@ struct UnlockView: View {
 
     @Environment(VaultStore.self) private var vaultStore
     @Environment(SessionRegistry.self) private var sessionRegistry
+    @Environment(AppPrefs.self) private var appPrefs
 
     @State private var passphrase = ""
     @State private var pimText = "0"
@@ -16,6 +17,10 @@ struct UnlockView: View {
     @State private var useOuterProtected = false
     @State private var hiddenPassphrase = ""
 
+    @State private var enableBiometric = false
+    private let isBiometricAvailable = BiometricUnlock.isAvailable()
+    private var isBiometricEnrolled: Bool { BiometricUnlock.isEnrolled(vaultId: vault.id) }
+
     @State private var progress = UnlockProgress()
     @State private var isUnlocking = false
     @State private var errorMessage: String?
@@ -23,10 +28,24 @@ struct UnlockView: View {
 
     var body: some View {
         Form {
+            if isBiometricAvailable && isBiometricEnrolled {
+                Section {
+                    Button {
+                        Task { await unlockWithBiometric() }
+                    } label: {
+                        Label("Unlock with Face ID", systemImage: "faceid")
+                    }
+                    .disabled(isUnlocking)
+                }
+            }
+
             Section {
                 SecureField("Password", text: $passphrase)
                 TextField("PIM (0 = default)", text: $pimText)
                     .keyboardType(.numberPad)
+                if isBiometricAvailable && !isBiometricEnrolled {
+                    Toggle("Enable Face ID for this vault", isOn: $enableBiometric)
+                }
             }
 
             Section {
@@ -92,7 +111,18 @@ struct UnlockView: View {
         }
     }
 
-    private func unlock() async {
+    private func unlockWithBiometric() async {
+        errorMessage = nil
+        do {
+            passphrase = try await BiometricUnlock.retrieve(vaultId: vault.id, reason: "Unlock \(vault.displayName)")
+        } catch {
+            errorMessage = "Face ID unlock isn't available for this vault right now. Enter your password instead."
+            return
+        }
+        await unlock(viaBiometric: true)
+    }
+
+    private func unlock(viaBiometric: Bool = false) async {
         errorMessage = nil
         isUnlocking = true
         defer { isUnlocking = false }
@@ -106,7 +136,8 @@ struct UnlockView: View {
             // Always ask for a writable fd now (P2). Some storage
             // providers can't reliably grant one even though the bookmark
             // resolves fine — fall back to a local copy-in/copy-back
-            // rather than force the user into a read-only unlock.
+            // rather than force the user into a read-only unlock, unless
+            // no-trace mode explicitly disables that fallback (P5).
             do {
                 let (openedFd, refreshedBookmark) = try FdOpener.openForUnlock(bookmark: vault.bookmarkData, writable: true)
                 if let refreshedBookmark {
@@ -114,6 +145,9 @@ struct UnlockView: View {
                 }
                 fd = openedFd
             } catch FdOpenError.openFailed {
+                guard !appPrefs.noTraceMode else {
+                    throw FdOpenError.noTraceCopyInDisabled
+                }
                 let (copyFd, relativePath) = try FdOpener.openViaCopyIn(bookmark: vault.bookmarkData)
                 fd = copyFd
                 copyModeInfo = CopyModeInfo(relativePath: relativePath, bookmark: vault.bookmarkData, displayName: vault.displayName)
@@ -142,6 +176,10 @@ struct UnlockView: View {
             sessionRegistry.adopt(session, vaultId: vault.id, facts: facts, copyModeInfo: copyModeInfo)
             vaultStore.touch(vault.id, filesystem: facts.filesystem)
 
+            if enableBiometric, !isBiometricEnrolled {
+                try? BiometricUnlock.enroll(vaultId: vault.id, passphrase: passphrase)
+            }
+
             passphrase = ""
             hiddenPassphrase = ""
             keyfiles = []
@@ -149,7 +187,15 @@ struct UnlockView: View {
 
             unlockedFacts = facts
         } catch let error as VaultError {
-            errorMessage = error.message
+            if viaBiometric, case .NotFoundOrWrongPassword = error {
+                // The stored credential no longer matches — most likely
+                // the password was changed since it was enrolled. Wipe it
+                // rather than let Face ID keep offering a dead shortcut.
+                BiometricUnlock.remove(vaultId: vault.id)
+                errorMessage = "Face ID unlock used an outdated password. Enter the current password instead."
+            } else {
+                errorMessage = error.message
+            }
         } catch let error as FdOpenError {
             errorMessage = error.errorDescription
         } catch {

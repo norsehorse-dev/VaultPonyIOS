@@ -111,6 +111,11 @@ struct RecoveryView: View {
                 ShareSheet(activityItems: [exportURL])
             }
         }
+        .onChange(of: showExportSheet) { _, isShowing in
+            guard !isShowing, let exportURL else { return }
+            try? FileManager.default.removeItem(at: exportURL)
+            self.exportURL = nil
+        }
     }
 
     private var pim: UInt32 { UInt32(pimText) ?? 0 }
@@ -124,7 +129,7 @@ struct RecoveryView: View {
             let (fd, _) = try FdOpener.openForUnlock(bookmark: vault.bookmarkData, writable: false)
             let backup = try await Vault.backupHeader(fd: fd)
             let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(vault.displayName)-header-backup.bin")
-            try backup.write(to: tempURL, options: .atomic)
+            try backup.write(to: tempURL, options: [.atomic, .completeFileProtection])
             exportURL = tempURL
             showExportSheet = true
         } catch let error as VaultError {

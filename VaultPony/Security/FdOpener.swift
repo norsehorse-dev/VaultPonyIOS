@@ -9,6 +9,7 @@ enum FdOpenError: LocalizedError {
     case accessDenied
     case iCloudDownloadFailed
     case openFailed(errno: Int32)
+    case noTraceCopyInDisabled
 
     var errorDescription: String? {
         switch self {
@@ -20,6 +21,8 @@ enum FdOpenError: LocalizedError {
             return "Couldn't download the file from iCloud. Check your connection and try again."
         case .openFailed(let code):
             return "Couldn't open the file (error \(code))."
+        case .noTraceCopyInDisabled:
+            return "This vault's location doesn't support editing in place, and no-trace mode disables the copy-in fallback. Try a different storage location, or turn off no-trace mode in Settings."
         }
     }
 }
@@ -135,6 +138,9 @@ enum FdOpener {
     // container into our own sandbox, edit that copy, and offer to write
     // the result back through the coordinator (which *is* reliable for a
     // whole-file replace) when the vault is locked (PLAN.md section 5).
+    // P5: UnlockView refuses to call this at all when no-trace mode is
+    // on (FdOpenError.noTraceCopyInDisabled) — a decrypted-adjacent copy
+    // sitting in app storage is exactly what no-trace promises not to do.
 
     /// Copies the bookmarked file into app storage and opens the copy
     /// read-write. Returns the fd (core-owned, as always) and the copy's
@@ -156,6 +162,11 @@ enum FdOpener {
         NSFileCoordinator().coordinate(readingItemAt: url, options: [], error: &coordError) { coordinatedURL in
             do {
                 try FileManager.default.copyItem(at: coordinatedURL, to: destURL)
+                // Container contents are as sensitive as the vault itself
+                // while sitting in our sandbox awaiting write-back —
+                // complete protection regardless of what FileManager
+                // inferred from the source (P5 file-protection audit).
+                try? FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: destURL.path)
             } catch {
                 copyError = error
             }

@@ -82,7 +82,13 @@ final class SessionRegistry {
 
     private func resetAutoLockTimer() {
         lockTask?.cancel()
+        lockTask = nil
         let seconds = autoLockSeconds
+        // P5: Settings offers a "Never" auto-lock option, represented as
+        // .infinity. Duration.seconds() can't represent that (it traps
+        // converting an infinite Double) — simply don't schedule a lock
+        // task at all in that case, matching Android's "Off" semantics.
+        guard seconds.isFinite else { return }
         lockTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(seconds))
             guard !Task.isCancelled else { return }

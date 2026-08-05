@@ -4,7 +4,9 @@ import Observation
 /// A saved vault: its security-scoped bookmark plus display metadata.
 /// Never holds a passphrase or a derived key (THREAT_MODEL-IOS.md section
 /// 4) — bookmarkData still leaks a filename if this file were restored
-/// elsewhere, which is why VaultStore excludes it from backup below.
+/// elsewhere, which is why VaultStore excludes it from backup below. Any
+/// biometric-unlock credential lives separately in the Keychain
+/// (BiometricUnlock), keyed by this vault's id — not here.
 struct SavedVault: Identifiable, Codable, Hashable {
     var id: UUID
     var displayName: String
@@ -53,7 +55,11 @@ final class VaultStore {
         save()
     }
 
+    /// Removes a vault from Recents and wipes any biometric credential
+    /// stored for it (PLAN.md section 7 — a stored passphrase must never
+    /// outlive the vault entry that references it).
     func remove(_ id: UUID) {
+        BiometricUnlock.remove(vaultId: id)
         vaults.removeAll { $0.id == id }
         save()
     }

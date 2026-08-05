@@ -129,4 +129,7 @@ enum Vault {
             try restoreHeaderFromEmbedded(fd: fd, passphrase: passphrase, pim: pim, keyfiles: keyfiles)
         }.value
     }
+
+    // MARK: - P5: about screen
+    static func coreVersionText() -> String { coreVersion() }
 }

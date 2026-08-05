@@ -4,28 +4,34 @@ import SwiftUI
 struct VaultPonyApp: App {
     @State private var vaultStore = VaultStore()
     @State private var sessionRegistry = SessionRegistry()
+    @State private var appPrefs = AppPrefs()
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environment(vaultStore)
                 .environment(sessionRegistry)
+                .environment(appPrefs)
         }
     }
 }
 
 private struct RootView: View {
     @Environment(SessionRegistry.self) private var sessionRegistry
+    @Environment(AppPrefs.self) private var appPrefs
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         ZStack {
             HomeView()
-            if scenePhase != .active && sessionRegistry.session != nil {
+            if scenePhase != .active && sessionRegistry.session != nil && appPrefs.privacyScreenEnabled {
                 PrivacyShield()
                     .transition(.opacity)
                     .zIndex(1)
             }
+        }
+        .onAppear {
+            sessionRegistry.autoLockSeconds = appPrefs.autoLockSeconds
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .background {

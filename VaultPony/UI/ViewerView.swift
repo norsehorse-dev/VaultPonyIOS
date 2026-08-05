@@ -7,6 +7,7 @@ struct ViewerView: View {
     let name: String
 
     @Environment(SessionRegistry.self) private var sessionRegistry
+    @Environment(AppPrefs.self) private var appPrefs
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var textContent: String?
@@ -15,7 +16,10 @@ struct ViewerView: View {
 
     /// P1 viewer cap: text/image/PDF only, up to this size. Larger or
     /// unrecognized files wait for export (P2) rather than loading
-    /// unbounded data into memory (PLAN.md section 9).
+    /// unbounded data into memory (PLAN.md section 9). Content is always
+    /// streamed in via read_at chunks below and held only in memory —
+    /// never written to disk — which is what makes the viewer no-trace
+    /// safe by construction (P5).
     private static let maxInlineBytes: UInt64 = 32 << 20
 
     var body: some View {
@@ -30,11 +34,22 @@ struct ViewerView: View {
                 )
             } else if let textContent {
                 ScrollView {
-                    Text(textContent)
-                        .font(.system(.body, design: .monospaced))
-                        .textSelection(.enabled)
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    // No-trace mode disables text selection: the system
+                    // copy/share menu it enables is a pasteboard write we
+                    // don't control or expire. .enabled/.disabled are
+                    // different concrete TextSelectability types, so this
+                    // has to be a real if/else (a ViewBuilder branch) --
+                    // a ternary can't unify them the way this can.
+                    Group {
+                        if appPrefs.noTraceMode {
+                            Text(textContent).textSelection(.disabled)
+                        } else {
+                            Text(textContent).textSelection(.enabled)
+                        }
+                    }
+                    .font(.system(.body, design: .monospaced))
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             } else if let image {
                 ScrollView([.horizontal, .vertical]) {

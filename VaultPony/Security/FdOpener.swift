@@ -124,4 +124,98 @@ enum FdOpener {
         guard openedFd >= 0 else { throw FdOpenError.openFailed(errno: -1) }
         return openedFd
     }
+
+    // MARK: - P2: copy-in / write-back fallback
+    //
+    // Some storage providers (mainly third-party Files providers, and some
+    // On My iPhone edge cases) hand back a read-only fd even when we ask
+    // NSFileCoordinator to open for writing — there's no reliable way to
+    // detect this ahead of time other than trying. When openForUnlock's
+    // writable open fails, UnlockView falls back to this: copy the
+    // container into our own sandbox, edit that copy, and offer to write
+    // the result back through the coordinator (which *is* reliable for a
+    // whole-file replace) when the vault is locked (PLAN.md section 5).
+
+    /// Copies the bookmarked file into app storage and opens the copy
+    /// read-write. Returns the fd (core-owned, as always) and the copy's
+    /// path relative to `copiedVaultsDirectory()`, to be handed back to
+    /// `writeBack(localCopyRelativePath:toBookmark:)` at lock time.
+    static func openViaCopyIn(bookmark: Data) throws -> (fd: Int32, localCopyRelativePath: String) {
+        var isStale = false
+        let url = try URL(resolvingBookmarkData: bookmark, options: [], relativeTo: nil, bookmarkDataIsStale: &isStale)
+        guard url.startAccessingSecurityScopedResource() else { throw FdOpenError.accessDenied }
+        defer { url.stopAccessingSecurityScopedResource() }
+        try ensureDownloaded(url)
+
+        let dir = try copiedVaultsDirectory()
+        let relativePath = UUID().uuidString + ".vc"
+        let destURL = dir.appendingPathComponent(relativePath)
+
+        var coordError: NSError?
+        var copyError: Error?
+        NSFileCoordinator().coordinate(readingItemAt: url, options: [], error: &coordError) { coordinatedURL in
+            do {
+                try FileManager.default.copyItem(at: coordinatedURL, to: destURL)
+            } catch {
+                copyError = error
+            }
+        }
+        if let coordError { throw coordError }
+        if let copyError { throw copyError }
+
+        let fd = Darwin.open(destURL.path, O_RDWR)
+        guard fd >= 0 else { throw FdOpenError.openFailed(errno: errno) }
+        return (fd, relativePath)
+    }
+
+    /// App-Support-backed holding area for copy-in fallback vaults.
+    /// Excluded from iCloud/iTunes backup — these are transient working
+    /// copies of a container that lives elsewhere, not the source of truth.
+    static func copiedVaultsDirectory() throws -> URL {
+        let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("VaultPony", isDirectory: true)
+            .appendingPathComponent("CopiedVaults", isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        var mutableDir = dir
+        var values = URLResourceValues()
+        values.isExcludedFromBackup = true
+        try? mutableDir.setResourceValues(values)
+        return dir
+    }
+
+    /// Writes the local copy back over the original bookmark's target as a
+    /// whole-file replace, coordinated so other readers see a consistent
+    /// file. Called from SessionRegistry once the user confirms "Write
+    /// Back" on lock.
+    static func writeBack(localCopyRelativePath: String, toBookmark bookmark: Data) throws {
+        var isStale = false
+        let destURL = try URL(resolvingBookmarkData: bookmark, options: [], relativeTo: nil, bookmarkDataIsStale: &isStale)
+        guard destURL.startAccessingSecurityScopedResource() else { throw FdOpenError.accessDenied }
+        defer { destURL.stopAccessingSecurityScopedResource() }
+
+        let srcURL = try copiedVaultsDirectory().appendingPathComponent(localCopyRelativePath)
+
+        var coordError: NSError?
+        var writeError: Error?
+        NSFileCoordinator().coordinate(writingItemAt: destURL, options: .forReplacing, error: &coordError) { coordinatedURL in
+            do {
+                if FileManager.default.fileExists(atPath: coordinatedURL.path) {
+                    try FileManager.default.removeItem(at: coordinatedURL)
+                }
+                try FileManager.default.copyItem(at: srcURL, to: coordinatedURL)
+            } catch {
+                writeError = error
+            }
+        }
+        if let coordError { throw coordError }
+        if let writeError { throw writeError }
+    }
+
+    /// Deletes a copy-in working file once it's been written back (or the
+    /// user chose to discard it).
+    static func discardLocalCopy(_ relativePath: String) {
+        if let dir = try? copiedVaultsDirectory() {
+            try? FileManager.default.removeItem(at: dir.appendingPathComponent(relativePath))
+        }
+    }
 }

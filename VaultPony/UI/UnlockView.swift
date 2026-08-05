@@ -100,9 +100,23 @@ struct UnlockView: View {
         let pim = UInt32(pimText) ?? 0
 
         do {
-            let (fd, refreshedBookmark) = try FdOpener.openForUnlock(bookmark: vault.bookmarkData, writable: useOuterProtected)
-            if let refreshedBookmark {
-                vaultStore.updateBookmark(vault.id, data: refreshedBookmark)
+            var fd: Int32
+            var copyModeInfo: CopyModeInfo? = nil
+
+            // Always ask for a writable fd now (P2). Some storage
+            // providers can't reliably grant one even though the bookmark
+            // resolves fine — fall back to a local copy-in/copy-back
+            // rather than force the user into a read-only unlock.
+            do {
+                let (openedFd, refreshedBookmark) = try FdOpener.openForUnlock(bookmark: vault.bookmarkData, writable: true)
+                if let refreshedBookmark {
+                    vaultStore.updateBookmark(vault.id, data: refreshedBookmark)
+                }
+                fd = openedFd
+            } catch FdOpenError.openFailed {
+                let (copyFd, relativePath) = try FdOpener.openViaCopyIn(bookmark: vault.bookmarkData)
+                fd = copyFd
+                copyModeInfo = CopyModeInfo(relativePath: relativePath, bookmark: vault.bookmarkData, displayName: vault.displayName)
             }
 
             let session: VaultSession
@@ -125,7 +139,7 @@ struct UnlockView: View {
             }
 
             let facts = try await Vault.facts(session)
-            sessionRegistry.adopt(session, vaultId: vault.id, facts: facts)
+            sessionRegistry.adopt(session, vaultId: vault.id, facts: facts, copyModeInfo: copyModeInfo)
             vaultStore.touch(vault.id, filesystem: facts.filesystem)
 
             passphrase = ""

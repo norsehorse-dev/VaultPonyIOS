@@ -1,0 +1,107 @@
+import SwiftUI
+import UniformTypeIdentifiers
+
+struct HomeView: View {
+    @Environment(VaultStore.self) private var vaultStore
+    @State private var showImporter = false
+    @State private var importError: String?
+    @State private var path = NavigationPath()
+
+    var body: some View {
+        NavigationStack(path: $path) {
+            List {
+                if vaultStore.vaults.isEmpty {
+                    ContentUnavailableView(
+                        "No Vaults Yet",
+                        systemImage: "lock.shield",
+                        description: Text("Open a VeraCrypt container to get started.")
+                    )
+                } else {
+                    ForEach(vaultStore.vaults) { vault in
+                        Button {
+                            path.append(vault)
+                        } label: {
+                            VaultRow(vault: vault)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .onDelete(perform: removeVaults)
+                }
+            }
+            .navigationTitle("VaultPony")
+            .navigationDestination(for: SavedVault.self) { vault in
+                UnlockView(vault: vault)
+            }
+            .navigationDestination(for: String.self) { subPath in
+                BrowserView(path: subPath)
+            }
+            .navigationDestination(for: FileTarget.self) { target in
+                ViewerView(path: target.path, name: target.name)
+            }
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        showImporter = true
+                    } label: {
+                        Label("Open Vault", systemImage: "plus")
+                    }
+                }
+            }
+            .fileImporter(isPresented: $showImporter, allowedContentTypes: [.item], allowsMultipleSelection: false) { result in
+                handleImport(result)
+            }
+            .alert("Couldn't Open File", isPresented: Binding(
+                get: { importError != nil },
+                set: { if !$0 { importError = nil } }
+            )) {
+                Button("OK") { importError = nil }
+            } message: {
+                Text(importError ?? "")
+            }
+        }
+    }
+
+    private func handleImport(_ result: Result<[URL], Error>) {
+        do {
+            guard let url = try result.get().first else { return }
+            let (fd, bookmark) = try FdOpener.openForImport(url: url, writable: false)
+            close(fd)
+            let vault = vaultStore.add(bookmarkData: bookmark, displayName: url.lastPathComponent)
+            path.append(vault)
+        } catch {
+            importError = error.localizedDescription
+        }
+    }
+
+    private func removeVaults(at offsets: IndexSet) {
+        for index in offsets {
+            vaultStore.remove(vaultStore.vaults[index].id)
+        }
+    }
+}
+
+private struct VaultRow: View {
+    let vault: SavedVault
+
+    var body: some View {
+        HStack {
+            Image(systemName: "lock.doc")
+                .foregroundStyle(.secondary)
+            VStack(alignment: .leading) {
+                Text(vault.displayName)
+                    .foregroundStyle(.primary)
+                if let lastOpened = vault.lastOpened {
+                    Text(lastOpened, style: .relative)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("Never opened")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Spacer()
+        }
+        .contentShape(Rectangle())
+    }
+}

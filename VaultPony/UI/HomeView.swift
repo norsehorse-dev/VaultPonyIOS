@@ -38,12 +38,27 @@ struct HomeView: View {
             .navigationDestination(for: FileTarget.self) { target in
                 ViewerView(path: target.path, name: target.name)
             }
+            .navigationDestination(for: CreateVaultRoute.self) { _ in
+                CreateContainerView(path: $path)
+            }
+            .navigationDestination(for: CreatedVaultSummary.self) { summary in
+                VaultCreatedView(summary: summary, path: $path)
+            }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        showImporter = true
+                    Menu {
+                        Button {
+                            showImporter = true
+                        } label: {
+                            Label("Open Vault", systemImage: "doc.badge.plus")
+                        }
+                        Button {
+                            path.append(CreateVaultRoute())
+                        } label: {
+                            Label("Create Vault", systemImage: "lock.badge.plus")
+                        }
                     } label: {
-                        Label("Open Vault", systemImage: "plus")
+                        Image(systemName: "plus")
                     }
                 }
             }

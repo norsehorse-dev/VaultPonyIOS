@@ -13,23 +13,23 @@ extension VaultError {
     var message: String {
         switch self {
         case .NotFoundOrWrongPassword:
-            return "Wrong password/PIM, or not a VeraCrypt container."
+            return String(localized: "Wrong password/PIM, or not a VeraCrypt container.")
         case .VersionTooNew:
-            return "This container requires a newer format version than VaultPony supports."
+            return String(localized: "This container requires a newer format version than VaultPony supports.")
         case .SystemVolume:
-            return "System-encryption volumes are not supported."
+            return String(localized: "System-encryption volumes are not supported.")
         case .HiddenVolumeProtected:
-            return "Write blocked to protect the hidden volume; the volume is now read-only."
+            return String(localized: "Write blocked to protect the hidden volume; the volume is now read-only.")
         case .HeaderDamaged:
-            return "The volume header is damaged. The embedded backup header may help — see Recovery."
+            return String(localized: "The volume header is damaged. The embedded backup header may help — see Recovery.")
         case .UnsupportedFilesystem(let name):
-            return "Filesystem not supported yet: \(name)."
+            return String(localized: "Filesystem not supported yet: \(name).")
         case .Filesystem(let detail):
-            return "Filesystem error: \(detail)"
+            return String(localized: "Filesystem error: \(detail)")
         case .Io(let detail):
-            return "I/O error: \(detail)"
+            return String(localized: "I/O error: \(detail)")
         case .Internal:
-            return "Something went wrong internally. Try again."
+            return String(localized: "Something went wrong internally. Try again.")
         }
     }
 }

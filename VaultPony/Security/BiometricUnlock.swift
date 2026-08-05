@@ -23,11 +23,11 @@ enum BiometricUnlock {
         var errorDescription: String? {
             switch self {
             case .unavailable:
-                return "Face ID or Touch ID isn't available on this device."
+                return String(localized: "Face ID or Touch ID isn't available on this device.")
             case .storeFailed:
-                return "Couldn't save the passphrase for biometric unlock."
+                return String(localized: "Couldn't save the passphrase for biometric unlock.")
             case .notEnrolled:
-                return "This vault isn't enrolled for biometric unlock."
+                return String(localized: "This vault isn't enrolled for biometric unlock.")
             }
         }
     }

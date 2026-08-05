@@ -107,14 +107,14 @@ struct UnlockView: View {
             keyfileCount = keyfiles.count
         }
         .navigationDestination(item: $unlockedFacts) { _ in
-            BrowserView(path: "/")
+            VaultSessionView()
         }
     }
 
     private func unlockWithBiometric() async {
         errorMessage = nil
         do {
-            passphrase = try await BiometricUnlock.retrieve(vaultId: vault.id, reason: "Unlock \(vault.displayName)")
+            passphrase = try await BiometricUnlock.retrieve(vaultId: vault.id, reason: String(localized: "Unlock \(vault.displayName)"))
         } catch {
             errorMessage = "Face ID unlock isn't available for this vault right now. Enter your password instead."
             return

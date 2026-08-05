@@ -29,7 +29,7 @@ struct SettingsView: View {
                     }
                 )) {
                     ForEach(Self.autoLockOptions, id: \.seconds) { option in
-                        Text(option.label).tag(option.seconds)
+                        Text(LocalizedStringKey(option.label)).tag(option.seconds)
                     }
                 }
             } footer: {

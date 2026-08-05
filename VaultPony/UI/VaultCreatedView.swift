@@ -58,7 +58,7 @@ private struct DetailRow: View {
 
     var body: some View {
         HStack {
-            Text(label)
+            Text(LocalizedStringKey(label))
                 .foregroundStyle(.secondary)
             Spacer()
             Text(value)

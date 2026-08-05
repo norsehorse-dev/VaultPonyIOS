@@ -40,6 +40,13 @@ targets:
       path: VaultPony/Info.plist
       properties:
         CFBundleDisplayName: VaultPony
+        CFBundleLocalizations:
+          - en
+          - de
+          - es
+          - fr
+          - ru
+          - pt-BR
         UILaunchScreen: {}
         ITSAppUsesNonExemptEncryption: false
         NSFaceIDUsageDescription: "VaultPony uses Face ID to unlock vaults you've enrolled for biometric access."
@@ -51,6 +58,7 @@ targets:
         CURRENT_PROJECT_VERSION: "1"
         SUPPORTS_MACCATALYST: NO
         TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     dependencies:
       - target: VaultFFIBuild
       - framework: Generated/VaultFFI.xcframework

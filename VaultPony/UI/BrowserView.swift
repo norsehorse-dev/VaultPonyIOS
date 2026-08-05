@@ -2,8 +2,9 @@ import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
 
-/// Identifies a file push target in the shared NavigationPath (see
-/// HomeView's navigationDestination(for: FileTarget.self)).
+/// Identifies the file currently selected for preview. Bound between
+/// BrowserView and VaultSessionView's detail column (P6); no longer a
+/// NavigationPath push target.
 struct FileTarget: Hashable {
     let path: String
     let name: String
@@ -11,6 +12,7 @@ struct FileTarget: Hashable {
 
 struct BrowserView: View {
     let path: String
+    @Binding var selectedFile: FileTarget?
 
     @Environment(SessionRegistry.self) private var sessionRegistry
     @Environment(AppPrefs.self) private var appPrefs
@@ -79,6 +81,7 @@ struct BrowserView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("Add")
             }
         }
         .task { await load() }
@@ -154,11 +157,19 @@ struct BrowserView: View {
                     EntryRow(entry: entry)
                 }
             } else {
-                NavigationLink(value: FileTarget(path: childPath(entry.name), name: entry.name)) {
+                // P6 iPad split-view: selecting a file sets the shared
+                // binding instead of pushing onto a NavigationPath, so
+                // ViewerView can render in the detail column beside this
+                // list rather than replacing it.
+                Button {
+                    selectedFile = FileTarget(path: childPath(entry.name), name: entry.name)
+                } label: {
                     EntryRow(entry: entry)
                 }
+                .buttonStyle(.plain)
             }
         }
+        .listRowBackground(isSelected(entry) ? Color.accentColor.opacity(0.15) : Color.clear)
         .swipeActions(edge: .trailing) {
             if canWrite {
                 Button(role: .destructive) {
@@ -187,6 +198,10 @@ struct BrowserView: View {
                 .tint(.blue)
             }
         }
+    }
+
+    private func isSelected(_ entry: DirEntry) -> Bool {
+        !entry.isDir && selectedFile?.path == childPath(entry.name)
     }
 
     private var titleForPath: String {

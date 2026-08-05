@@ -14,15 +14,15 @@ enum FdOpenError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .bookmarkResolutionFailed:
-            return "Couldn't locate that file. It may have been moved or deleted."
+            return String(localized: "Couldn't locate that file. It may have been moved or deleted.")
         case .accessDenied:
-            return "VaultPony doesn't have permission to open that file."
+            return String(localized: "VaultPony doesn't have permission to open that file.")
         case .iCloudDownloadFailed:
-            return "Couldn't download the file from iCloud. Check your connection and try again."
+            return String(localized: "Couldn't download the file from iCloud. Check your connection and try again.")
         case .openFailed(let code):
-            return "Couldn't open the file (error \(code))."
+            return String(localized: "Couldn't open the file (error \(code)).")
         case .noTraceCopyInDisabled:
-            return "This vault's location doesn't support editing in place, and no-trace mode disables the copy-in fallback. Try a different storage location, or turn off no-trace mode in Settings."
+            return String(localized: "This vault's location doesn't support editing in place, and no-trace mode disables the copy-in fallback. Try a different storage location, or turn off no-trace mode in Settings.")
         }
     }
 }

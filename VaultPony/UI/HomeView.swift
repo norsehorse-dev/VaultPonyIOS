@@ -44,12 +44,11 @@ struct HomeView: View {
             .navigationDestination(for: SavedVault.self) { vault in
                 UnlockView(vault: vault)
             }
-            .navigationDestination(for: String.self) { subPath in
-                BrowserView(path: subPath)
-            }
-            .navigationDestination(for: FileTarget.self) { target in
-                ViewerView(path: target.path, name: target.name)
-            }
+            // String.self / FileTarget.self routing moved into
+            // VaultSessionView (P6): the unlocked session now owns its
+            // own Browser/Viewer navigation so it can present them as a
+            // NavigationSplitView on iPad instead of pushing onto this
+            // top-level stack.
             .navigationDestination(for: CreateVaultRoute.self) { _ in
                 CreateContainerView(path: $path)
             }
@@ -72,6 +71,7 @@ struct HomeView: View {
                     } label: {
                         Image(systemName: "gearshape")
                     }
+                    .accessibilityLabel("Settings")
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Menu {
@@ -88,6 +88,7 @@ struct HomeView: View {
                     } label: {
                         Image(systemName: "plus")
                     }
+                    .accessibilityLabel("Add")
                 }
             }
             .fileImporter(isPresented: $showImporter, allowedContentTypes: [.item], allowsMultipleSelection: false) { result in

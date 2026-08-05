@@ -156,7 +156,7 @@ struct RecoveryView: View {
                 vaultStore.updateBookmark(vault.id, data: refreshedBookmark)
             }
             try await Vault.restoreHeaderFromBackupFile(fd: fd, backup: backupData, passphrase: passphrase, pim: pim, keyfiles: keyfiles)
-            successMessage = "Header restored from backup file. Try unlocking again."
+            successMessage = String(localized: "Header restored from backup file. Try unlocking again.")
         } catch let error as VaultError {
             errorMessage = error.message
         } catch let error as FdOpenError {
@@ -177,7 +177,7 @@ struct RecoveryView: View {
                 vaultStore.updateBookmark(vault.id, data: refreshedBookmark)
             }
             try await Vault.restoreHeaderFromEmbeddedBackup(fd: fd, passphrase: passphrase, pim: pim, keyfiles: keyfiles)
-            successMessage = "Header restored from embedded backup. Try unlocking again."
+            successMessage = String(localized: "Header restored from embedded backup. Try unlocking again.")
         } catch let error as VaultError {
             errorMessage = error.message
         } catch let error as FdOpenError {

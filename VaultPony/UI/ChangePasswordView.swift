@@ -134,7 +134,7 @@ struct ChangePasswordView: View {
     private func keyfileRow(label: String, count: Int, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack {
-                Text(label)
+                Text(LocalizedStringKey(label))
                 Spacer()
                 Text(count == 0 ? "None" : "\(count) selected")
                     .foregroundStyle(.secondary)

@@ -1,0 +1,80 @@
+name: VaultPony
+options:
+  bundleIdPrefix: dev.norsehorse
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+configs:
+  Debug: debug
+  Release: release
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    # build-core.sh shells out to cargo/xcodebuild and touches paths outside
+    # the declared script inputs; the default sandbox blocks that.
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+
+targets:
+  VaultPony:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: VaultPony
+    info:
+      path: VaultPony/Info.plist
+      properties:
+        CFBundleDisplayName: VaultPony
+        UILaunchScreen: {}
+        ITSAppUsesNonExemptEncryption: false
+        NSFaceIDUsageDescription: "VaultPony uses Face ID to unlock vaults you've enrolled for biometric access."
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.norsehorse.vaultpony
+        PRODUCT_NAME: VaultPony
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SUPPORTS_MACCATALYST: NO
+        TARGETED_DEVICE_FAMILY: "1,2"
+    preBuildScripts:
+      - name: "Build VaultPonyCore (Rust) + generate bindings"
+        script: |
+          "${SRCROOT}/scripts/build-core.sh"
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - "${SRCROOT}/Generated/VaultFFI.xcframework"
+          - "${SRCROOT}/Generated/bindings/vault_ffi.swift"
+    dependencies:
+      - framework: Generated/VaultFFI.xcframework
+        embed: true
+
+  VaultPonyTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: VaultPonyTests
+    dependencies:
+      - target: VaultPony
+
+  VaultPonyUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: VaultPonyUITests
+    dependencies:
+      - target: VaultPony
+
+schemes:
+  VaultPony:
+    build:
+      targets:
+        VaultPony: all
+        VaultPonyTests: [test]
+        VaultPonyUITests: [test]
+    test:
+      targets:
+        - VaultPonyTests
+    run:
+      config: Debug

@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.95.0"
+          targets: aarch64-apple-ios,aarch64-apple-ios-sim
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            VaultPonyCore/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('VaultPonyCore/Cargo.lock') }}
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Build core + generate bindings
+        run: ./scripts/build-core.sh
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      # Fixture-driven tests skip gracefully when the corpus isn't present
+      # (see VaultPonyTests convention in PLAN.md); CI does not fetch it yet
+      # — tracked as an open question (PLAN.md section 11).
+      - name: Build and test
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project VaultPony.xcodeproj \
+            -scheme VaultPony \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            | xcpretty

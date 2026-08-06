@@ -12,17 +12,18 @@ enum FdOpenError: LocalizedError {
     case noTraceCopyInDisabled
 
     var errorDescription: String? {
+        let locale = LanguageOverride.locale
         switch self {
         case .bookmarkResolutionFailed:
-            return String(localized: "Couldn't locate that file. It may have been moved or deleted.")
+            return String(localized: "Couldn't locate that file. It may have been moved or deleted.", locale: locale)
         case .accessDenied:
-            return String(localized: "VaultPony doesn't have permission to open that file.")
+            return String(localized: "VaultPony doesn't have permission to open that file.", locale: locale)
         case .iCloudDownloadFailed:
-            return String(localized: "Couldn't download the file from iCloud. Check your connection and try again.")
+            return String(localized: "Couldn't download the file from iCloud. Check your connection and try again.", locale: locale)
         case .openFailed(let code):
-            return String(localized: "Couldn't open the file (error \(code)).")
+            return String(localized: "Couldn't open the file (error \(code)).", locale: locale)
         case .noTraceCopyInDisabled:
-            return String(localized: "This vault's location doesn't support editing in place, and no-trace mode disables the copy-in fallback. Try a different storage location, or turn off no-trace mode in Settings.")
+            return String(localized: "This vault's location doesn't support editing in place, and no-trace mode disables the copy-in fallback. Try a different storage location, or turn off no-trace mode in Settings.", locale: locale)
         }
     }
 }

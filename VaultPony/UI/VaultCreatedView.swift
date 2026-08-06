@@ -4,6 +4,14 @@ struct VaultCreatedView: View {
     let summary: CreatedVaultSummary
     @Binding var path: NavigationPath
 
+    /// Set only when this view is reached from the onboarding carousel's
+    /// Create-vault sheet (see OnboardingView.swift). When present, "Open
+    /// Vault" is hidden (there's no vault-detail destination registered in
+    /// that self-contained sheet stack) and the closing button reads
+    /// "Continue" and calls back into onboarding instead of resetting
+    /// `path`, mirroring Android's `continueSetup` flow.
+    var onDone: (() -> Void)? = nil
+
     var body: some View {
         VStack(spacing: 20) {
             Image(systemName: summary.isHidden ? "lock.shield.fill" : "checkmark.shield.fill")
@@ -35,14 +43,20 @@ struct VaultCreatedView: View {
 
             Spacer()
 
-            NavigationLink(value: summary.vault) {
-                Text("Open Vault")
-                    .frame(maxWidth: .infinity)
+            if onDone == nil {
+                NavigationLink(value: summary.vault) {
+                    Text("Open Vault")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
             }
-            .buttonStyle(.borderedProminent)
 
-            Button("Done") {
-                path = NavigationPath()
+            Button(onDone == nil ? "Done" : "Continue") {
+                if let onDone {
+                    onDone()
+                } else {
+                    path = NavigationPath()
+                }
             }
             .frame(maxWidth: .infinity)
         }

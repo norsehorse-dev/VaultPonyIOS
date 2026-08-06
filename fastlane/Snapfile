@@ -2,7 +2,7 @@ scheme("VaultPonySnapshots")
 
 devices([
   "iPhone 17 Pro Max",
-  "iPad Pro 13-inch (M4)",
+  "iPad Pro 13-inch (M5)",
 ])
 
 languages([

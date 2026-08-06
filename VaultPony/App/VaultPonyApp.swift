@@ -12,6 +12,7 @@ struct VaultPonyApp: App {
                 .environment(vaultStore)
                 .environment(sessionRegistry)
                 .environment(appPrefs)
+                .environment(\.locale, appPrefs.locale)
         }
     }
 }
@@ -24,7 +25,14 @@ private struct RootView: View {
 
     var body: some View {
         ZStack {
-            HomeView()
+            if appPrefs.onboardingDone && !appPrefs.replayOnboardingRequested {
+                HomeView()
+            } else {
+                OnboardingView {
+                    appPrefs.setOnboardingDone(true)
+                    appPrefs.clearReplayOnboardingRequest()
+                }
+            }
             if scenePhase != .active && sessionRegistry.session != nil && appPrefs.privacyScreenEnabled {
                 PrivacyShield()
                     .transition(.opacity)

@@ -5,6 +5,40 @@ import UIKit
 /// as CreateVaultRoute (PLAN.md section 6, P5).
 struct SettingsRoute: Hashable {}
 
+/// One of the pony family's other apps, cross-promoted here (parity port
+/// of VaultPonyAndroid's SettingsScreen `PONY_APPS` list — same names,
+/// subtitles, and URLs).
+private struct PonyApp: Identifiable {
+    let name: String
+    let subtitle: String
+    let url: String
+    var id: String { name }
+}
+
+private let ponyApps: [PonyApp] = [
+    PonyApp(name: "PGPony", subtitle: "OpenPGP encryption", url: "https://pgpony.app"),
+    PonyApp(name: "PassPony", subtitle: "Password manager", url: "https://passpony.app"),
+    PonyApp(name: "BurnPony", subtitle: "Burn-after-reading notes", url: "https://burnpony.app"),
+    PonyApp(name: "CarrierPony", subtitle: "Async PGP messenger", url: "https://carrierpony.com"),
+    PonyApp(name: "AgePony", subtitle: "age encryption", url: "https://agepony.com"),
+    PonyApp(name: "RelayPony", subtitle: "Encrypted file transfer", url: "https://relaypony.app"),
+    PonyApp(name: "QuorumPony", subtitle: "Key backup with secret sharing", url: "https://quorumpony.com"),
+]
+
+private struct SettingsLink: Identifiable {
+    let label: String
+    let url: String
+    var id: String { label }
+}
+
+private let settingsLinks: [SettingsLink] = [
+    SettingsLink(label: "Website", url: "https://vaultpony.app"),
+    SettingsLink(label: "The Pony Family", url: "https://pony.norsehor.se"),
+    SettingsLink(label: "Source code (VaultPonyIOS)", url: "https://github.com/norsehorse-dev/VaultPonyIOS"),
+    SettingsLink(label: "Source code (VaultPonyCore)", url: "https://github.com/norsehorse-dev/VaultPonyCore"),
+    SettingsLink(label: "Contact", url: "mailto:NorseHorse@norsehor.se"),
+]
+
 struct SettingsView: View {
     @Environment(AppPrefs.self) private var appPrefs
     @Environment(SessionRegistry.self) private var sessionRegistry
@@ -55,20 +89,58 @@ struct SettingsView: View {
             }
 
             Section {
-                HStack {
-                    Text("Language")
-                    Spacer()
-                    Text("System")
-                        .foregroundStyle(.secondary)
+                LanguageOptionRow(title: Text("System"), isSelected: appPrefs.languageCode == nil) {
+                    appPrefs.setLanguageCode(nil)
                 }
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    if let url = URL(string: UIApplication.openSettingsURLString) {
-                        UIApplication.shared.open(url)
+                ForEach(SupportedLanguage.all) { language in
+                    LanguageOptionRow(title: Text(language.nativeName), isSelected: appPrefs.languageCode == language.code) {
+                        appPrefs.setLanguageCode(language.code)
                     }
                 }
+            } header: {
+                Text("Language")
             } footer: {
-                Text("VaultPony follows the per-app language set in iOS Settings.")
+                Text("Changes apply immediately, without restarting VaultPony.")
+            }
+
+            Section {
+                ForEach(ponyApps) { app in
+                    Button {
+                        openURL(app.url)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(app.name)
+                                .foregroundStyle(.primary)
+                            Text(LocalizedStringKey(app.subtitle))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            } header: {
+                Text("More Pony Apps")
+            }
+
+            Section {
+                ForEach(settingsLinks) { link in
+                    Button {
+                        openURL(link.url)
+                    } label: {
+                        Text(LocalizedStringKey(link.label))
+                    }
+                }
+            } header: {
+                Text("Links")
+            }
+
+            Section {
+                Button {
+                    appPrefs.requestReplayOnboarding()
+                } label: {
+                    Text("Show the Intro Again")
+                }
+            } header: {
+                Text("Help")
             }
 
             Section {
@@ -86,8 +158,16 @@ struct SettingsView: View {
                 }
             } header: {
                 Text("About")
+            } footer: {
+                Text("VaultPony is part of the pony family of privacy tools: encryption you can inspect instead of taking a developer's word for it.")
             }
         }
         .navigationTitle("Settings")
+        .accessibilityIdentifier("settingsScreen")
+    }
+
+    private func openURL(_ string: String) {
+        guard let url = URL(string: string) else { return }
+        UIApplication.shared.open(url)
     }
 }

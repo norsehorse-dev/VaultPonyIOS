@@ -29,22 +29,36 @@ final class SnapshotTests: XCTestCase {
         app.launchArguments += ["-seedDemoVault"]
         app.launch()
 
+        // Every fresh install lands on the onboarding carousel (P7 parity
+        // port of VaultPonyAndroid's OnboardingScreen) before Home ever
+        // appears. Skip it here — the onboarding carousel itself isn't
+        // part of this screenshot set.
+        let skipButton = app.buttons["onboardingSkipButton"]
+        XCTAssertTrue(skipButton.waitForExistence(timeout: 10))
+        skipButton.tap()
+
+        // "Demo Vault" / "Welcome.txt" are DemoSeed's own literal data
+        // strings, never routed through the string catalog, so they read
+        // the same in every locale. UI chrome (button/field labels, nav
+        // titles) IS localized as of P6 -- those elements are looked up
+        // by accessibilityIdentifier instead, which stays constant
+        // across languages.
         XCTAssertTrue(app.staticTexts["Demo Vault"].waitForExistence(timeout: 15))
         snapshot("01Home")
 
-        app.buttons["Settings"].tap()
-        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+        app.buttons["settingsButton"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["settingsScreen"].waitForExistence(timeout: 5))
         snapshot("02Settings")
         app.navigationBars.buttons.element(boundBy: 0).tap()
 
         XCTAssertTrue(app.staticTexts["Demo Vault"].waitForExistence(timeout: 5))
         app.staticTexts["Demo Vault"].tap()
 
-        let passwordField = app.secureTextFields["Password"]
+        let passwordField = app.secureTextFields["passwordField"]
         XCTAssertTrue(passwordField.waitForExistence(timeout: 5))
         passwordField.tap()
         passwordField.typeText(demoPassphrase)
-        app.buttons["Unlock"].tap()
+        app.buttons["unlockButton"].tap()
 
         XCTAssertTrue(app.staticTexts["Welcome.txt"].waitForExistence(timeout: 15))
         snapshot("03Browse")

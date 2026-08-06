@@ -21,13 +21,14 @@ enum BiometricUnlock {
         case notEnrolled
 
         var errorDescription: String? {
+            let locale = LanguageOverride.locale
             switch self {
             case .unavailable:
-                return String(localized: "Face ID or Touch ID isn't available on this device.")
+                return String(localized: "Face ID or Touch ID isn't available on this device.", locale: locale)
             case .storeFailed:
-                return String(localized: "Couldn't save the passphrase for biometric unlock.")
+                return String(localized: "Couldn't save the passphrase for biometric unlock.", locale: locale)
             case .notEnrolled:
-                return String(localized: "This vault isn't enrolled for biometric unlock.")
+                return String(localized: "This vault isn't enrolled for biometric unlock.", locale: locale)
             }
         }
     }

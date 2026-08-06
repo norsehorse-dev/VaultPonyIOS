@@ -41,6 +41,7 @@ struct UnlockView: View {
 
             Section {
                 SecureField("Password", text: $passphrase)
+                    .accessibilityIdentifier("passwordField")
                 TextField("PIM (0 = default)", text: $pimText)
                     .keyboardType(.numberPad)
                 if isBiometricAvailable && !isBiometricEnrolled {
@@ -95,6 +96,7 @@ struct UnlockView: View {
                     Task { await unlock() }
                 }
                 .disabled(passphrase.isEmpty || isUnlocking)
+                .accessibilityIdentifier("unlockButton")
             }
         }
         .fileImporter(isPresented: $showKeyfilePicker, allowedContentTypes: [.item], allowsMultipleSelection: true) { result in

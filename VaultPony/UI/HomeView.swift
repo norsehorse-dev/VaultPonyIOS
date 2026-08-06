@@ -72,6 +72,7 @@ struct HomeView: View {
                         Image(systemName: "gearshape")
                     }
                     .accessibilityLabel("Settings")
+                    .accessibilityIdentifier("settingsButton")
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Menu {

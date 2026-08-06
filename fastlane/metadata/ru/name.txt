@@ -1,1 +1,1 @@
-VaultPony
+VaultPony: Хранилища файлов

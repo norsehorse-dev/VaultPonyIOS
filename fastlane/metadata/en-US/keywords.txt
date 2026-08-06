@@ -1,1 +1,1 @@
-encryption,vault,veracrypt,privacy,security,encrypted,files,offline,container,secure
+encryption,veracrypt,privacy,security,container,secure,photo,locker,aes,disk,hidden,keyfile,safe

@@ -1,1 +1,1 @@
-verschlüsselung,tresor,veracrypt,datenschutz,sicherheit,dateien,offline,container,privat
+verschlüsselung,veracrypt,datenschutz,sicherheit,dateien,container,privat,safe,fotos,geheim,aes

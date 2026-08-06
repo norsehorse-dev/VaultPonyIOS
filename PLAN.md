@@ -5,7 +5,7 @@ Rust core (VaultPonyCore), Swift + SwiftUI over the UniFFI boundary. This
 document is the source of truth for scope and phasing of the iOS app, the same
 way the original planning doc was for the core and Android.
 
-Decisions already made (with Kevin, 2026-08-05): the existing `~/Apps/VaultPony`
+Decisions already made (2026-08-05): the existing `~/Apps/VaultPony`
 directory is wiped and becomes this repo; the GitHub repo is
 `norsehorse-dev/VaultPonyIOS`; v1 targets full feature parity with
 VaultPonyAndroid; minimum deployment target is iOS 17; the File Provider
@@ -60,7 +60,7 @@ CryptoKit is not needed since crypto lives in the core).
 
 Why XcodeGen rather than a checked-in `.xcodeproj`: the project file becomes a
 small declarative YAML that diffs cleanly and can be authored remotely without
-Xcode; Kevin regenerates with `xcodegen generate` after any `project.yml`
+Xcode; regenerate with `xcodegen generate` after any `project.yml`
 change. The `.xcodeproj` itself is gitignored. If XcodeGen ever becomes a
 constraint we can check in the generated project and drop the tool — one-way
 door in the safe direction.
@@ -219,13 +219,13 @@ demoable, testable state, mirroring how the core's P-gates worked.
 **P0 — Reset and walking skeleton.** Salvage check: confirm the fixture corpus
 is regenerable from VaultPonyCore `tools/gen-fixtures` (or copy the five `.vc`
 fixtures out of the old monorepo into safekeeping first). Wipe `~/Apps/VaultPony`
-(old contents to `_to_delete/`, Kevin empties it), `git init`, repo-local
+(old contents to `_to_delete/`, emptied by hand), `git init`, repo-local
 `norsehorse-dev` identity before the first commit, seed with LICENSE, NOTICE,
 README, PLAN.md, THREAT_MODEL-IOS.md skeleton, `.gitignore`, `project.yml`,
 submodule. Core PR: add iOS targets to `rust-toolchain.toml`.
 `build-core.sh` produces the xcframework; the app builds and shows
 `core_version()` on an About placeholder. CI green on a macOS runner.
-Gate: ⌘R on simulator and on Kevin's iPhone shows the core version string.
+Gate: ⌘R on the simulator and on a physical iPhone shows the core version string.
 Publishing the GitHub repo happens here — after an explicit go-ahead on
 identity and visibility.
 
@@ -304,17 +304,16 @@ regenerated in-job if the generator is cheap enough, otherwise unlock tests
 marked skip-in-CI and the fixture suite runs locally per phase gate (decide in
 P1 based on generator runtime).
 
-## 10. Working agreement for the build (Sonnet phase)
+## 10. Working agreement for the build
 
-Claude authors everything in the cloud session and commits to the repo through
-the device bridge; Kevin is the build-and-run loop, since neither the cloud
-sandbox nor the local VM has Xcode. Rhythm per change: Claude commits, then
-hands Kevin a clean command block (no comments in blocks) — typically
-`./scripts/build-core.sh && xcodegen generate` then a build — and Kevin pastes
-back errors or screenshots. Phase gates that need a physical device (Face ID,
-file-provider matrix, App Store steps) are explicitly Kevin-driven checklists.
-Git identity is repo-local `norsehorse-dev` from the first commit; no AI
-attribution anywhere; nothing is pushed until Kevin says where and when.
+All project state lives in the repo — `project.yml`, scripts, docs — so any
+machine with Xcode reproduces a build from a clean checkout. Rhythm per
+change: commit, then `./scripts/build-core.sh && xcodegen generate` and a
+build; real build output drives the next change, never guesses. Phase gates
+that need a physical device (Face ID, file-provider matrix, App Store steps)
+are explicit on-device checklists. Git identity is repo-local
+`norsehorse-dev` from the first commit; nothing is pushed until an explicit
+go-ahead on identity and visibility.
 
 ## 11. Open questions (tracked, none blocking P0)
 
@@ -324,5 +323,5 @@ Whether CI regenerates fixtures or the corpus stays a local artifact (P1).
 Whether the copy-in fallback ships in v1 or waits for evidence a provider
 users care about needs it (P2). Intel-simulator slice (only if needed).
 App name on the store ("VaultPony" availability) and whether the iOS app id
-is `dev.norsehorse.vaultpony` matching Android's package (P7 — Kevin's call
-with his developer account in front of him).
+is `dev.norsehorse.vaultpony` matching Android's package (P7 — a
+developer-account decision).

@@ -1,1 +1,1 @@
-cifrado,bóveda,veracrypt,privacidad,seguridad,archivos,offline,contenedor,segura
+cifrado,veracrypt,privacidad,seguridad,archivos,contenedor,fotos,oculto,secreto,aes,seguro

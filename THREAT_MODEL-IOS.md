@@ -27,8 +27,8 @@ rather than silently still copying.
 
 Reviewed: P2 (copy-in/write-back landed), re-confirmed P7 — code matches
 the plan; device-matrix testing (On My iPhone / iCloud Drive / third-party
-provider) is Kevin's on-device checklist item, not something verified from
-this session.
+provider) is an on-device checklist item, not something verifiable in code
+review.
 
 ## 2. Secrets in Swift memory
 
@@ -76,8 +76,8 @@ kind is treated as "no usable credential" rather than trying to distinguish
 causes, matching the core's own coarse-error posture.
 
 Reviewed: P5 (implemented and code-reviewed), re-confirmed P7. On-device
-verification (Face ID round-trip, re-enrollment invalidation) is Kevin's
-checklist item.
+verification (Face ID round-trip, re-enrollment invalidation) is an
+on-device checklist item.
 
 ## 4. At-rest app data (Recents, prefs, exports, copy-in fallback)
 
@@ -131,9 +131,8 @@ builds simple; corrected to `true` in P7 — the app performs real symmetric
 encryption of user file content (AES and friends, via the core), which does
 not qualify for Apple's built-in exemptions (those cover things like
 HTTPS-only or auth-only use of encryption). With the key set to `true`,
-Kevin completes the annual self-classification report / French declaration
-process through App Store Connect at each submission — that account-bound
-step can't be done from this session. The IDRIX/VeraCrypt trademark notice
+The annual self-classification report / French declaration is completed
+through App Store Connect at each submission — an account-bound step. The IDRIX/VeraCrypt trademark notice
 already lives in `NOTICE`/`README.md`/`LICENSE` and is repeated in the P7
 App Store description copy. Store listing and review-notes framing pitch
 VaultPony as a transparent, open-source container utility (source available,

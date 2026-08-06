@@ -1,1 +1,1 @@
-chiffrement,coffre,veracrypt,confidentialité,sécurité,fichiers,hors ligne,conteneur
+chiffrement,veracrypt,confidentialité,sécurité,fichiers,conteneur,photos,caché,secret,aes,privé

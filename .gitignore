@@ -19,8 +19,9 @@ fixtures/
 # fastlane
 fastlane/report.xml
 fastlane/Preview.html
-fastlane/screenshots/**/*.png
+fastlane/screenshots/
 fastlane/test_output
+fastlane/metadata/review_information/
 fastlane/derivedData/
 *.ipa
 *.dSYM.zip

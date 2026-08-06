@@ -42,6 +42,7 @@ struct UnlockView: View {
             Section {
                 SecureField("Password", text: $passphrase)
                     .accessibilityIdentifier("passwordField")
+                    .keyboardType(.asciiCapable)
                 TextField("PIM (0 = default)", text: $pimText)
                     .keyboardType(.numberPad)
                 if isBiometricAvailable && !isBiometricEnrolled {
@@ -66,6 +67,7 @@ struct UnlockView: View {
                 Toggle("Outer volume, protect hidden", isOn: $useOuterProtected)
                 if useOuterProtected {
                     SecureField("Hidden volume password", text: $hiddenPassphrase)
+                        .keyboardType(.asciiCapable)
                 }
             } footer: {
                 Text("Unlocks the outer volume read-write while refusing any write that would land in the hidden region.")

@@ -85,6 +85,20 @@ final class AppPrefs {
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         fileURL = dir.appendingPathComponent("prefs.json")
         excludeFromBackup(dir)
+        #if DEBUG
+        // fastlane's `snapshot` (and any other UI-test run) reuses the same
+        // simulator app install across every device/language combination
+        // (reinstall_app/erase_simulator are both off in the Snapfile, since
+        // wiping the whole simulator for every combo is slow). Without this,
+        // onboardingDone from the FIRST run would stay persisted forever,
+        // so every later combination -- and every later manual test run on
+        // that simulator -- would skip straight to Home and never show
+        // onboarding again. SnapshotTests passes `-resetOnboarding` to force
+        // a clean slate on every launch it drives.
+        if ProcessInfo.processInfo.arguments.contains("-resetOnboarding") {
+            try? FileManager.default.removeItem(at: fileURL)
+        }
+        #endif
         load()
         LanguageOverride.update(languageCode)
     }

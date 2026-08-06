@@ -35,6 +35,7 @@ struct ChangePasswordView: View {
         Form {
             Section("Current Password") {
                 SecureField("Current password", text: $oldPassphrase)
+                    .keyboardType(.asciiCapable)
                 TextField("Current PIM (0 = default)", text: $oldPimText)
                     .keyboardType(.numberPad)
                 keyfileRow(label: "Current keyfiles", count: oldKeyfileCount) { showOldKeyfilePicker = true }
@@ -42,7 +43,9 @@ struct ChangePasswordView: View {
 
             Section {
                 SecureField("New password", text: $newPassphrase)
+                    .keyboardType(.asciiCapable)
                 SecureField("Confirm new password", text: $confirmNewPassphrase)
+                    .keyboardType(.asciiCapable)
                 TextField("New PIM (0 = default)", text: $newPimText)
                     .keyboardType(.numberPad)
                 keyfileRow(label: "New keyfiles", count: newKeyfileCount) { showNewKeyfilePicker = true }

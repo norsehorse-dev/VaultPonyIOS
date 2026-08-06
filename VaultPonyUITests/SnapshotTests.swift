@@ -26,7 +26,12 @@ final class SnapshotTests: XCTestCase {
     func testCaptureScreenshots() throws {
         let app = XCUIApplication()
         setupSnapshot(app)
-        app.launchArguments += ["-seedDemoVault"]
+        // -resetOnboarding clears any persisted onboardingDone from a
+        // previous run on this same simulator install (fastlane snapshot
+        // doesn't reinstall/erase between device/language combos), so the
+        // onboarding carousel -- and its Skip button below -- reliably
+        // shows up every single time.
+        app.launchArguments += ["-seedDemoVault", "-resetOnboarding"]
         app.launch()
 
         // Every fresh install lands on the onboarding carousel (P7 parity

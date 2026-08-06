@@ -92,7 +92,9 @@ struct CreateContainerView: View {
 
             Section("Password") {
                 SecureField("Password", text: $passphrase)
+                    .keyboardType(.asciiCapable)
                 SecureField("Confirm password", text: $confirmPassphrase)
+                    .keyboardType(.asciiCapable)
                 TextField("PIM (0 = default)", text: $pimText)
                     .keyboardType(.numberPad)
             }
@@ -131,7 +133,9 @@ struct CreateContainerView: View {
             if isHiddenVolume {
                 Section("Hidden Volume Password") {
                     SecureField("Hidden password", text: $hiddenPassphrase)
+                        .keyboardType(.asciiCapable)
                     SecureField("Confirm hidden password", text: $confirmHiddenPassphrase)
+                        .keyboardType(.asciiCapable)
                 }
                 Section {
                     HStack {

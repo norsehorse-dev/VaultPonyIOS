@@ -1,16 +1,41 @@
 import Foundation
+import os
+
+/// Argon2id memory check before an unlock, in MiB.
+struct MemoryCheck {
+    let neededMib: Int
+    let availableMib: Int
+
+    /// Leaves headroom for the app itself and the rest of the unlock.
+    var enough: Bool { availableMib >= neededMib + 64 }
+}
 
 enum Vault {
-    static func unlock(fd: Int32, passphrase: String, pim: UInt32, keyfiles: [Data], progress: UnlockProgressListener?) async throws -> VaultSession {
+    /// `kdf` narrows which key derivations the search tries (Argon2id
+    /// support, VeraCrypt 1.26.29+): `.auto` matches VeraCrypt. `cancel`
+    /// stops the search before its next derivation when fired from any
+    /// thread; the call then throws `VaultError.Cancelled`.
+    static func unlock(fd: Int32, passphrase: String, pim: UInt32, keyfiles: [Data], kdf: KdfFilter = .auto, cancel: UnlockCancel? = nil, progress: UnlockProgressListener?) async throws -> VaultSession {
         try await Task.detached(priority: .userInitiated) {
-            try VaultSession.unlockFd(fd: fd, passphrase: passphrase, pim: pim, keyfiles: keyfiles, listener: progress)
+            try VaultSession.unlockFd(fd: fd, passphrase: passphrase, pim: pim, keyfiles: keyfiles, kdf: kdf, cancel: cancel, listener: progress)
         }.value
     }
 
-    static func unlockOuterProtected(fd: Int32, outerPassphrase: String, hiddenPassphrase: String, pim: UInt32, progress: UnlockProgressListener?) async throws -> VaultSession {
+    static func unlockOuterProtected(fd: Int32, outerPassphrase: String, hiddenPassphrase: String, pim: UInt32, kdf: KdfFilter = .auto, cancel: UnlockCancel? = nil, progress: UnlockProgressListener?) async throws -> VaultSession {
         try await Task.detached(priority: .userInitiated) {
-            try VaultSession.unlockOuterProtectedFd(fd: fd, outerPassphrase: outerPassphrase, hiddenPassphrase: hiddenPassphrase, pim: pim, listener: progress)
+            try VaultSession.unlockOuterProtectedFd(fd: fd, outerPassphrase: outerPassphrase, hiddenPassphrase: hiddenPassphrase, pim: pim, kdf: kdf, cancel: cancel, listener: progress)
         }.value
+    }
+
+    /// What one Argon2id derivation at `pim` needs (0 = the default,
+    /// 416 MiB) against what this process can still allocate before the
+    /// system terminates it, both in MiB. `os_proc_available_memory()` is
+    /// the per-app jetsam headroom, which is the figure that matters here.
+    static func argon2MemoryCheck(pim: UInt32) -> MemoryCheck {
+        MemoryCheck(
+            neededMib: Int(argon2MemoryMib(pim: pim)),
+            availableMib: Int(os_proc_available_memory() / (1024 * 1024))
+        )
     }
 
     static func facts(_ session: VaultSession) async throws -> VolumeFacts {
@@ -96,9 +121,13 @@ enum Vault {
     /// the data area is untouched. `fd` must be opened read-write. The
     /// old credentials are verified before anything is written — a wrong
     /// old password changes nothing.
-    static func changeContainerPassword(fd: Int32, oldPassphrase: String, oldPim: UInt32, oldKeyfiles: [Data], newPassphrase: String, newPim: UInt32, newKeyfiles: [Data]) async throws {
+    ///
+    /// `newPrf` moves the header to another KDF/hash (a core registry
+    /// name such as "Argon2id"); nil keeps the current one. `newPim` is
+    /// read under the KDF the header ends up with, so 0 means its default.
+    static func changeContainerPassword(fd: Int32, oldPassphrase: String, oldPim: UInt32, oldKeyfiles: [Data], newPassphrase: String, newPim: UInt32, newKeyfiles: [Data], newPrf: String? = nil) async throws {
         try await Task.detached(priority: .userInitiated) {
-            try changePassword(fd: fd, oldPassphrase: oldPassphrase, oldPim: oldPim, oldKeyfiles: oldKeyfiles, newPassphrase: newPassphrase, newPim: newPim, newKeyfiles: newKeyfiles)
+            try changePassword(fd: fd, oldPassphrase: oldPassphrase, oldPim: oldPim, oldKeyfiles: oldKeyfiles, newPassphrase: newPassphrase, newPim: newPim, newKeyfiles: newKeyfiles, newPrf: newPrf, kdf: .auto, cancel: nil)
         }.value
     }
 
@@ -117,7 +146,7 @@ enum Vault {
     /// the container untouched.
     static func restoreHeaderFromBackupFile(fd: Int32, backup: Data, passphrase: String, pim: UInt32, keyfiles: [Data]) async throws {
         try await Task.detached(priority: .userInitiated) {
-            try restoreHeaderFromFile(fd: fd, backup: backup, passphrase: passphrase, pim: pim, keyfiles: keyfiles)
+            try restoreHeaderFromFile(fd: fd, backup: backup, passphrase: passphrase, pim: pim, keyfiles: keyfiles, kdf: .auto, cancel: nil)
         }.value
     }
 
@@ -126,7 +155,7 @@ enum Vault {
     /// verify-before-write guarantee as the file-based restore.
     static func restoreHeaderFromEmbeddedBackup(fd: Int32, passphrase: String, pim: UInt32, keyfiles: [Data]) async throws {
         try await Task.detached(priority: .userInitiated) {
-            try restoreHeaderFromEmbedded(fd: fd, passphrase: passphrase, pim: pim, keyfiles: keyfiles)
+            try restoreHeaderFromEmbedded(fd: fd, passphrase: passphrase, pim: pim, keyfiles: keyfiles, kdf: .auto, cancel: nil)
         }.value
     }
 

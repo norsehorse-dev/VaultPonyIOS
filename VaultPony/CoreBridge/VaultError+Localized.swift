@@ -31,6 +31,12 @@ extension VaultError {
             return String(localized: "I/O error: \(detail)", locale: locale)
         case .Internal:
             return String(localized: "Something went wrong internally. Try again.", locale: locale)
+        case .KdfOutOfMemory(let neededMib):
+            return String(localized: "Not enough free memory for Argon2id (\(Int(neededMib)) MB needed). Close other apps and try again, or choose PBKDF2 if this vault doesn't use Argon2id.", locale: locale)
+        case .Cancelled:
+            return String(localized: "Unlock cancelled.", locale: locale)
+        case .PasswordTooShortForPim(let minLen, let defaultPim):
+            return String(localized: "A PIM below \(Int(defaultPim)) needs a password of at least \(Int(minLen)) characters.", locale: locale)
         }
     }
 }

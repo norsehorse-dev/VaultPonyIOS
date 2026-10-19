@@ -1,1 +1,1 @@
-Gratuito e de código aberto. Crie e abra cofres criptografados compatíveis com VeraCrypt — sem conta, sem nuvem, sem rastreamento.
+Gratuito e de código aberto. Crie e abra cofres criptografados compatíveis com VeraCrypt, agora com Argon2id. Sem conta, sem nuvem, sem rastreamento.

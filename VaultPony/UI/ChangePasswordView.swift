@@ -23,6 +23,11 @@ struct ChangePasswordView: View {
     @State private var newPassphrase = ""
     @State private var confirmNewPassphrase = ""
     @State private var newPimText = "0"
+    // Target KDF: nil keeps the current one, otherwise a core registry
+    // name. Switching resets the new PIM so the new KDF's own default
+    // applies, as VeraCrypt does.
+    @State private var newKdf: String? = nil
+    private let kdfOptions = Vault.hashOptions()
     @State private var newKeyfiles: [Data] = []
     @State private var newKeyfileCount = 0
     @State private var showNewKeyfilePicker = false
@@ -34,18 +39,15 @@ struct ChangePasswordView: View {
     var body: some View {
         Form {
             Section("Current Password") {
-                SecureField("Current password", text: $oldPassphrase)
-                    .keyboardType(.asciiCapable)
+                RevealableSecureField(title: "Current password", text: $oldPassphrase)
                 TextField("Current PIM (0 = default)", text: $oldPimText)
                     .keyboardType(.numberPad)
                 keyfileRow(label: "Current keyfiles", count: oldKeyfileCount) { showOldKeyfilePicker = true }
             }
 
             Section {
-                SecureField("New password", text: $newPassphrase)
-                    .keyboardType(.asciiCapable)
-                SecureField("Confirm new password", text: $confirmNewPassphrase)
-                    .keyboardType(.asciiCapable)
+                RevealableSecureField(title: "New password", text: $newPassphrase)
+                RevealableSecureField(title: "Confirm new password", text: $confirmNewPassphrase)
                 TextField("New PIM (0 = default)", text: $newPimText)
                     .keyboardType(.numberPad)
                 keyfileRow(label: "New keyfiles", count: newKeyfileCount) { showNewKeyfilePicker = true }
@@ -53,6 +55,18 @@ struct ChangePasswordView: View {
                 Text("New Password")
             } footer: {
                 Text("The data inside the vault is untouched — only the password that unlocks it changes.")
+            }
+
+            Section {
+                Picker("Key derivation", selection: $newKdf) {
+                    Text("Keep current").tag(String?.none)
+                    ForEach(kdfOptions, id: \.self) { Text($0).tag(String?.some($0)) }
+                }
+                .onChange(of: newKdf) { _, _ in newPimText = "0" }
+            } footer: {
+                if newKdf != nil {
+                    Text("Only the header is re-encrypted with the new KDF. Leave the new PIM at 0 to use its default.")
+                }
             }
 
             if let errorMessage {
@@ -114,7 +128,8 @@ struct ChangePasswordView: View {
                 oldKeyfiles: oldKeyfiles,
                 newPassphrase: newPassphrase,
                 newPim: newPim,
-                newKeyfiles: newKeyfiles
+                newKeyfiles: newKeyfiles,
+                newPrf: newKdf
             )
             succeeded = true
             oldPassphrase = ""

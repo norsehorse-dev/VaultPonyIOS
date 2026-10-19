@@ -1,1 +1,4 @@
-Erste Version. Erstelle und öffne VeraCrypt-kompatible verschlüsselte Tresore auf iPhone und iPad, einschließlich versteckter Datenträger, Header-Sicherung und -Wiederherstellung, Face-ID-Entsperrung, spurenlosem Modus und vollständigem iPad-Split-View. In sechs Sprachen verfügbar.
+Argon2id-Unterstützung. Tresore, die mit VeraCrypt 1.26.29 oder neuer mit Argon2id erstellt wurden, lassen sich jetzt öffnen, neue Tresore können Argon2id nutzen, und beim Ändern des Passworts lässt sich ein Tresor auf Argon2id umstellen oder zurück.
+Beim Entsperren gibt es eine Auswahl der Schlüsselableitung (Automatisch, PBKDF2, Argon2id), eine Abbrechen-Taste und eine Speicherprüfung vor Argon2id. Die Face-ID-Entsperrung merkt sich, welche ein Tresor nutzt.
+Eine PIM unter dem Standardwert erfordert jetzt ein Passwort mit mindestens 20 Zeichen, wie in VeraCrypt.
+Jedes Passwortfeld hat eine Taste zum Anzeigen und Verbergen.

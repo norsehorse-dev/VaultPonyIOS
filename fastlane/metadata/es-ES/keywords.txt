@@ -1,1 +1,1 @@
-cifrado,veracrypt,privacidad,seguridad,archivos,contenedor,fotos,oculto,secreto,aes,seguro
+cifrado,privacidad,seguridad,archivos,contenedor,fotos,oculto,secreto,aes,seguro

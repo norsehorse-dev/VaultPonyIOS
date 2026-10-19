@@ -1,1 +1,1 @@
-Gratuit et open source. Créez et ouvrez des coffres chiffrés compatibles VeraCrypt — sans compte, sans cloud, sans pistage.
+Gratuit et open source. Créez et ouvrez des coffres chiffrés compatibles VeraCrypt, désormais avec Argon2id. Sans compte, sans cloud, sans pistage.

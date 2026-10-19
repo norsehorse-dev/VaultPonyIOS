@@ -40,11 +40,20 @@ enum BiometricUnlock {
         return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
     }
 
-    /// Opts a vault in: stores its passphrase behind biometry. Overwrites
-    /// any existing stored credential for this vault.
-    static func enroll(vaultId: UUID, passphrase: String) throws {
+    /// What a biometric unlock hands back: the passphrase, plus which KDF
+    /// family opened the vault when it was enrolled, so the unlock can
+    /// skip the other family's work (for Argon2id, the whole PBKDF2 sweep).
+    struct StoredCredential: Sendable {
+        let passphrase: String
+        let kdf: KdfFilter
+    }
+
+    /// Opts a vault in: stores its passphrase (and the KDF family that
+    /// opened it) behind biometry. Overwrites any existing stored
+    /// credential for this vault.
+    static func enroll(vaultId: UUID, passphrase: String, kdf: KdfFilter = .auto) throws {
         guard isAvailable() else { throw BiometricError.unavailable }
-        guard let data = passphrase.data(using: .utf8) else { throw BiometricError.storeFailed(errSecParam) }
+        guard let data = encode(passphrase: passphrase, kdf: kdf).data(using: .utf8) else { throw BiometricError.storeFailed(errSecParam) }
 
         remove(vaultId: vaultId)
 
@@ -75,7 +84,7 @@ enum BiometricUnlock {
     /// Throws rather than returning a stale/invalidated credential if
     /// nothing is enrolled, the OS invalidated the item (biometry
     /// re-enrollment), or the user cancels/fails the prompt.
-    static func retrieve(vaultId: UUID, reason: String) async throws -> String {
+    static func retrieve(vaultId: UUID, reason: String) async throws -> StoredCredential {
         let context = LAContext()
         context.localizedReason = reason
 
@@ -90,11 +99,45 @@ enum BiometricUnlock {
         return try await Task.detached {
             var result: AnyObject?
             let status = SecItemCopyMatching(query as CFDictionary, &result)
-            guard status == errSecSuccess, let data = result as? Data, let passphrase = String(data: data, encoding: .utf8) else {
+            guard status == errSecSuccess, let data = result as? Data, let stored = String(data: data, encoding: .utf8) else {
                 throw BiometricError.notEnrolled
             }
-            return passphrase
+            return decode(stored)
         }.value
+    }
+
+    // Stored format since 1.1.0: "v2\n<kdf>\n<passphrase>", passphrase last
+    // so any character in it survives. Items enrolled before 1.1.0 hold the
+    // bare passphrase (a single line from a SecureField, so never "v2\n…")
+    // and unlock with .auto.
+    private static let formatV2 = "v2"
+
+    private static func encode(passphrase: String, kdf: KdfFilter) -> String {
+        "\(formatV2)\n\(kdfName(kdf))\n\(passphrase)"
+    }
+
+    private static func decode(_ stored: String) -> StoredCredential {
+        let parts = stored.split(separator: "\n", maxSplits: 2, omittingEmptySubsequences: false)
+        guard parts.count == 3, parts[0] == formatV2 else {
+            return StoredCredential(passphrase: stored, kdf: .auto)
+        }
+        return StoredCredential(passphrase: String(parts[2]), kdf: kdf(named: String(parts[1])))
+    }
+
+    private static func kdfName(_ kdf: KdfFilter) -> String {
+        switch kdf {
+        case .auto: return "auto"
+        case .pbkdf2Only: return "pbkdf2"
+        case .argon2idOnly: return "argon2id"
+        }
+    }
+
+    private static func kdf(named name: String) -> KdfFilter {
+        switch name {
+        case "pbkdf2": return .pbkdf2Only
+        case "argon2id": return .argon2idOnly
+        default: return .auto
+        }
     }
 
     /// Whether a credential is currently stored for this vault, without

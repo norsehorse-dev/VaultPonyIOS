@@ -14,6 +14,33 @@ def asc_api_key
   )
 end
 
+# Upload only the listed metadata files, every locale, to the App Store
+# version already created in App Store Connect. deliver only updates
+# fields whose files exist, so stage a copy of the metadata holding just
+# these files per locale. No binary, no screenshots.
+def upload_only(version, files)
+  asc_api_key
+  staging = File.expand_path("../build/partial_metadata", __dir__)
+  FileUtils.rm_rf(staging)
+  Dir.glob(File.join(__dir__, "metadata", "*")).select { |d| File.directory?(d) }.each do |dir|
+    locale = File.basename(dir)
+    next if locale == "review_information"
+    present = files.select { |f| File.exist?(File.join(dir, f)) }
+    next if present.empty?
+    FileUtils.mkdir_p(File.join(staging, locale))
+    present.each { |f| FileUtils.cp(File.join(dir, f), File.join(staging, locale, f)) }
+  end
+  deliver(
+    app_version: version,
+    metadata_path: staging,
+    skip_binary_upload: true,
+    skip_screenshots: true,
+    skip_app_version_update: true,
+    force: true,
+    precheck_include_in_app_purchases: false
+  )
+end
+
 platform :ios do
   desc "Generate the Xcode project (xcodegen) -- run whenever project.yml or a source file list changes"
   lane :generate do
@@ -89,5 +116,17 @@ platform :ios do
       skip_metadata: true,
       force: true
     )
+  end
+
+  desc "Upload only What's New and the promotional text, every locale. Usage: fastlane whats_new version:1.1.0"
+  lane :whats_new do |options|
+    version = options[:version] || UI.user_error!("pass version:, e.g. fastlane whats_new version:1.1.0")
+    upload_only(version, %w[release_notes.txt promotional_text.txt])
+  end
+
+  desc "Upload only the support, marketing and privacy policy URLs, every locale. Usage: fastlane urls version:1.1.0"
+  lane :urls do |options|
+    version = options[:version] || UI.user_error!("pass version:, e.g. fastlane urls version:1.1.0")
+    upload_only(version, %w[support_url.txt marketing_url.txt privacy_url.txt])
   end
 end

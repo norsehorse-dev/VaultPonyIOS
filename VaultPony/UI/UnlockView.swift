@@ -26,6 +26,12 @@ struct UnlockView: View {
     @State private var errorMessage: String?
     @State private var unlockedFacts: VolumeFacts?
 
+    // Argon2id support (VeraCrypt 1.26.29+). `.auto` matches VeraCrypt;
+    // narrowing skips the other KDF family's cost.
+    @State private var kdf: KdfFilter = .auto
+    @State private var cancelHandle: UnlockCancel?
+    @State private var memoryWarning: MemoryCheck?
+
     var body: some View {
         Form {
             if isBiometricAvailable && isBiometricEnrolled {
@@ -40,14 +46,25 @@ struct UnlockView: View {
             }
 
             Section {
-                SecureField("Password", text: $passphrase)
-                    .accessibilityIdentifier("passwordField")
-                    .keyboardType(.asciiCapable)
+                RevealableSecureField(title: "Password", text: $passphrase, accessibilityIdentifier: "passwordField")
                 TextField("PIM (0 = default)", text: $pimText)
                     .keyboardType(.numberPad)
                 if isBiometricAvailable && !isBiometricEnrolled {
                     Toggle("Enable Face ID for this vault", isOn: $enableBiometric)
                 }
+            }
+
+            Section {
+                Picker("Key derivation", selection: $kdf) {
+                    Text("Auto").tag(KdfFilter.auto)
+                    Text("PBKDF2").tag(KdfFilter.pbkdf2Only)
+                    Text("Argon2id").tag(KdfFilter.argon2idOnly)
+                }
+                .pickerStyle(.segmented)
+            } header: {
+                Text("Key derivation")
+            } footer: {
+                Text("Auto tries every KDF, like VeraCrypt. If you know which one your vault uses, picking it makes unlocking faster.")
             }
 
             Section {
@@ -66,8 +83,7 @@ struct UnlockView: View {
             Section {
                 Toggle("Outer volume, protect hidden", isOn: $useOuterProtected)
                 if useOuterProtected {
-                    SecureField("Hidden volume password", text: $hiddenPassphrase)
-                        .keyboardType(.asciiCapable)
+                    RevealableSecureField(title: "Hidden volume password", text: $hiddenPassphrase)
                 }
             } footer: {
                 Text("Unlocks the outer volume read-write while refusing any write that would land in the hidden region.")
@@ -84,6 +100,22 @@ struct UnlockView: View {
                 }
             }
 
+            if let warning = memoryWarning {
+                Section {
+                    Text("Argon2id at this PIM needs about \(warning.neededMib) MB of memory, and VaultPony can use about \(warning.availableMib) MB right now. Unlocking may fail.")
+                        .foregroundStyle(.red)
+                    Button("Try anyway") {
+                        memoryWarning = nil
+                        Task { await unlock(kdf: kdf) }
+                    }
+                    Button("Skip Argon2id") {
+                        memoryWarning = nil
+                        kdf = .pbkdf2Only
+                        Task { await unlock(kdf: .pbkdf2Only) }
+                    }
+                }
+            }
+
             if let errorMessage {
                 Section {
                     Text(errorMessage)
@@ -92,13 +124,23 @@ struct UnlockView: View {
             }
         }
         .navigationTitle(vault.displayName)
+        // Leaving mid-unlock would abandon a search whose session could
+        // still open behind the user; Cancel below stops it instead.
+        .navigationBarBackButtonHidden(isUnlocking)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button("Unlock") {
-                    Task { await unlock() }
+                if isUnlocking {
+                    Button("Cancel") {
+                        cancelHandle?.cancel()
+                    }
+                    .disabled(cancelHandle == nil)
+                } else {
+                    Button("Unlock") {
+                        startUnlock()
+                    }
+                    .disabled(passphrase.isEmpty)
+                    .accessibilityIdentifier("unlockButton")
                 }
-                .disabled(passphrase.isEmpty || isUnlocking)
-                .accessibilityIdentifier("unlockButton")
             }
         }
         .fileImporter(isPresented: $showKeyfilePicker, allowedContentTypes: [.item], allowsMultipleSelection: true) { result in
@@ -117,19 +159,41 @@ struct UnlockView: View {
 
     private func unlockWithBiometric() async {
         errorMessage = nil
+        let credential: BiometricUnlock.StoredCredential
         do {
-            passphrase = try await BiometricUnlock.retrieve(vaultId: vault.id, reason: String(localized: "Unlock \(vault.displayName)"))
+            credential = try await BiometricUnlock.retrieve(vaultId: vault.id, reason: String(localized: "Unlock \(vault.displayName)"))
         } catch {
             errorMessage = "Face ID unlock isn't available for this vault right now. Enter your password instead."
             return
         }
-        await unlock(viaBiometric: true)
+        passphrase = credential.passphrase
+        await unlock(viaBiometric: true, kdf: credential.kdf)
     }
 
-    private func unlock(viaBiometric: Bool = false) async {
+    /// The Unlock button: check memory first when Argon2id may run, so a
+    /// phone that can't spare it gets a choice instead of being killed.
+    private func startUnlock() {
+        errorMessage = nil
+        memoryWarning = nil
+        if kdf != .pbkdf2Only {
+            let check = Vault.argon2MemoryCheck(pim: UInt32(pimText) ?? 0)
+            if !check.enough {
+                memoryWarning = check
+                return
+            }
+        }
+        Task { await unlock(kdf: kdf) }
+    }
+
+    private func unlock(viaBiometric: Bool = false, kdf: KdfFilter) async {
         errorMessage = nil
         isUnlocking = true
-        defer { isUnlocking = false }
+        let handle = UnlockCancel()
+        cancelHandle = handle
+        defer {
+            isUnlocking = false
+            cancelHandle = nil
+        }
 
         let pim = UInt32(pimText) ?? 0
 
@@ -164,6 +228,8 @@ struct UnlockView: View {
                     outerPassphrase: passphrase,
                     hiddenPassphrase: hiddenPassphrase,
                     pim: pim,
+                    kdf: kdf,
+                    cancel: handle,
                     progress: progress
                 )
             } else {
@@ -172,6 +238,8 @@ struct UnlockView: View {
                     passphrase: passphrase,
                     pim: pim,
                     keyfiles: keyfiles,
+                    kdf: kdf,
+                    cancel: handle,
                     progress: progress
                 )
             }
@@ -181,7 +249,10 @@ struct UnlockView: View {
             vaultStore.touch(vault.id, filesystem: facts.filesystem)
 
             if enableBiometric, !isBiometricEnrolled {
-                try? BiometricUnlock.enroll(vaultId: vault.id, passphrase: passphrase)
+                // Remember which KDF family opened it, so a Face ID unlock
+                // goes straight there next time.
+                let found: KdfFilter = facts.prf == "Argon2id" ? .argon2idOnly : .pbkdf2Only
+                try? BiometricUnlock.enroll(vaultId: vault.id, passphrase: passphrase, kdf: found)
             }
 
             passphrase = ""
@@ -190,6 +261,9 @@ struct UnlockView: View {
             keyfileCount = 0
 
             unlockedFacts = facts
+        } catch VaultError.Cancelled {
+            // The user's own action; nothing to report.
+            errorMessage = nil
         } catch let error as VaultError {
             if viaBiometric, case .NotFoundOrWrongPassword = error {
                 // The stored credential no longer matches — most likely

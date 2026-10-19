@@ -43,8 +43,7 @@ struct RecoveryView: View {
             }
 
             Section {
-                SecureField("Password", text: $passphrase)
-                    .keyboardType(.asciiCapable)
+                RevealableSecureField(title: "Password", text: $passphrase)
                 TextField("PIM (0 = default)", text: $pimText)
                     .keyboardType(.numberPad)
                 Button {

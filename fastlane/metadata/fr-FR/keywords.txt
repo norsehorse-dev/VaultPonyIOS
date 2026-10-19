@@ -1,1 +1,1 @@
-chiffrement,veracrypt,confidentialité,sécurité,fichiers,conteneur,photos,caché,secret,aes,privé
+chiffrement,confidentialité,sécurité,fichiers,conteneur,photos,caché,secret,aes,privé

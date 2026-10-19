@@ -47,7 +47,7 @@ final class FixtureTests: XCTestCase {
         guard let fd = fixtureFd("aes-sha_512-fat-512-pim0-plain.vc") else {
             throw XCTSkip("fixture not found in test bundle — run ./scripts/fetch-fixtures.sh then xcodegen generate")
         }
-        let session = try VaultSession.unlockFd(fd: fd, passphrase: "vaultpony-fixture", pim: 0, keyfiles: [], listener: nil)
+        let session = try VaultSession.unlockFd(fd: fd, passphrase: "vaultpony-fixture", pim: 0, keyfiles: [], kdf: .auto, cancel: nil, listener: nil)
 
         let facts = try session.facts()
         XCTAssertEqual(facts.scheme, "AES")
@@ -80,7 +80,7 @@ final class FixtureTests: XCTestCase {
             throw XCTSkip("fixture not found in test bundle — run ./scripts/fetch-fixtures.sh then xcodegen generate")
         }
         do {
-            _ = try VaultSession.unlockFd(fd: fd, passphrase: "nope", pim: 0, keyfiles: [], listener: nil)
+            _ = try VaultSession.unlockFd(fd: fd, passphrase: "nope", pim: 0, keyfiles: [], kdf: .auto, cancel: nil, listener: nil)
             XCTFail("wrong password should not unlock")
         } catch VaultError.NotFoundOrWrongPassword {
             // expected
@@ -97,7 +97,7 @@ final class FixtureTests: XCTestCase {
         }
         defer { try? FileManager.default.removeItem(atPath: path) }
 
-        let session = try VaultSession.unlockFd(fd: fd, passphrase: "vaultpony-fixture", pim: 0, keyfiles: [], listener: nil)
+        let session = try VaultSession.unlockFd(fd: fd, passphrase: "vaultpony-fixture", pim: 0, keyfiles: [], kdf: .auto, cancel: nil, listener: nil)
         try session.create(path: "/roundtrip.txt")
         let payload = "VaultPony P2 round-trip\n".data(using: .utf8)!
         _ = try session.writeAt(path: "/roundtrip.txt", offset: 0, data: payload)
@@ -108,7 +108,7 @@ final class FixtureTests: XCTestCase {
         // held in the session we just wrote through.
         let reopenFd = open(path, O_RDWR)
         XCTAssertGreaterThanOrEqual(reopenFd, 0)
-        let reopened = try VaultSession.unlockFd(fd: reopenFd, passphrase: "vaultpony-fixture", pim: 0, keyfiles: [], listener: nil)
+        let reopened = try VaultSession.unlockFd(fd: reopenFd, passphrase: "vaultpony-fixture", pim: 0, keyfiles: [], kdf: .auto, cancel: nil, listener: nil)
 
         let names = try reopened.list(path: "/").map(\.name)
         XCTAssertTrue(names.contains("roundtrip.txt"))

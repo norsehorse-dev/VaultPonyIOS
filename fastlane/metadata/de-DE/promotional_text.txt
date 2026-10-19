@@ -1,1 +1,1 @@
-Kostenlos und quelloffen. Erstelle und öffne VeraCrypt-kompatible verschlüsselte Tresore — kein Konto, keine Cloud, kein Tracking.
+Kostenlos und quelloffen. Erstelle und öffne VeraCrypt-kompatible verschlüsselte Tresore, jetzt mit Argon2id. Kein Konto, keine Cloud, kein Tracking.

@@ -91,10 +91,8 @@ struct CreateContainerView: View {
             }
 
             Section("Password") {
-                SecureField("Password", text: $passphrase)
-                    .keyboardType(.asciiCapable)
-                SecureField("Confirm password", text: $confirmPassphrase)
-                    .keyboardType(.asciiCapable)
+                RevealableSecureField(title: "Password", text: $passphrase)
+                RevealableSecureField(title: "Confirm password", text: $confirmPassphrase)
                 TextField("PIM (0 = default)", text: $pimText)
                     .keyboardType(.numberPad)
             }
@@ -112,7 +110,7 @@ struct CreateContainerView: View {
                 }
             }
 
-            Section("Encryption") {
+            Section {
                 Picker("Scheme", selection: $scheme) {
                     ForEach(schemeOptions, id: \.self) { Text($0).tag($0) }
                 }
@@ -121,6 +119,12 @@ struct CreateContainerView: View {
                 }
                 Picker("Filesystem", selection: $filesystem) {
                     ForEach(filesystemOptions, id: \.self) { Text($0).tag($0) }
+                }
+            } header: {
+                Text("Encryption")
+            } footer: {
+                if prf == "Argon2id" {
+                    Text("Argon2id is memory-hard: at the default PIM, opening this vault needs about 416 MB of free memory and takes a few seconds. Desktop VeraCrypt opens it from version 1.26.29.")
                 }
             }
 
@@ -132,10 +136,8 @@ struct CreateContainerView: View {
 
             if isHiddenVolume {
                 Section("Hidden Volume Password") {
-                    SecureField("Hidden password", text: $hiddenPassphrase)
-                        .keyboardType(.asciiCapable)
-                    SecureField("Confirm hidden password", text: $confirmHiddenPassphrase)
-                        .keyboardType(.asciiCapable)
+                    RevealableSecureField(title: "Hidden password", text: $hiddenPassphrase)
+                    RevealableSecureField(title: "Confirm hidden password", text: $confirmHiddenPassphrase)
                 }
                 Section {
                     HStack {

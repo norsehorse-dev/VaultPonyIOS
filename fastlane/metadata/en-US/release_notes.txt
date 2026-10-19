@@ -1,1 +1,4 @@
-First release. Create and open VeraCrypt-compatible encrypted vaults on iPhone and iPad, including hidden volumes, header backup and recovery, Face ID unlock, no-trace mode, and a full iPad split-view layout. Localized in six languages.
+Argon2id support. Vaults created with Argon2id in VeraCrypt 1.26.29 or later now open, new vaults can use Argon2id, and a password change can move a vault to Argon2id or back.
+Unlocking has a key derivation choice (Auto, PBKDF2, Argon2id), a Cancel button, and a memory check before running Argon2id. Face ID unlock remembers which one a vault uses.
+A PIM below the default now needs a password of at least 20 characters, as in VeraCrypt.
+Every password field has a show/hide button.

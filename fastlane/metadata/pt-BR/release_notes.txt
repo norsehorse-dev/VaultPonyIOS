@@ -1,1 +1,4 @@
-Primeira versão. Crie e abra cofres criptografados compatíveis com VeraCrypt no iPhone e iPad, incluindo volumes ocultos, backup e recuperação do cabeçalho, desbloqueio por Face ID, modo sem rastro e tela dividida completa no iPad. Disponível em seis idiomas.
+Suporte a Argon2id. Cofres criados com Argon2id no VeraCrypt 1.26.29 ou posterior agora abrem, novos cofres podem usar Argon2id, e a troca de senha pode passar um cofre para Argon2id ou voltar.
+O desbloqueio tem uma escolha de derivação de chave (Automático, PBKDF2, Argon2id), um botão Cancelar e uma verificação de memória antes de rodar o Argon2id. O desbloqueio por Face ID lembra qual cada cofre usa.
+Um PIM abaixo do padrão agora exige uma senha de pelo menos 20 caracteres, como no VeraCrypt.
+Todo campo de senha tem um botão para mostrar ou ocultar.

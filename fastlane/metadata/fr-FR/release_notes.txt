@@ -1,1 +1,4 @@
-Première version. Créez et ouvrez des coffres chiffrés compatibles VeraCrypt sur iPhone et iPad, y compris les volumes cachés, la sauvegarde et restauration de l'en-tête, le déverrouillage par Face ID, le mode sans trace et la vue partagée complète sur iPad. Disponible en six langues.
+Prise en charge d’Argon2id. Les coffres créés avec Argon2id dans VeraCrypt 1.26.29 ou ultérieur s’ouvrent désormais, les nouveaux coffres peuvent utiliser Argon2id, et un changement de mot de passe peut faire passer un coffre à Argon2id ou revenir en arrière.
+Le déverrouillage propose un choix de dérivation de clé (Auto, PBKDF2, Argon2id), un bouton Annuler et une vérification de la mémoire avant d’exécuter Argon2id. Le déverrouillage par Face ID retient celle qu’utilise chaque coffre.
+Un PIM inférieur à la valeur par défaut exige désormais un mot de passe d’au moins 20 caractères, comme dans VeraCrypt.
+Chaque champ de mot de passe a un bouton pour l’afficher ou le masquer.

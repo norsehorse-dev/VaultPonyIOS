@@ -1,1 +1,4 @@
-Primera versión. Crea y abre bóvedas cifradas compatibles con VeraCrypt en iPhone y iPad, incluidos volúmenes ocultos, copia de seguridad y recuperación del encabezado, desbloqueo con Face ID, modo sin rastro y vista dividida completa en iPad. Disponible en seis idiomas.
+Compatibilidad con Argon2id. Ya se abren las bóvedas creadas con Argon2id en VeraCrypt 1.26.29 o posterior, las bóvedas nuevas pueden usar Argon2id y al cambiar la contraseña se puede pasar una bóveda a Argon2id o volver atrás.
+Al desbloquear hay una opción de derivación de clave (Automático, PBKDF2, Argon2id), un botón Cancelar y una comprobación de memoria antes de ejecutar Argon2id. El desbloqueo con Face ID recuerda cuál usa cada bóveda.
+Un PIM menor que el predeterminado ahora requiere una contraseña de al menos 20 caracteres, como en VeraCrypt.
+Cada campo de contraseña tiene un botón para mostrarla u ocultarla.

@@ -1,1 +1,1 @@
-Free and open source. Create and open VeraCrypt-compatible encrypted vaults — no account, no cloud, no tracking.
+Free and open source. Create and open VeraCrypt-compatible encrypted vaults, now with Argon2id. No account, no cloud, no tracking.

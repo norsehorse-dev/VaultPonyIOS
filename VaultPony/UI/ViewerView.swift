@@ -70,19 +70,18 @@ struct ViewerView: View {
         .navigationTitle(name)
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
-        .onAppear { sessionRegistry.markActivity() }
     }
 
     private func load() async {
         guard let session = sessionRegistry.session else {
-            errorMessage = "Vault is locked."
+            errorMessage = String(localized: "Vault is locked.", locale: LanguageOverride.locale)
             isLoading = false
             return
         }
         do {
             let stat = try await Vault.stat(session, path: path)
             guard stat.size <= Self.maxInlineBytes else {
-                errorMessage = "This file is too large to preview yet (\(ByteCountFormatter.string(fromByteCount: Int64(stat.size), countStyle: .file)))."
+                errorMessage = String(localized: "This file is too large to preview yet (\(ByteCountFormatter.string(fromByteCount: Int64(stat.size), countStyle: .file))).", locale: LanguageOverride.locale)
                 isLoading = false
                 return
             }

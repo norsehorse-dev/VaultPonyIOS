@@ -61,6 +61,20 @@ zeroization. Audited this session (P7):
 Reviewed: P1 (pattern established), P7 (full re-audit across every screen
 that touches a passphrase or keyfile; one gap found and fixed — see above).
 
+Auto-lock (2.0.0): the delay counts from when the app goes to the
+background or the screen turns off, and the deadline is checked again on
+return because a suspended app runs no timers. "Immediately" locks on the
+background transition itself. Any longer delay means the unlocked
+session, and so the volume's master key in the core, stays in process
+memory while VaultPony is in the background; the Settings footer says so.
+The default is "Immediately" and there is no "Never". The background time
+is recorded even with nothing unlocked, so an unlock that completes after
+the user has left still locks on schedule. A bulk import or export holds
+the lock off only until its current file is written and flushed, then
+lets it happen; if the copy runs out of background time mid-file, the
+vault locks at once. Imports write each file under a temporary
+".vaultpony-*.part" name and rename it into place when complete.
+
 ## 3. Biometric unlock and Keychain
 
 `Security/BiometricUnlock.swift`: per-vault passphrase (not a derived key —
@@ -94,6 +108,11 @@ soon as it's no longer needed (`BrowserView`'s `.onChange(of: showExportSheet)`,
 No decrypted content is ever written to disk outside these explicit,
 cleaned-up paths — the viewer holds content in memory only, streamed via
 `read_at`.
+
+Folder export (2.0.0) writes decrypted files into a folder the user picks
+in Files. That is the point of the action, so those files get no special
+protection or cleanup; in no-trace mode it asks first, like single-file
+export.
 
 Reviewed: P2 (write/export paths), P5 (no-trace mode, file-protection
 audit), re-confirmed P7.

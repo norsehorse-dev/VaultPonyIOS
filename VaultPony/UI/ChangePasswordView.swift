@@ -46,8 +46,8 @@ struct ChangePasswordView: View {
             }
 
             Section {
-                RevealableSecureField(title: "New password", text: $newPassphrase)
-                RevealableSecureField(title: "Confirm new password", text: $confirmNewPassphrase)
+                RevealableSecureField(title: "New password", text: $newPassphrase, contentType: .newPassword)
+                RevealableSecureField(title: "Confirm new password", text: $confirmNewPassphrase, contentType: .newPassword)
                 TextField("New PIM (0 = default)", text: $newPimText)
                     .keyboardType(.numberPad)
                 keyfileRow(label: "New keyfiles", count: newKeyfileCount) { showNewKeyfilePicker = true }
@@ -154,7 +154,7 @@ struct ChangePasswordView: View {
             HStack {
                 Text(LocalizedStringKey(label))
                 Spacer()
-                Text(count == 0 ? "None" : "\(count) selected")
+                Text(count == 0 ? LocalizedStringKey("None") : "\(count) selected")
                     .foregroundStyle(.secondary)
             }
         }

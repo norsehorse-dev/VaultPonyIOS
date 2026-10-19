@@ -10,12 +10,45 @@ struct FileTarget: Hashable {
     let name: String
 }
 
+/// What the screen's one file picker is open for. SwiftUI honors only one
+/// `.fileImporter` per view, so the mode switches its content types.
+private enum PickerMode {
+    case importFiles
+    case importFolder
+    case exportDestination
+}
+
+/// A bulk import between its walk and the start of the copy, while the
+/// pre-flight questions are open.
+private struct PendingImport {
+    let items: [TransferItem]
+    let sources: [URL]
+    let scopedURLs: [URL]
+    let destination: String
+    let maxFileBytes: UInt64?
+    let clusterBytes: UInt64
+    let freeBytes: UInt64?
+    let firstPlan: TransferPlan
+}
+
+private struct SpaceShortfall {
+    let needed: UInt64
+    let free: UInt64
+}
+
+/// A vault folder to export, waiting for confirmation or a destination.
+private struct FolderExport {
+    let path: String
+    let name: String
+}
+
 struct BrowserView: View {
     let path: String
     @Binding var selectedFile: FileTarget?
 
     @Environment(SessionRegistry.self) private var sessionRegistry
     @Environment(AppPrefs.self) private var appPrefs
+    @Environment(VaultStore.self) private var vaultStore
     @State private var entries: [DirEntry] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
@@ -23,7 +56,8 @@ struct BrowserView: View {
     @State private var showNewFolderPrompt = false
     @State private var newFolderName = ""
 
-    @State private var showFileImporter = false
+    @State private var showPicker = false
+    @State private var pickerMode: PickerMode = .importFiles
     @State private var isBusy = false
 
     @State private var entryToRename: DirEntry?
@@ -32,6 +66,18 @@ struct BrowserView: View {
     @State private var pendingExportEntry: DirEntry?
     @State private var exportURL: URL?
     @State private var showExportSheet = false
+
+    // Bulk import pre-flight (2.0.0).
+    @State private var pendingImport: PendingImport?
+    @State private var showCollisionPrompt = false
+    @State private var tooLargeOnlyCount: Int?
+    @State private var spaceShortfall: SpaceShortfall?
+
+    // Folder export (2.0.0).
+    @State private var folderExportToConfirm: FolderExport?
+    @State private var folderExportAwaitingDestination: FolderExport?
+
+    @State private var showVolumeInfo = false
 
     private var canWrite: Bool {
         sessionRegistry.facts?.writable == true
@@ -55,9 +101,12 @@ struct BrowserView: View {
                 }
             }
         }
-        .safeAreaInset(edge: .top) {
-            if sessionRegistry.isCopyMode {
-                copyModeBanner
+        .safeAreaInset(edge: .top, spacing: 0) {
+            VStack(spacing: 0) {
+                if sessionRegistry.isCopyMode {
+                    copyModeBanner
+                }
+                statusBar
             }
         }
         .navigationTitle(titleForPath)
@@ -73,20 +122,48 @@ struct BrowserView: View {
                     .disabled(!canWrite)
 
                     Button {
-                        showFileImporter = true
+                        openPicker(.importFiles)
                     } label: {
                         Label("Import Files", systemImage: "square.and.arrow.down")
                     }
                     .disabled(!canWrite)
+
+                    Button {
+                        openPicker(.importFolder)
+                    } label: {
+                        Label("Import Folder", systemImage: "square.and.arrow.down.on.square")
+                    }
+                    .disabled(!canWrite)
+
+                    Divider()
+
+                    Button {
+                        requestFolderExport(FolderExport(path: path, name: currentFolderExportName))
+                    } label: {
+                        Label("Export Folder", systemImage: "square.and.arrow.up.on.square")
+                    }
+
+                    Button {
+                        showVolumeInfo = true
+                    } label: {
+                        Label("Volume Info", systemImage: "info.circle")
+                    }
                 } label: {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add")
             }
         }
-        .task { await load() }
+        .task {
+            await load()
+            if sessionRegistry.space == nil {
+                await sessionRegistry.refreshSpace()
+            }
+        }
         .refreshable { await load() }
-        .onAppear { sessionRegistry.markActivity() }
+        .onChange(of: sessionRegistry.contentGeneration) { _, _ in
+            Task { await load() }
+        }
         .alert("New Folder", isPresented: $showNewFolderPrompt) {
             TextField("Folder name", text: $newFolderName)
             Button("Cancel", role: .cancel) {}
@@ -111,14 +188,70 @@ struct BrowserView: View {
         } message: { entry in
             Text("No-trace mode is on. Exporting \"\(entry.name)\" writes a decrypted copy outside the vault.")
         }
-        .fileImporter(isPresented: $showFileImporter, allowedContentTypes: [.item], allowsMultipleSelection: true) { result in
-            guard let urls = try? result.get() else { return }
-            Task { await importFiles(urls) }
+        .alert("Export Decrypted Folder?", isPresented: Binding(
+            get: { folderExportToConfirm != nil },
+            set: { if !$0 { folderExportToConfirm = nil } }
+        ), presenting: folderExportToConfirm) { target in
+            Button("Export", role: .destructive) {
+                chooseExportDestination(for: target)
+            }
+            Button("Cancel", role: .cancel) { folderExportToConfirm = nil }
+        } message: { target in
+            Text("No-trace mode is on. Exporting \"\(target.name)\" writes a decrypted copy outside the vault.")
+        }
+        .alert("Some Files Already Exist", isPresented: $showCollisionPrompt) {
+            Button("Keep Both") { Task { await finishImportPreflight(policy: .keepBoth) } }
+                .keyboardShortcut(.defaultAction)
+            Button("Skip") { Task { await finishImportPreflight(policy: .skip) } }
+            Button("Replace", role: .destructive) { Task { await finishImportPreflight(policy: .replace) } }
+            Button("Cancel", role: .cancel) { abandonImport() }
+        } message: {
+            if let count = pendingImport?.firstPlan.tooLargeCount, count > 0 {
+                Text("\(count) files are larger than 4 GB, which FAT can't store. They will be skipped.")
+            }
+        }
+        .alert(Text("\(tooLargeOnlyCount ?? 0) files are larger than 4 GB, which FAT can't store. They will be skipped."), isPresented: Binding(
+            get: { tooLargeOnlyCount != nil },
+            set: { if !$0 { tooLargeOnlyCount = nil } }
+        )) {
+            Button("Continue") { Task { await finishImportPreflight(policy: .keepBoth) } }
+            Button("Cancel", role: .cancel) { abandonImport() }
+        }
+        .alert("Not Enough Space", isPresented: Binding(
+            get: { spaceShortfall != nil },
+            set: { if !$0 { spaceShortfall = nil } }
+        ), presenting: spaceShortfall) { _ in
+            Button("OK", role: .cancel) { spaceShortfall = nil }
+        } message: { shortfall in
+            Text("These files need \(ByteFormat.string(shortfall.needed)) but the vault has \(ByteFormat.string(shortfall.free)) free.")
+        }
+        .fileImporter(
+            isPresented: $showPicker,
+            allowedContentTypes: pickerMode == .importFiles ? [.item] : [.folder],
+            allowsMultipleSelection: pickerMode == .importFiles
+        ) { result in
+            let mode = pickerMode
+            let exportTarget = folderExportAwaitingDestination
+            folderExportAwaitingDestination = nil
+            guard let urls = try? result.get(), !urls.isEmpty else { return }
+            switch mode {
+            case .importFiles, .importFolder:
+                Task { await beginImport(urls) }
+            case .exportDestination:
+                if let exportTarget, let destination = urls.first {
+                    Task { await beginFolderExport(exportTarget, to: destination) }
+                }
+            }
         }
         .sheet(isPresented: $showExportSheet) {
             if let exportURL {
                 ShareSheet(activityItems: [exportURL])
             }
+        }
+        .sheet(isPresented: $showVolumeInfo) {
+            VolumeInfoView()
+                .environment(sessionRegistry)
+                .environment(\.locale, appPrefs.locale)
         }
         .onChange(of: showExportSheet) { _, isShowing in
             // The share sheet is our only signal the export is done with
@@ -147,6 +280,32 @@ struct BrowserView: View {
         }
         .padding(8)
         .background(.yellow.opacity(0.2))
+    }
+
+    /// Which volume is open (hidden, or outer with the hidden area
+    /// protected; nothing for a plain outer unlock) and the free space.
+    @ViewBuilder
+    private var statusBar: some View {
+        let facts = sessionRegistry.facts
+        let space = sessionRegistry.space
+        if facts?.hidden == true || facts?.outerProtected == true || space != nil {
+            HStack(spacing: 8) {
+                if facts?.hidden == true {
+                    Label("Hidden volume", systemImage: "eye.slash")
+                } else if facts?.outerProtected == true {
+                    Label("Hidden area protected", systemImage: "lock.shield")
+                }
+                Spacer(minLength: 0)
+                if let space {
+                    Text("\(ByteFormat.string(space.freeBytes)) free of \(ByteFormat.string(space.totalBytes))")
+                }
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .padding(.horizontal)
+            .padding(.vertical, 6)
+            .background(.bar)
+        }
     }
 
     @ViewBuilder
@@ -185,18 +344,18 @@ struct BrowserView: View {
                 }
                 .tint(.orange)
             }
-            if !entry.isDir {
-                Button {
-                    if appPrefs.noTraceMode {
-                        pendingExportEntry = entry
-                    } else {
-                        Task { await export(entry) }
-                    }
-                } label: {
-                    Label("Export", systemImage: "square.and.arrow.up")
+            Button {
+                if entry.isDir {
+                    requestFolderExport(FolderExport(path: childPath(entry.name), name: entry.name))
+                } else if appPrefs.noTraceMode {
+                    pendingExportEntry = entry
+                } else {
+                    Task { await export(entry) }
                 }
-                .tint(.blue)
+            } label: {
+                Label("Export", systemImage: "square.and.arrow.up")
             }
+            .tint(.blue)
         }
     }
 
@@ -205,8 +364,17 @@ struct BrowserView: View {
     }
 
     private var titleForPath: String {
-        guard path != "/" else { return "Vault" }
+        guard path != "/" else { return String(localized: "Vault", locale: LanguageOverride.locale) }
         return (path as NSString).lastPathComponent
+    }
+
+    /// Folder name an export of this screen's folder gets: the folder's own
+    /// name, or the vault's name at the root.
+    private var currentFolderExportName: String {
+        guard path == "/" else { return (path as NSString).lastPathComponent }
+        let vaultName = vaultStore.vaults.first { $0.id == sessionRegistry.vaultId }?.displayName ?? ""
+        let base = (vaultName as NSString).deletingPathExtension
+        return base.isEmpty ? String(localized: "Vault", locale: LanguageOverride.locale) : base
     }
 
     private func childPath(_ name: String) -> String {
@@ -215,7 +383,7 @@ struct BrowserView: View {
 
     private func load() async {
         guard let session = sessionRegistry.session else {
-            errorMessage = "Vault is locked."
+            errorMessage = String(localized: "Vault is locked.", locale: LanguageOverride.locale)
             isLoading = false
             return
         }
@@ -249,6 +417,7 @@ struct BrowserView: View {
             try await Vault.mkdir(session, path: childPath(name))
             try await Vault.flush(session)
             await load()
+            await sessionRegistry.refreshSpace()
         } catch let error as VaultError {
             errorMessage = error.message
         } catch {
@@ -282,6 +451,7 @@ struct BrowserView: View {
             try await Vault.remove(session, path: childPath(entry.name))
             try await Vault.flush(session)
             await load()
+            await sessionRegistry.refreshSpace()
         } catch let error as VaultError {
             errorMessage = error.message
         } catch {
@@ -289,49 +459,148 @@ struct BrowserView: View {
         }
     }
 
-    /// Chunked copy-in: reads each picked file from its (possibly
-    /// security-scoped) URL in bounded pieces and writes them into the
-    /// vault, so a large import never balloons memory.
-    private func importFiles(_ urls: [URL]) async {
-        guard let session = sessionRegistry.session else { return }
+    // MARK: - 2.0.0: bulk import
+
+    private func openPicker(_ mode: PickerMode) {
+        pickerMode = mode
+        showPicker = true
+    }
+
+    /// Walks the picked files/folders, plans the copy, then asks the
+    /// pre-flight questions (collisions, files too large for FAT) before
+    /// anything is written.
+    @MainActor
+    private func beginImport(_ urls: [URL]) async {
+        guard let session = sessionRegistry.session,
+              sessionRegistry.activeTransfer == nil,
+              pendingImport == nil else { return }
+        let scoped = urls.filter { $0.startAccessingSecurityScopedResource() }
         isBusy = true
-        defer { isBusy = false }
+        let destination = path
+        let maxFileBytes = sessionRegistry.facts?.maxFileBytes
+        let space = try? await Vault.space(session)
+        let walked = await Task.detached { ImportWalker.walk(urls) }.value
+        let firstPlan = await Self.plan(session: session, items: walked.items, destination: destination, policy: .keepBoth, maxFileBytes: maxFileBytes, clusterBytes: space?.clusterBytes ?? 0)
+        isBusy = false
 
-        let chunkSize = 4 << 20 // 4 MiB
-
-        for url in urls {
-            let accessing = url.startAccessingSecurityScopedResource()
-            defer { if accessing { url.stopAccessingSecurityScopedResource() } }
-
-            guard let input = InputStream(url: url) else { continue }
-            input.open()
-            defer { input.close() }
-
-            let destPath = childPath(url.lastPathComponent)
-            do {
-                try await Vault.create(session, path: destPath)
-                var offset: UInt64 = 0
-                var buffer = [UInt8](repeating: 0, count: chunkSize)
-                while true {
-                    let n = buffer.withUnsafeMutableBytes { raw -> Int in
-                        guard let base = raw.baseAddress?.assumingMemoryBound(to: UInt8.self) else { return 0 }
-                        return input.read(base, maxLength: chunkSize)
-                    }
-                    if n <= 0 { break }
-                    let chunk = Data(buffer[0..<n])
-                    try await Vault.writeAt(session, path: destPath, offset: offset, data: chunk)
-                    offset += UInt64(n)
-                }
-                try await Vault.flush(session)
-            } catch let error as VaultError {
-                errorMessage = error.message
-                break
-            } catch {
-                errorMessage = error.localizedDescription
-                break
-            }
+        pendingImport = PendingImport(
+            items: walked.items,
+            sources: walked.sources,
+            scopedURLs: scoped,
+            destination: destination,
+            maxFileBytes: maxFileBytes,
+            clusterBytes: space?.clusterBytes ?? 0,
+            freeBytes: space?.freeBytes,
+            firstPlan: firstPlan
+        )
+        if firstPlan.collisionCount > 0 {
+            // The FAT size note rides along in this alert's message.
+            showCollisionPrompt = true
+        } else if firstPlan.tooLargeCount > 0 {
+            tooLargeOnlyCount = firstPlan.tooLargeCount
+        } else {
+            await finishImportPreflight(policy: .keepBoth)
         }
-        await load()
+    }
+
+    /// Re-plans with the user's collision choice, checks space, and starts
+    /// the copy.
+    @MainActor
+    private func finishImportPreflight(policy: CollisionPolicy) async {
+        guard let pending = pendingImport, let session = sessionRegistry.session else {
+            abandonImport()
+            return
+        }
+        let plan: TransferPlan
+        if policy == .keepBoth {
+            plan = pending.firstPlan
+        } else {
+            isBusy = true
+            plan = await Self.plan(session: session, items: pending.items, destination: pending.destination, policy: policy, maxFileBytes: pending.maxFileBytes, clusterBytes: pending.clusterBytes)
+            isBusy = false
+        }
+        if let free = pending.freeBytes, !plan.fits(freeBytes: free) {
+            abandonImport()
+            spaceShortfall = SpaceShortfall(needed: plan.bytesNeeded, free: free)
+            return
+        }
+        pendingImport = nil
+        let transfer = BulkTransfer(
+            kind: .importing,
+            steps: ImportWalker.steps(for: plan, sources: pending.sources),
+            counts: BulkTransfer.Counts(
+                skipped: plan.tooLargeCount + plan.skippedExistingCount,
+                renamed: plan.renamedCount,
+                keptBoth: plan.keptBothCount
+            ),
+            session: session,
+            registry: sessionRegistry,
+            scopedURLs: pending.scopedURLs
+        )
+        transfer.start()
+    }
+
+    private func abandonImport() {
+        pendingImport?.scopedURLs.forEach { $0.stopAccessingSecurityScopedResource() }
+        pendingImport = nil
+    }
+
+    private static func plan(session: VaultSession, items: [TransferItem], destination: String, policy: CollisionPolicy, maxFileBytes: UInt64?, clusterBytes: UInt64) async -> TransferPlan {
+        await Task.detached {
+            TransferPlanner.plan(items: items, into: destination, policy: policy, maxFileBytes: maxFileBytes, clusterBytes: clusterBytes) { folder in
+                ((try? session.list(path: folder)) ?? []).map { ExistingEntry(name: $0.name, isDirectory: $0.isDir) }
+            }
+        }.value
+    }
+
+    // MARK: - 2.0.0: folder export
+
+    private func requestFolderExport(_ target: FolderExport) {
+        if appPrefs.noTraceMode {
+            folderExportToConfirm = target
+        } else {
+            chooseExportDestination(for: target)
+        }
+    }
+
+    private func chooseExportDestination(for target: FolderExport) {
+        folderExportToConfirm = nil
+        folderExportAwaitingDestination = target
+        openPicker(.exportDestination)
+    }
+
+    /// Recreates the vault folder inside the picked destination folder. If
+    /// a folder of that name is already there, the copy gets "name (1)".
+    @MainActor
+    private func beginFolderExport(_ target: FolderExport, to destination: URL) async {
+        guard let session = sessionRegistry.session, sessionRegistry.activeTransfer == nil else { return }
+        let scoped = destination.startAccessingSecurityScopedResource()
+        isBusy = true
+        do {
+            let isTaken: (String) -> Bool = { name in
+                FileManager.default.fileExists(atPath: destination.appending(path: name).path(percentEncoded: false))
+            }
+            // The vault's own name could be anything in a crafted container
+            // (".." or a "/"), so it never reaches the local path unsanitized.
+            let safeName = TransferNaming.sanitize(target.name)
+            let folderName = isTaken(safeName) ? TransferNaming.keepBothName(for: safeName, isDirectory: true, isTaken: isTaken) : safeName
+            let root = destination.appending(path: folderName, directoryHint: .isDirectory)
+            let steps = try await ExportWalker.steps(session: session, vaultFolder: target.path, localFolder: root)
+            isBusy = false
+            let transfer = BulkTransfer(
+                kind: .exporting,
+                steps: steps,
+                counts: BulkTransfer.Counts(),
+                session: session,
+                registry: sessionRegistry,
+                scopedURLs: scoped ? [destination] : []
+            )
+            transfer.start()
+        } catch {
+            isBusy = false
+            if scoped { destination.stopAccessingSecurityScopedResource() }
+            errorMessage = (error as? VaultError)?.message ?? error.localizedDescription
+        }
     }
 
     /// Chunked export: reads the vault file in bounded pieces into a

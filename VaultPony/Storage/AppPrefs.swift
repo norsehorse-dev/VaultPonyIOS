@@ -66,7 +66,17 @@ enum LanguageOverride {
 /// SwiftUI view tree that need the same value threaded in manually.
 @Observable
 final class AppPrefs {
-    private(set) var autoLockSeconds: TimeInterval = 300
+    /// Default "Immediately" (2.0.0). A value already saved is kept.
+    private(set) var autoLockSeconds: TimeInterval = 0
+
+    /// Auto-lock choices in seconds (2.0.0): Immediately, 30 s, 1, 5 and
+    /// 15 min, 1 h. There is no "Never"; any value outside the list reads
+    /// as 1 hour.
+    static let autoLockChoices: [TimeInterval] = [0, 30, 60, 300, 900, 3600]
+
+    static func normalizedAutoLock(_ seconds: TimeInterval) -> TimeInterval {
+        autoLockChoices.contains(seconds) ? seconds : 3600
+    }
     private(set) var privacyScreenEnabled: Bool = true
     private(set) var noTraceMode: Bool = false
     private(set) var onboardingDone: Bool = false
@@ -104,7 +114,7 @@ final class AppPrefs {
     }
 
     func setAutoLockSeconds(_ seconds: TimeInterval) {
-        autoLockSeconds = seconds
+        autoLockSeconds = Self.normalizedAutoLock(seconds)
         save()
     }
 
@@ -143,11 +153,14 @@ final class AppPrefs {
     private func load() {
         guard let data = try? Data(contentsOf: fileURL),
               let decoded = try? JSONDecoder().decode(AppPrefsData.self, from: data) else { return }
-        autoLockSeconds = decoded.autoLockSeconds
+        autoLockSeconds = Self.normalizedAutoLock(decoded.autoLockSeconds)
         privacyScreenEnabled = decoded.privacyScreenEnabled
         noTraceMode = decoded.noTraceMode
         onboardingDone = decoded.onboardingDone
         languageCode = decoded.languageCode
+        if autoLockSeconds != decoded.autoLockSeconds {
+            save()
+        }
     }
 
     private func save() {

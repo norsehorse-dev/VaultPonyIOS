@@ -41,6 +41,12 @@ enum Vault {
     static func facts(_ session: VaultSession) async throws -> VolumeFacts {
         try await Task.detached { try session.facts() }.value
     }
+    /// Total and free space (2.0.0). Throws for filesystems that can't
+    /// report it, such as NTFS. The first call per session counts free
+    /// clusters; later calls are cheap.
+    static func space(_ session: VaultSession) async throws -> VolumeSpace {
+        try await Task.detached { try session.space() }.value
+    }
     static func list(_ session: VaultSession, path: String) async throws -> [DirEntry] {
         try await Task.detached { try session.list(path: path) }.value
     }

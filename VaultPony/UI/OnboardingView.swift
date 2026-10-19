@@ -25,7 +25,7 @@ private let onboardingSlides: [OnboardingSlide] = [
     OnboardingSlide(icon: "globe", title: "Language", body: "Choose your language. You can change it anytime in Settings.", kind: .language),
     OnboardingSlide(icon: "lock.fill", title: "VaultPony", body: "Encrypted vaults you control. Open source, and compatible with VeraCrypt.", kind: .plain),
     OnboardingSlide(icon: "lock.badge.plus", title: "Create your first vault", body: "A vault is a single encrypted file. Put anything inside; only your password opens it.", kind: .create),
-    OnboardingSlide(icon: "eye.slash", title: "Hidden Volumes", body: "Hide a second vault inside the first. Two passwords, and the outer one gives no sign the hidden one exists.", kind: .plain),
+    OnboardingSlide(icon: "eye.slash", title: "Hidden Volumes", body: "Hide a second vault inside the first. Type its password on its own to open it. The outer password gives no sign it exists.", kind: .plain),
     OnboardingSlide(icon: "faceid", title: "Locked Down", body: "Face ID unlock, auto-lock when you leave, and a Privacy Screen keep your vaults yours.", kind: .plain),
 ]
 

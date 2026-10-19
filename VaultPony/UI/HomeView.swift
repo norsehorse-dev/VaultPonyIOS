@@ -3,6 +3,7 @@ import UniformTypeIdentifiers
 
 struct HomeView: View {
     @Environment(VaultStore.self) private var vaultStore
+    @Environment(SessionRegistry.self) private var sessionRegistry
     @State private var showImporter = false
     @State private var importError: String?
     @State private var path = NavigationPath()
@@ -41,6 +42,13 @@ struct HomeView: View {
                 }
             }
             .navigationTitle("VaultPony")
+            // A lock (auto-lock included) leaves the vault's screens, so
+            // file names don't stay on screen after the key is gone. Only
+            // a real lock bumps this, so an unlock screen keeps what was
+            // typed across an app switch.
+            .onChange(of: sessionRegistry.lockGeneration) { _, _ in
+                path = NavigationPath()
+            }
             .navigationDestination(for: SavedVault.self) { vault in
                 UnlockView(vault: vault)
             }

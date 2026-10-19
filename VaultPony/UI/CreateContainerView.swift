@@ -91,8 +91,8 @@ struct CreateContainerView: View {
             }
 
             Section("Password") {
-                RevealableSecureField(title: "Password", text: $passphrase)
-                RevealableSecureField(title: "Confirm password", text: $confirmPassphrase)
+                RevealableSecureField(title: "Password", text: $passphrase, contentType: .newPassword)
+                RevealableSecureField(title: "Confirm password", text: $confirmPassphrase, contentType: .newPassword)
                 TextField("PIM (0 = default)", text: $pimText)
                     .keyboardType(.numberPad)
             }
@@ -104,7 +104,7 @@ struct CreateContainerView: View {
                     HStack {
                         Text("Keyfiles")
                         Spacer()
-                        Text(keyfileCount == 0 ? "None" : "\(keyfileCount) selected")
+                        Text(keyfileCount == 0 ? LocalizedStringKey("None") : "\(keyfileCount) selected")
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -131,13 +131,16 @@ struct CreateContainerView: View {
             Section {
                 Toggle("Hidden Volume", isOn: $isHiddenVolume)
             } footer: {
-                Text("Conceals a second volume inside this one. The outer password alone opens the decoy; the hidden password opens the real contents. The outer volume shows no trace of the hidden one.")
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("To open the hidden vault later, type the hidden password on its own in the normal password field.")
+                    Text("Typing both passwords together opens the outer vault with the hidden area protected, so you can add decoy files safely.")
+                }
             }
 
             if isHiddenVolume {
                 Section("Hidden Volume Password") {
-                    RevealableSecureField(title: "Hidden password", text: $hiddenPassphrase)
-                    RevealableSecureField(title: "Confirm hidden password", text: $confirmHiddenPassphrase)
+                    RevealableSecureField(title: "Hidden password", text: $hiddenPassphrase, contentType: .newPassword)
+                    RevealableSecureField(title: "Confirm hidden password", text: $confirmHiddenPassphrase, contentType: .newPassword)
                 }
                 Section {
                     HStack {
@@ -154,7 +157,10 @@ struct CreateContainerView: View {
                 } header: {
                     Text("Hidden Volume Size")
                 } footer: {
-                    Text("Carved from the outer volume's space — must leave enough room for the outer volume's own files.")
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Carved from the outer volume's space. It must leave enough room for the outer volume's own files.")
+                        Text("Writing to the outer vault can overwrite the hidden one. To add files to the outer vault, unlock it with both passwords so the hidden area is protected.")
+                    }
                 }
             }
 

@@ -74,19 +74,26 @@ struct UnlockView: View {
                     HStack {
                         Text("Keyfiles")
                         Spacer()
-                        Text(keyfileCount == 0 ? "None" : "\(keyfileCount) selected")
+                        Text(keyfileCount == 0 ? LocalizedStringKey("None") : "\(keyfileCount) selected")
                             .foregroundStyle(.secondary)
                     }
                 }
             }
 
             Section {
-                Toggle("Outer volume, protect hidden", isOn: $useOuterProtected)
+                Toggle("Open the outer volume and protect a hidden one", isOn: $useOuterProtected)
                 if useOuterProtected {
                     RevealableSecureField(title: "Hidden volume password", text: $hiddenPassphrase)
                 }
             } footer: {
-                Text("Unlocks the outer volume read-write while refusing any write that would land in the hidden region.")
+                // The first note shows on every unlock screen, hidden
+                // volume or not, so the screen gives nothing away.
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("A hidden volume opens when you type its password in the password field.")
+                    if useOuterProtected {
+                        Text("Unlocks the outer volume read-write while refusing any write that would land in the hidden region.")
+                    }
+                }
             }
 
             if isUnlocking {
@@ -163,7 +170,7 @@ struct UnlockView: View {
         do {
             credential = try await BiometricUnlock.retrieve(vaultId: vault.id, reason: String(localized: "Unlock \(vault.displayName)"))
         } catch {
-            errorMessage = "Face ID unlock isn't available for this vault right now. Enter your password instead."
+            errorMessage = String(localized: "Face ID unlock isn't available for this vault right now. Enter your password instead.", locale: LanguageOverride.locale)
             return
         }
         passphrase = credential.passphrase
@@ -270,7 +277,7 @@ struct UnlockView: View {
                 // the password was changed since it was enrolled. Wipe it
                 // rather than let Face ID keep offering a dead shortcut.
                 BiometricUnlock.remove(vaultId: vault.id)
-                errorMessage = "Face ID unlock used an outdated password. Enter the current password instead."
+                errorMessage = String(localized: "Face ID unlock used an outdated password. Enter the current password instead.", locale: LanguageOverride.locale)
             } else {
                 errorMessage = error.message
             }

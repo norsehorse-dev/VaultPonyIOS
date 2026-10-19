@@ -52,7 +52,7 @@ struct RecoveryView: View {
                     HStack {
                         Text("Keyfiles")
                         Spacer()
-                        Text(keyfileCount == 0 ? "None" : "\(keyfileCount) selected")
+                        Text(keyfileCount == 0 ? LocalizedStringKey("None") : "\(keyfileCount) selected")
                             .foregroundStyle(.secondary)
                     }
                 }

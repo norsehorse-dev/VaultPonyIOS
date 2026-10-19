@@ -33,6 +33,10 @@ private struct RootView: View {
                     appPrefs.clearReplayOnboardingRequest()
                 }
             }
+            if let transfer = sessionRegistry.activeTransfer {
+                TransferProgressOverlay(transfer: transfer)
+                    .zIndex(0.5)
+            }
             if scenePhase != .active && sessionRegistry.session != nil && appPrefs.privacyScreenEnabled {
                 PrivacyShield()
                     .transition(.opacity)
@@ -48,8 +52,29 @@ private struct RootView: View {
         }
         #endif
         .onChange(of: scenePhase) { _, newPhase in
-            if newPhase == .background {
-                sessionRegistry.flush()
+            switch newPhase {
+            case .background:
+                // A copy in progress goes first so it can hold off the
+                // auto-lock until its current file is written.
+                sessionRegistry.activeTransfer?.appDidEnterBackground()
+                sessionRegistry.sceneDidEnterBackground()
+            case .active:
+                // Any lock that came due while away happens before a
+                // paused copy decides whether to resume.
+                sessionRegistry.sceneDidBecomeActive()
+                sessionRegistry.activeTransfer?.appDidBecomeActive()
+            default:
+                break
+            }
+        }
+        .alert(Text(verbatim: sessionRegistry.transferSummary?.title ?? ""), isPresented: Binding(
+            get: { sessionRegistry.transferSummary != nil },
+            set: { if !$0 { sessionRegistry.transferSummary = nil } }
+        ), presenting: sessionRegistry.transferSummary) { _ in
+            Button("OK") { sessionRegistry.transferSummary = nil }
+        } message: { summary in
+            if !summary.message.isEmpty {
+                Text(verbatim: summary.message)
             }
         }
         .alert("Save Changes?", isPresented: Binding(

@@ -43,13 +43,14 @@ struct SettingsView: View {
     @Environment(AppPrefs.self) private var appPrefs
     @Environment(SessionRegistry.self) private var sessionRegistry
 
+    // Same seconds as AppPrefs.autoLockChoices. No "Never" since 2.0.0.
     private static let autoLockOptions: [(label: String, seconds: TimeInterval)] = [
-        ("30 seconds", 30),
-        ("1 minute", 60),
-        ("5 minutes", 300),
-        ("15 minutes", 900),
-        ("1 hour", 3600),
-        ("Never", .infinity),
+        ("Immediately", 0),
+        ("After 30 seconds", 30),
+        ("After 1 minute", 60),
+        ("After 5 minutes", 300),
+        ("After 15 minutes", 900),
+        ("After 1 hour", 3600),
     ]
 
     var body: some View {
@@ -67,7 +68,10 @@ struct SettingsView: View {
                     }
                 }
             } footer: {
-                Text("How long the vault stays unlocked with the app in the background.")
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("How long vaults stay unlocked after you leave the app or turn off the screen.")
+                    Text("A longer delay keeps the vault's key in memory while the app is in the background.")
+                }
             }
 
             Section {

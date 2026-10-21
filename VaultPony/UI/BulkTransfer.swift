@@ -380,11 +380,21 @@ final class BulkTransfer {
             return
         }
         // Back before the current file finished. Carry on, unless a lock
-        // is waiting for this file to end.
-        if registry?.lockPending != true {
+        // is waiting for this file to end or already happened (the Home
+        // Screen quick action locks as the app comes back).
+        if registry?.lockPending != true, registry?.session === session {
             pauseRequested = false
             flags.clearInterrupt()
         }
+    }
+
+    /// SessionRegistry.lockAll calls this just before it locks: stop at the
+    /// next chunk boundary, and wake a copy paused in the background so it
+    /// sees the lock and ends with what was copied.
+    func stopForLock() {
+        guard !finished else { return }
+        flags.interrupt()
+        resumeIfPaused()
     }
 
     private func backgroundTimeExpired() {

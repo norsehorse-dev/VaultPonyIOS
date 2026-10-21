@@ -111,6 +111,18 @@ struct BrowserView: View {
         }
         .navigationTitle(titleForPath)
         .toolbar {
+            // Locks now, whatever the auto-lock delay, through the same path
+            // as the Home Screen quick action: a running copy stops, a
+            // copy-mode vault stages its "Save Changes?" write-back, and
+            // HomeView returns to Home on the lockGeneration bump.
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    sessionRegistry.lockAll()
+                } label: {
+                    Label("Lock", systemImage: "lock.fill")
+                }
+                .accessibilityIdentifier("lockButton")
+            }
             ToolbarItem(placement: .primaryAction) {
                 Menu {
                     Button {

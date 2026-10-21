@@ -21,8 +21,16 @@ import Observation
 /// FdOpener.openViaCopyIn (its real location wouldn't hand back a
 /// writable fd), lock() stages a PendingWriteBack instead of silently
 /// discarding the edited copy — VaultPonyApp surfaces it as an alert.
+///
+/// The Home Screen quick action "Lock vaults" (2.0.0) is kept in step with
+/// the session here: added when a session is adopted, removed on lock.
 @Observable
 final class SessionRegistry {
+    /// The app's one registry. VaultPonyApp puts it in the environment;
+    /// the scene delegate reaches it here for the Home Screen quick action,
+    /// which can arrive before any view exists.
+    static let shared = SessionRegistry()
+
     private(set) var session: VaultSession?
     private(set) var vaultId: UUID?
     private(set) var facts: VolumeFacts?
@@ -81,6 +89,7 @@ final class SessionRegistry {
                 scheduleAutoLock(after: delay - elapsed)
             }
         }
+        refreshQuickAction()
     }
 
     /// Best-effort flush; harmless no-op when nothing has been written.
@@ -112,6 +121,33 @@ final class SessionRegistry {
         isCopyMode = false
         if hadSession {
             lockGeneration += 1
+        }
+        refreshQuickAction()
+    }
+
+    /// The Home Screen quick action: locks now, whatever the auto-lock
+    /// delay or a copy's hold. A copy in progress stops at its next chunk
+    /// and reports what was copied, as when its background time runs out.
+    /// HomeView leaves the vault's screens on the lockGeneration bump.
+    @MainActor
+    func lockAll() {
+        activeTransfer?.stopForLock()
+        lock()
+    }
+
+    /// Shows the "Lock vaults" quick action while a vault is unlocked and
+    /// removes it otherwise. Also called after an in-app language change
+    /// so the title follows it.
+    func refreshQuickAction() {
+        if Thread.isMainThread {
+            let unlocked = session != nil
+            MainActor.assumeIsolated {
+                QuickActions.sync(unlocked: unlocked)
+            }
+        } else {
+            Task { @MainActor [weak self] in
+                QuickActions.sync(unlocked: self?.session != nil)
+            }
         }
     }
 

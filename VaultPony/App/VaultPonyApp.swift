@@ -95,6 +95,14 @@ private struct RootView: View {
         } message: { pending in
             Text("\(pending.displayName) was edited on a local copy because its location doesn't support editing in place.")
         }
+        .alert("Files Access", isPresented: Binding(
+            get: { sessionRegistry.filesError != nil },
+            set: { if !$0 { sessionRegistry.filesError = nil } }
+        )) {
+            Button("OK") { sessionRegistry.filesError = nil }
+        } message: {
+            Text(verbatim: sessionRegistry.filesError ?? "")
+        }
         .alert("Couldn't Save Changes Back", isPresented: Binding(
             get: { sessionRegistry.lastWriteBackError != nil },
             set: { if !$0 { sessionRegistry.lastWriteBackError = nil } }
@@ -153,6 +161,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         QuickActions.sync(unlocked: false)
+        // Nothing is unlocked at launch, so any Files domain is a leftover.
+        Task { await FilesBridge.shared.sweep() }
         return true
     }
 

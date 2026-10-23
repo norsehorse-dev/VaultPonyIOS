@@ -24,6 +24,14 @@ import Observation
 ///
 /// The Home Screen quick action "Lock vaults" (2.0.0) is kept in step with
 /// the session here: added when a session is adopted, removed on lock.
+///
+/// Files access (2.0.0 rc3, D18 to D20): with "Show in Files" the session is
+/// also handed to the File Provider extension (FilesBridge). The auto-lock
+/// then follows FilesPolicy: the vault stays open until the delay (2 minutes
+/// for "Immediately") after the later of leaving the app and the last Files
+/// activity, never more than 1 hour after leaving. The extension enforces
+/// the same rule itself while the app is suspended; both read the clock from
+/// FilesGate. Locking from anywhere tears Files access down.
 @Observable
 final class SessionRegistry {
     /// The app's one registry. VaultPonyApp puts it in the environment;
@@ -68,7 +76,16 @@ final class SessionRegistry {
     var pendingWriteBack: PendingWriteBack?
     var lastWriteBackError: String?
 
-    func adopt(_ session: VaultSession, vaultId: UUID, facts: VolumeFacts, copyModeInfo: CopyModeInfo? = nil) {
+    /// The open vault is also shown in Files (2.0.0 rc3).
+    private(set) var filesShared = false
+    private var filesWritable = false
+    private var heartbeatTask: Task<Void, Never>?
+    /// "Show in Files" was asked for but couldn't be turned on.
+    var filesError: String?
+
+    /// `filesFd` (a dup of the container fd, owned from here on) asks for
+    /// Files access too.
+    func adopt(_ session: VaultSession, vaultId: UUID, facts: VolumeFacts, copyModeInfo: CopyModeInfo? = nil, filesFd: Int32? = nil) {
         self.session = session
         self.vaultId = vaultId
         self.facts = facts
@@ -77,6 +94,16 @@ final class SessionRegistry {
         self.isCopyMode = copyModeInfo != nil
         holdCount = 0
         lockPending = false
+        if let filesFd {
+            if copyModeInfo != nil {
+                // Its edits only reach the real file at lock, through a
+                // prompt Files can't show (D20).
+                close(filesFd)
+                filesError = String(localized: "Show in Files isn't available for this vault, because its location doesn't allow editing in place.", locale: LanguageOverride.locale)
+            } else {
+                startFiles(session, fd: filesFd, writable: facts.writable)
+            }
+        }
         // An unlock that finished while the app was in the background:
         // the delay started when the app left, so lock now if it has run
         // out, otherwise when the rest of it has.
@@ -94,7 +121,8 @@ final class SessionRegistry {
 
     /// Best-effort flush; harmless no-op when nothing has been written.
     func flush() {
-        try? session?.flush()
+        guard let session else { return }
+        _ = try? FilesGate.shared.perform(session, write: false) { try session.flush() }
     }
 
     func lock() {
@@ -102,6 +130,18 @@ final class SessionRegistry {
         lockTask = nil
         lockPending = false
         holdCount = 0
+        if filesShared {
+            // Teardown asks the extension to store any save still waiting
+            // and lock, then posts the Darwin notification as a fallback.
+            if let session {
+                _ = try? FilesGate.shared.perform(session, write: false) { try session.flush() }
+                FilesGate.shared.unregister(session)
+            }
+            filesShared = false
+            heartbeatTask?.cancel()
+            heartbeatTask = nil
+            Task { @MainActor in await FilesBridge.shared.teardown() }
+        }
         let hadSession = session != nil
         try? session?.flush()
         session?.lock()
@@ -162,6 +202,13 @@ final class SessionRegistry {
         lockTask?.cancel()
         lockTask = nil
         guard session != nil else { return }
+        if filesShared {
+            heartbeatTask?.cancel()
+            heartbeatTask = nil
+            FilesGate.shared.setLeftApp(FilesClock.now())
+            scheduleFilesCheck()
+            return
+        }
         let delay = Duration.seconds(effectiveAutoLockSeconds)
         guard delay > .zero else {
             requestAutoLock()
@@ -184,11 +231,103 @@ final class SessionRegistry {
     func sceneDidBecomeActive() {
         lockTask?.cancel()
         lockTask = nil
+        if filesShared, let session {
+            let times = FilesGate.shared.times()
+            if filesPolicy.expired(now: FilesClock.now(), leftApp: times.leftApp, lastActivity: times.lastActivity) {
+                requestAutoLock()
+            } else {
+                FilesGate.shared.setLeftApp(nil)
+                startHeartbeat()
+                // Files may have changed the vault while the app was away.
+                contentGeneration += 1
+                let policy = filesPolicy
+                Task { @MainActor in
+                    // iOS may have stopped the extension meanwhile; hand
+                    // the vault over again (no password needed).
+                    try? await FilesBridge.shared.refresh(session: session, policy: policy)
+                }
+            }
+            backgroundedAt = nil
+            return
+        }
         if let since = backgroundedAt, session != nil,
            ContinuousClock.Instant.now - since >= .seconds(effectiveAutoLockSeconds) {
             requestAutoLock()
         }
         backgroundedAt = nil
+        if session == nil || !filesShared {
+            // Clears any Files domain a crash or kill left behind.
+            Task { @MainActor in await FilesBridge.shared.sweep() }
+        }
+    }
+
+    // MARK: - Files access (2.0.0 rc3)
+
+    private var filesPolicy: FilesPolicy {
+        FilesPolicy(delaySeconds: effectiveAutoLockSeconds, writable: filesWritable)
+    }
+
+    private func startFiles(_ session: VaultSession, fd: Int32, writable: Bool) {
+        filesShared = true
+        filesWritable = writable
+        FilesGate.shared.resetForNewShare()
+        FilesGate.shared.setLeftApp(nil)
+        startHeartbeat()
+        let policy = filesPolicy
+        Task { @MainActor in
+            do {
+                try await FilesBridge.shared.share(session: session, fd: fd, policy: policy)
+                if self.session !== session {
+                    // Locked while Files was being set up.
+                    await FilesBridge.shared.teardown()
+                }
+            } catch {
+                FilesGate.shared.unregister(session)
+                guard self.session === session else { return }
+                self.filesShared = false
+                self.heartbeatTask?.cancel()
+                self.heartbeatTask = nil
+                self.filesError = String(localized: "Couldn't show this vault in Files.", locale: LanguageOverride.locale)
+            }
+        }
+    }
+
+    /// While the app is in front, the extension must not start its clock;
+    /// a heartbeat tells it the app is still there (and stops if it crashes).
+    private func startHeartbeat() {
+        heartbeatTask?.cancel()
+        heartbeatTask = Task {
+            while !Task.isCancelled {
+                FilesGate.shared.heartbeat()
+                try? await Task.sleep(for: .seconds(FilesGate.heartbeatSeconds))
+            }
+        }
+    }
+
+    /// In the background with Files access: lock when FilesPolicy says so.
+    /// Files activity can move the deadline, so it is re-read each time.
+    private func scheduleFilesCheck() {
+        let times = FilesGate.shared.times()
+        guard let left = times.leftApp else { return }
+        let deadline = filesPolicy.deadline(leftApp: left, lastActivity: times.lastActivity)
+        let now = FilesClock.now()
+        let wait = deadline > now ? Double(deadline - now) / 1_000_000_000 : 0
+        lockTask?.cancel()
+        lockTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(wait + 0.5))
+            guard !Task.isCancelled else { return }
+            await MainActor.run { self?.filesCheck() }
+        }
+    }
+
+    private func filesCheck() {
+        guard filesShared, session != nil else { return }
+        let times = FilesGate.shared.times()
+        if filesPolicy.expired(now: FilesClock.now(), leftApp: times.leftApp, lastActivity: times.lastActivity) {
+            requestAutoLock()
+        } else {
+            scheduleFilesCheck()
+        }
     }
 
     /// A bulk copy is writing: an auto-lock that comes due waits for
@@ -240,6 +379,13 @@ final class SessionRegistry {
         await MainActor.run {
             guard self.session === session else { return }
             self.facts = fresh
+            if self.filesShared, self.filesWritable != fresh.writable {
+                self.filesWritable = fresh.writable
+                let policy = self.filesPolicy
+                Task { @MainActor in
+                    try? await FilesBridge.shared.refresh(session: session, policy: policy)
+                }
+            }
         }
     }
 

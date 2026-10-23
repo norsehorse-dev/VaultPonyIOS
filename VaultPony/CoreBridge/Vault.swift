@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import os
 
 /// Argon2id memory check before an unlock, in MiB.
@@ -38,47 +39,109 @@ enum Vault {
         )
     }
 
+    // Every call on an open session goes through FilesGate. For a vault
+    // that is also shown in Files (2.0.0 rc3) that serializes it against
+    // the File Provider extension and remounts after the extension wrote;
+    // for any other vault it is a plain call.
+
+    /// A read-only core call, off the main thread.
+    private static func read<T>(_ session: VaultSession, _ body: @escaping () throws -> T) async throws -> T {
+        try await whileShared(session) {
+            try await Task.detached {
+                try FilesGate.shared.perform(session, write: false, body)
+            }.value
+        }
+    }
+
+    /// For a vault shown in Files, the gate's file lock lives in the shared
+    /// app group; iOS kills an app suspended while holding one (0xdead10cc).
+    /// A background task keeps the app running until the call is done.
+    private static func whileShared<T>(_ session: VaultSession, _ work: () async throws -> T) async throws -> T {
+        guard FilesGate.shared.isShared(session) else { return try await work() }
+        let task = await MainActor.run { () -> UIBackgroundTaskIdentifier in
+            var id = UIBackgroundTaskIdentifier.invalid
+            // Out of time: end the assertion rather than be killed for it.
+            // The call itself finishes in moments.
+            id = UIApplication.shared.beginBackgroundTask(withName: "Vault call") {
+                UIApplication.shared.endBackgroundTask(id)
+            }
+            return id
+        }
+        defer {
+            if task != .invalid {
+                Task { @MainActor in UIApplication.shared.endBackgroundTask(task) }
+            }
+        }
+        return try await work()
+    }
+
+    /// A core call that changes the volume. `paths` are noted so Files can
+    /// be told which folders changed (on the next flush).
+    private static func write<T>(_ session: VaultSession, paths: [String], _ body: @escaping () throws -> T) async throws -> T {
+        try await whileShared(session) {
+            try await Task.detached {
+                defer {
+                    if FilesGate.shared.isShared(session) {
+                        paths.forEach { FilesChangeLog.shared.note($0) }
+                    }
+                }
+                return try FilesGate.shared.perform(session, write: true, body)
+            }.value
+        }
+    }
+
     static func facts(_ session: VaultSession) async throws -> VolumeFacts {
-        try await Task.detached { try session.facts() }.value
+        try await read(session) { try session.facts() }
     }
     /// Total and free space (2.0.0). Throws for filesystems that can't
     /// report it, such as NTFS. The first call per session counts free
     /// clusters; later calls are cheap.
     static func space(_ session: VaultSession) async throws -> VolumeSpace {
-        try await Task.detached { try session.space() }.value
+        try await read(session) { try session.space() }
     }
     static func list(_ session: VaultSession, path: String) async throws -> [DirEntry] {
-        try await Task.detached { try session.list(path: path) }.value
+        try await read(session) { try session.list(path: path) }
     }
     static func stat(_ session: VaultSession, path: String) async throws -> DirEntry {
-        try await Task.detached { try session.stat(path: path) }.value
+        try await read(session) { try session.stat(path: path) }
     }
     static func readAt(_ session: VaultSession, path: String, offset: UInt64, len: UInt32) async throws -> Data {
-        try await Task.detached { try session.readAt(path: path, offset: offset, len: len) }.value
+        try await read(session) { try session.readAt(path: path, offset: offset, len: len) }
     }
 
     // MARK: - P2: write path
     static func create(_ session: VaultSession, path: String) async throws {
-        try await Task.detached { try session.create(path: path) }.value
+        try await write(session, paths: [path]) { try session.create(path: path) }
     }
     static func mkdir(_ session: VaultSession, path: String) async throws {
-        try await Task.detached { try session.mkdir(path: path) }.value
+        try await write(session, paths: [path]) { try session.mkdir(path: path) }
     }
     static func rename(_ session: VaultSession, from: String, to: String) async throws {
-        try await Task.detached { try session.rename(from: from, to: to) }.value
+        try await write(session, paths: [from, to]) { try session.rename(from: from, to: to) }
     }
     static func remove(_ session: VaultSession, path: String) async throws {
-        try await Task.detached { try session.remove(path: path) }.value
+        try await write(session, paths: [path]) { try session.remove(path: path) }
     }
     static func truncate(_ session: VaultSession, path: String, len: UInt64) async throws {
-        try await Task.detached { try session.truncate(path: path, len: len) }.value
+        try await write(session, paths: [path]) { try session.truncate(path: path, len: len) }
     }
     @discardableResult
     static func writeAt(_ session: VaultSession, path: String, offset: UInt64, data: Data) async throws -> UInt32 {
-        try await Task.detached { try session.writeAt(path: path, offset: offset, data: data) }.value
+        try await write(session, paths: [path]) { try session.writeAt(path: path, offset: offset, data: data) }
     }
+    /// Puts `src` in place of `dst` (replacing it), then flushes.
+    static func replace(_ session: VaultSession, src: String, dst: String) async throws {
+        try await write(session, paths: [src, dst]) { try session.replace(src: src, dst: dst) }
+    }
+
+    /// Flushes, and tells Files which folders the app changed since the
+    /// last flush.
     static func flush(_ session: VaultSession) async throws {
-        try await Task.detached { try session.flush() }.value
+        try await write(session, paths: []) { try session.flush() }
+        let folders = FilesChangeLog.shared.take()
+        if !folders.isEmpty {
+            await MainActor.run { FilesBridge.shared.signal(folders: folders) }
+        }
     }
 
     // MARK: - P3: container creation

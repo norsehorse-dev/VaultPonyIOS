@@ -2046,6 +2046,41 @@
         }
       }
     },
+    "Couldn't show this vault in Files." : {
+      "comment" : "Alert message when turning on Files access failed after an unlock. The vault itself is unlocked.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Tresor konnte nicht in Dateien angezeigt werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo mostrar esta bóveda en Archivos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible d'afficher ce coffre dans Fichiers."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível mostrar este cofre no app Arquivos."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось показать это хранилище в приложении «Файлы»."
+          }
+        }
+      }
+    },
     "Create" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3145,6 +3180,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "FAT хранит файлы размером не более 4 ГБ каждый."
+          }
+        }
+      }
+    },
+    "Files Access" : {
+      "comment" : "Alert title for problems turning on Show in Files.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zugriff über Dateien"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acceso a Archivos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accès à Fichiers"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acesso ao app Arquivos"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступ через «Файлы»"
           }
         }
       }
@@ -5455,6 +5525,41 @@
         }
       }
     },
+    "Open VaultPony to unlock this vault." : {
+      "comment" : "Shown inside the Files app when a VaultPony location is no longer unlocked. Title.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffne VaultPony, um diesen Tresor zu entsperren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre VaultPony para desbloquear esta bóveda."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrez VaultPony pour déverrouiller ce coffre."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abra o VaultPony para desbloquear este cofre."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Откройте VaultPony, чтобы разблокировать это хранилище."
+          }
+        }
+      }
+    },
     "OpenPGP encryption" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -5486,6 +5591,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Шифрование OpenPGP"
+          }
+        }
+      }
+    },
+    "Other apps can open and save files in this vault from the Files app while it stays unlocked. Files you open there are decrypted into VaultPony's storage on this device until you lock. With auto-lock set to Immediately, the vault stays unlocked until 2 minutes after you last use it in Files, and never more than 1 hour after you leave VaultPony." : {
+      "comment" : "Footer under the Show in Files toggle on the unlock screen.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Andere Apps können über die Dateien-App Dateien in diesem Tresor öffnen und speichern, solange er entsperrt bleibt. Dateien, die du dort öffnest, werden bis zum Sperren entschlüsselt im Speicher von VaultPony auf diesem Gerät abgelegt. Ist die automatische Sperre auf „Sofort“ gestellt, bleibt der Tresor bis 2 Minuten nach deiner letzten Nutzung in Dateien entsperrt, aber nie länger als 1 Stunde, nachdem du VaultPony verlassen hast."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otras apps pueden abrir y guardar archivos en esta bóveda desde la app Archivos mientras siga desbloqueada. Los archivos que abras allí se descifran en el almacenamiento de VaultPony en este dispositivo hasta que la bloquees. Con el bloqueo automático en Inmediatamente, la bóveda permanece desbloqueada hasta 2 minutos después de la última vez que la uses en Archivos, y nunca más de 1 hora después de salir de VaultPony."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "D'autres apps peuvent ouvrir et enregistrer des fichiers dans ce coffre depuis l'app Fichiers tant qu'il reste déverrouillé. Les fichiers que vous y ouvrez sont déchiffrés dans le stockage de VaultPony sur cet appareil jusqu'à ce que vous le verrouilliez. Avec le verrouillage automatique réglé sur Immédiatement, le coffre reste déverrouillé jusqu'à 2 minutes après votre dernière utilisation dans Fichiers, et jamais plus de 1 heure après que vous avez quitté VaultPony."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Outros apps podem abrir e salvar arquivos neste cofre pelo app Arquivos enquanto ele permanecer desbloqueado. Os arquivos que você abrir lá são descriptografados no armazenamento do VaultPony neste dispositivo até você bloquear. Com o bloqueio automático definido como Imediatamente, o cofre permanece desbloqueado até 2 minutos depois do seu último uso no app Arquivos, e nunca por mais de 1 hora depois que você sai do VaultPony."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Другие приложения могут открывать и сохранять файлы в этом хранилище через приложение «Файлы», пока оно остаётся разблокированным. Файлы, открытые там, расшифровываются и хранятся в данных VaultPony на этом устройстве, пока вы не заблокируете хранилище. Если для автоблокировки выбрано «Сразу», хранилище остаётся разблокированным ещё 2 минуты после последнего использования в приложении «Файлы», но не дольше 1 часа после выхода из VaultPony."
           }
         }
       }
@@ -6249,6 +6389,76 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Настройки"
+          }
+        }
+      }
+    },
+    "Show in Files" : {
+      "comment" : "Toggle on the unlock screen. Makes the unlocked vault available in the iOS Files app (and to other apps through it) until it locks.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Dateien anzeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar en Archivos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher dans Fichiers"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar em Arquivos"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывать в Файлах"
+          }
+        }
+      }
+    },
+    "Show in Files isn't available for this vault, because its location doesn't allow editing in place." : {
+      "comment" : "Alert message after unlocking with Show in Files on, when the vault had to be opened as a local copy.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„In Dateien anzeigen“ ist für diesen Tresor nicht verfügbar, da sein Speicherort keine direkte Bearbeitung zulässt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Mostrar en Archivos» no está disponible para esta bóveda, porque su ubicación no admite la edición in situ."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« Afficher dans Fichiers » n'est pas disponible pour ce coffre, car son emplacement ne permet pas la modification sur place."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A opção Mostrar em Arquivos não está disponível para este cofre porque o local dele não permite a edição no próprio arquivo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Функция «Показывать в Файлах» недоступна для этого хранилища, так как его расположение не позволяет редактировать на месте."
           }
         }
       }
@@ -7020,6 +7230,41 @@
         }
       }
     },
+    "Turn on Show in Files when you unlock it." : {
+      "comment" : "Shown inside the Files app under 'Open VaultPony to unlock this vault.'",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktiviere beim Entsperren „In Dateien anzeigen“."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activa «Mostrar en Archivos» al desbloquearla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activez « Afficher dans Fichiers » lorsque vous le déverrouillez."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ative a opção Mostrar em Arquivos ao desbloqueá-lo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "При разблокировке включите «Показывать в Файлах»."
+          }
+        }
+      }
+    },
     "Typing both passwords together opens the outer vault with the hidden area protected, so you can add decoy files safely." : {
       "localizations" : {
         "de" : {
@@ -7439,6 +7684,41 @@
     "VaultPony" : {
       "comment" : "The name of the app.",
       "isCommentAutoGenerated" : true
+    },
+    "VaultPony couldn't remove every file it showed in Files. They will be removed the next time you open VaultPony." : {
+      "comment" : "Alert message (title: Files Access) when locking left decrypted copies behind in VaultPony's Files storage. They are deleted at the next launch.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultPony konnte nicht alle Dateien entfernen, die in Dateien angezeigt wurden. Sie werden beim nächsten Öffnen von VaultPony entfernt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultPony no pudo eliminar todos los archivos que mostró en Archivos. Se eliminarán la próxima vez que abras VaultPony."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultPony n'a pas pu supprimer tous les fichiers qu'il a affichés dans Fichiers. Ils seront supprimés à la prochaine ouverture de VaultPony."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O VaultPony não conseguiu remover todos os arquivos que mostrou no app Arquivos. Eles serão removidos na próxima vez que você abrir o VaultPony."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultPony не удалось удалить все файлы, которые он показывал в приложении «Файлы». Они будут удалены при следующем открытии VaultPony."
+          }
+        }
+      }
     },
     "VaultPony doesn't have a built-in preview for this file type yet." : {
       "localizations" : {

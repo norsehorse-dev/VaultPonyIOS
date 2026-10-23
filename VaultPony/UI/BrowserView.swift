@@ -401,7 +401,21 @@ struct BrowserView: View {
         }
         isLoading = true
         do {
-            let listed = try await Vault.list(session, path: path)
+            var raw = try await Vault.list(session, path: path)
+            // A Files save that finished writing but was cut off before its
+            // swap: complete it, so the file doesn't look deleted.
+            let done = raw.filter { !$0.isDir && FilesNaming.isDone($0.name) && FilesNaming.target(of: $0.name) != nil }
+            if !done.isEmpty, sessionRegistry.facts?.writable == true {
+                for entry in done {
+                    if let target = FilesNaming.target(of: entry.name) {
+                        try? await Vault.replace(session, src: childPath(entry.name), dst: childPath(target))
+                    }
+                }
+                try? await Vault.flush(session)
+                raw = try await Vault.list(session, path: path)
+            }
+            // Temp files of a copy or a Files save in progress stay hidden.
+            let listed = raw.filter { !FilesNaming.isHiddenFromListing($0.name) }
             entries = listed.sorted { lhs, rhs in
                 if lhs.isDir != rhs.isDir {
                     return lhs.isDir
@@ -560,7 +574,7 @@ struct BrowserView: View {
     private static func plan(session: VaultSession, items: [TransferItem], destination: String, policy: CollisionPolicy, maxFileBytes: UInt64?, clusterBytes: UInt64) async -> TransferPlan {
         await Task.detached {
             TransferPlanner.plan(items: items, into: destination, policy: policy, maxFileBytes: maxFileBytes, clusterBytes: clusterBytes) { folder in
-                ((try? session.list(path: folder)) ?? []).map { ExistingEntry(name: $0.name, isDirectory: $0.isDir) }
+                ((try? FilesGate.shared.perform(session, write: false) { try session.list(path: folder) }) ?? []).map { ExistingEntry(name: $0.name, isDirectory: $0.isDir) }
             }
         }.value
     }

@@ -16,6 +16,9 @@ settings:
     CODE_SIGN_STYLE: Automatic
     GENERATE_INFOPLIST_FILE: YES
     DEVELOPMENT_TEAM: 4AVJZV35G8
+    # One place for the version: the app and both extensions must match.
+    MARKETING_VERSION: "1.1.0"
+    CURRENT_PROJECT_VERSION: "2"
 
 aggregateTargets:
   VaultFFIBuild:
@@ -34,8 +37,14 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - path: VaultPony
+      - path: Shared
       - path: Generated/bindings
         name: Generated
+    entitlements:
+      path: VaultPony/VaultPony.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.dev.norsehorse.vaultpony
     info:
       path: VaultPony/Info.plist
       properties:
@@ -58,8 +67,6 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.norsehorse.vaultpony
         PRODUCT_NAME: VaultPony
-        MARKETING_VERSION: "1.1.0"
-        CURRENT_PROJECT_VERSION: "2"
         SUPPORTS_MACCATALYST: NO
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -67,6 +74,73 @@ targets:
       - target: VaultFFIBuild
       - framework: Generated/VaultFFI.xcframework
         embed: false
+      - target: VaultPonyFileProvider
+      - target: VaultPonyFileProviderUI
+
+  # Files access (2.0.0 rc3, plan 4.2): the non-replicated File Provider
+  # extension. It links the same core and never sees a password.
+  VaultPonyFileProvider:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: VaultPonyFileProvider
+      - path: Shared
+      - path: Generated/bindings
+        name: Generated
+    entitlements:
+      path: VaultPonyFileProvider/VaultPonyFileProvider.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.dev.norsehorse.vaultpony
+    info:
+      path: VaultPonyFileProvider/Info.plist
+      properties:
+        CFBundleDisplayName: VaultPony
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.fileprovider-nonui
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).FileProviderExtension
+          NSExtensionFileProviderDocumentGroup: group.dev.norsehorse.vaultpony
+          NSExtensionFileProviderSupportsEnumeration: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.norsehorse.vaultpony.FileProvider
+        PRODUCT_NAME: VaultPonyFileProvider
+        TARGETED_DEVICE_FAMILY: "1,2"
+        APPLICATION_EXTENSION_API_ONLY: YES
+    dependencies:
+      - target: VaultFFIBuild
+      - framework: Generated/VaultFFI.xcframework
+        embed: false
+
+  # Shown by Files when the vault is no longer unlocked for it: points the
+  # user back to VaultPony. No password entry.
+  VaultPonyFileProviderUI:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: VaultPonyFileProviderUI
+      - path: VaultPony/Resources/Localizable.xcstrings
+    entitlements:
+      path: VaultPonyFileProviderUI/VaultPonyFileProviderUI.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.dev.norsehorse.vaultpony
+    info:
+      path: VaultPonyFileProviderUI/Info.plist
+      properties:
+        CFBundleDisplayName: VaultPony
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.fileprovider-actionsui
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ActionViewController
+          NSExtensionFileProviderActions: []
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.norsehorse.vaultpony.FileProviderUI
+        PRODUCT_NAME: VaultPonyFileProviderUI
+        TARGETED_DEVICE_FAMILY: "1,2"
+        APPLICATION_EXTENSION_API_ONLY: YES
 
   VaultPonyTests:
     type: bundle.unit-test

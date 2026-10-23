@@ -18,6 +18,9 @@ struct UnlockView: View {
     @State private var hiddenPassphrase = ""
 
     @State private var enableBiometric = false
+
+    /// Files access for this unlock only, off by default (D20).
+    @State private var showInFiles = false
     private let isBiometricAvailable = BiometricUnlock.isAvailable()
     private var isBiometricEnrolled: Bool { BiometricUnlock.isEnrolled(vaultId: vault.id) }
 
@@ -93,6 +96,15 @@ struct UnlockView: View {
                     if useOuterProtected {
                         Text("Unlocks the outer volume read-write while refusing any write that would land in the hidden region.")
                     }
+                }
+            }
+
+            if !appPrefs.noTraceMode {
+                Section {
+                    Toggle("Show in Files", isOn: $showInFiles)
+                        .accessibilityIdentifier("showInFilesToggle")
+                } footer: {
+                    Text("Other apps can open and save files in this vault from the Files app while it stays unlocked. Files you open there are decrypted into VaultPony's storage on this device until you lock. With auto-lock set to Immediately, the vault stays unlocked until 2 minutes after you last use it in Files, and never more than 1 hour after you leave VaultPony.")
                 }
             }
 
@@ -203,6 +215,12 @@ struct UnlockView: View {
         }
 
         let pim = UInt32(pimText) ?? 0
+        // The app's own copy of the container fd for Files access, taken
+        // before the core takes ownership of `fd`.
+        var filesFd: Int32?
+        defer {
+            if let filesFd { close(filesFd) }
+        }
 
         do {
             var fd: Int32
@@ -228,6 +246,16 @@ struct UnlockView: View {
                 copyModeInfo = CopyModeInfo(relativePath: relativePath, bookmark: vault.bookmarkData, displayName: vault.displayName)
             }
 
+            if showInFiles, !appPrefs.noTraceMode {
+                let copy = dup(fd)
+                filesFd = copy >= 0 ? copy : nil
+            }
+            // Only a session meant for Files keeps the extra copy of its
+            // keys that the handoff needs (core THREAT_MODEL.md).
+            // A local copy can't be shown in Files (D20); SessionRegistry
+            // says so after the unlock.
+            enableFilesHandoff(on: filesFd != nil && copyModeInfo == nil)
+
             let session: VaultSession
             if useOuterProtected {
                 session = try await Vault.unlockOuterProtected(
@@ -252,7 +280,9 @@ struct UnlockView: View {
             }
 
             let facts = try await Vault.facts(session)
-            sessionRegistry.adopt(session, vaultId: vault.id, facts: facts, copyModeInfo: copyModeInfo)
+            let handedFilesFd = filesFd
+            filesFd = nil
+            sessionRegistry.adopt(session, vaultId: vault.id, facts: facts, copyModeInfo: copyModeInfo, filesFd: handedFilesFd)
             vaultStore.touch(vault.id, filesystem: facts.filesystem)
 
             if enableBiometric, !isBiometricEnrolled {
@@ -266,6 +296,7 @@ struct UnlockView: View {
             hiddenPassphrase = ""
             keyfiles = []
             keyfileCount = 0
+            showInFiles = false
 
             unlockedFacts = facts
         } catch VaultError.Cancelled {

@@ -167,3 +167,80 @@ generated-glue audit for lingering foreign-side secret copies (section 2
 above) now explicitly covers the Swift bindings alongside the Kotlin ones,
 and is re-run at every future phase that adds a new screen touching a
 passphrase or keyfile, not just at P7.
+
+## 9. Files access: the File Provider extension (2.0.0 rc3)
+
+"Show in Files" on the unlock screen (off by default, per unlock, hidden in
+no-trace mode) puts the unlocked vault into the Files app through a
+non-replicated File Provider extension (`VaultPonyFileProvider`). The
+research behind the design is in the Android repo's
+`VaultPony_2.0.0_rc3_Spike.md`; the decisions are plan D18 to D20.
+
+What changes:
+
+- **A second process holds the keys.** The extension is held to about 20 MB
+  and can't run Argon2id, so the app unlocks and hands it the core's key
+  handoff blob (master keys, geometry, a container fingerprint; never the
+  password, PIM or keyfiles) plus a dup of the container fd, over the File
+  Provider XPC service. The service sets `isRestricted`, so only VaultPony
+  can connect, and every call must also present a random token the app
+  writes to the app group for each share. Keys stay in the two processes'
+  memory; nothing goes to the Keychain. Only an unlock with "Show in Files"
+  keeps the extra key copy the handoff needs. The core's THREAT_MODEL.md
+  argues the handoff, including the copies the FFI glue, Swift `Data` and
+  XPC keep and nobody can wipe.
+- **Decrypted files on disk.** A file opened from Files is written out in
+  full to the domain's folder inside the app group, with
+  `FileProtectionType.complete` (folders too) and excluded from backup, and
+  deleted when no app uses it any more (`stopProvidingItem`) and at lock.
+  This is new: until now plaintext only reached disk on an explicit export.
+  The setting's footer says so.
+- **Saves from other apps.** An app that edits a file opened from Files
+  saves over the written-out copy; the extension stores it into the vault
+  a second after the last save (through a temp name, swapped in when
+  complete). If the vault copy changed meanwhile, the save is kept beside
+  it as "name (1)" and later saves of that document go to the copy. Locking
+  stores anything still waiting first (within 10 seconds). A save the
+  extension never saw because iOS killed it in that second is lost with
+  the next extension process, which deletes what it finds on start.
+- **Locking.** Every lock path (button, quick action, auto-lock) asks the
+  extension over XPC to store waiting saves and lock, then posts a Darwin
+  notification it acts on in case the call didn't land, removes the
+  domain, deletes its folder and checks it is gone (and says so in the app
+  if it isn't). A new extension process wipes the folder before answering
+  anything, and the app removes any leftover domain at launch and whenever
+  it comes to the foreground with nothing shared. Any app can post that
+  Darwin notification; the worst it can do is lock the vault early.
+- **Auto-lock while the app is suspended.** The extension checks the
+  deadline (D19) on every Files operation and every 15 seconds while it
+  runs: the user's delay, or 2 minutes for "Immediately", after the later
+  of leaving VaultPony and the last Files activity, and never more than 1
+  hour after leaving. Both processes read the same clock (`FilesGate`:
+  CLOCK_MONOTONIC, which keeps counting in sleep; stamps from before a
+  reboot are discarded); the app writes a heartbeat while in front so a
+  crash in front still starts it. A suspended extension doesn't run, so
+  past the deadline its keys and any written-out files stay until it runs
+  again (and then locks at once) or iOS ends it, or until the app's next
+  launch or return to the foreground.
+- **Two writers, one volume.** The app and the extension each mount the
+  volume. `FilesGate` serializes every core call with a `flock` in the app
+  group, makes the other side remount after a write, and carries a
+  read-only bit so a hidden-volume protection trip in either process stops
+  writes in both. The app keeps a background task around each gated call
+  so it is never suspended holding that lock.
+- **What Files and other apps learn.** The location is always named
+  "VaultPony", for hidden and outer volumes alike, under a random domain id
+  per unlock. Item identifiers are encrypted paths under a key minted per
+  unlock, meaningless after lock. The working set is empty, so vault items
+  never reach Recents, tags, favorites or Spotlight, and no thumbnails are
+  provided. Outside VaultPony's control: Files' own databases, a folder the
+  user drags to Favorites, copies other apps make, and anything the system
+  caches from files while they are open. These can't be inspected on a
+  stock device.
+- **Copy-mode vaults** (opened as a local copy) get no Files access: their
+  changes reach the real container only through a prompt at lock that Files
+  can't show.
+
+Reviewed: rc3, code only. The on-device checks (extension memory, idle
+kill, fd passing, storage locations, residue after lock) are part of the
+rc3 device test.

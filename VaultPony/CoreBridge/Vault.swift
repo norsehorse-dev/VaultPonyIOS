@@ -28,6 +28,15 @@ enum Vault {
         }.value
     }
 
+    /// TrueCrypt mode (2.0.0 rc5, plan 6.2): a volume made with TrueCrypt
+    /// 6.0 to 7.1a. No PIM and no hash choice; same fd contract as
+    /// `unlock`. The session is read-only (`VolumeFacts.truecrypt`).
+    static func unlockTrueCrypt(fd: Int32, passphrase: String, keyfiles: [Data], cancel: UnlockCancel? = nil, progress: UnlockProgressListener?) async throws -> VaultSession {
+        try await Task.detached(priority: .userInitiated) {
+            try VaultSession.unlockTruecryptFd(fd: fd, passphrase: passphrase, keyfiles: keyfiles, cancel: cancel, listener: progress)
+        }.value
+    }
+
     /// What one Argon2id derivation at `pim` needs (0 = the default,
     /// 416 MiB) against what this process can still allocate before the
     /// system terminates it, both in MiB. `os_proc_available_memory()` is
@@ -153,6 +162,38 @@ enum Vault {
         }
     }
 
+    // MARK: - 2.0.0 rc5: Convert to VeraCrypt (plan 6.2, D9)
+
+    /// Files, folders and bytes in the volume, and its largest file.
+    static func summarizeTree(_ session: VaultSession) async throws -> TreeSummary {
+        try await read(session) { try session.summarizeTree() }
+    }
+
+    /// What copying `source` into `destination` takes. Reads only;
+    /// `destination` is a container just made and never shown in Files.
+    static func planCopy(from source: VaultSession, to destination: VaultSession) async throws -> CopyPlan {
+        try await read(source) { try source.planCopyTo(dst: destination) }
+    }
+
+    /// Copies every file and folder of `source` into the root of the new,
+    /// empty `destination`, then checks them. Blocking for as long as the
+    /// copy runs, so it runs detached. `cancel`, or locking either session,
+    /// ends it with `VaultError.Cancelled`.
+    ///
+    /// Not one gated call: holding the Files gate for the whole copy would
+    /// stall the extension and the app's own gate users (heartbeat, leaving
+    /// the app) for minutes, and a suspension while holding it gets the app
+    /// killed. The source is a TrueCrypt session, which is read-only in both
+    /// processes, so nothing can change under it; one gated no-op first
+    /// brings its mount up to date. `destination` is never shared. The core
+    /// takes each session's own lock per filesystem call.
+    static func copyTree(from source: VaultSession, to destination: VaultSession, cancel: UnlockCancel?, progress: CopyProgressListener?) async throws -> CopyReport {
+        try await read(source) { () }
+        return try await Task.detached(priority: .userInitiated) {
+            try source.copyTreeTo(dst: destination, cancel: cancel, listener: progress)
+        }.value
+    }
+
     // MARK: - P3: container creation
     //
     // Named distinctly from the generated global funcs (createContainer,
@@ -206,6 +247,13 @@ enum Vault {
     /// What the user sees for a scheme ("AES-Twofish-Serpent" for the core's
     /// "AES(Twofish(Serpent))"). The core keeps taking the registry name.
     static func schemeLabel(_ name: String) -> String { schemeDisplayName(name: name) }
+
+    /// What the user sees for `VolumeFacts.filesystem` (2.0.0 rc5): "ext4"
+    /// for the core's "Ext4", which also covers ext2 and ext3. Other names
+    /// show as they come.
+    static func filesystemLabel(_ name: String) -> String {
+        name == "Ext4" ? "ext4" : name
+    }
 
     // MARK: - P4: custody — change password, header backup/restore
     //

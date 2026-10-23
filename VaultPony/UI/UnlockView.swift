@@ -40,6 +40,12 @@ struct UnlockView: View {
     @State private var cancelHandle: UnlockCancel?
     @State private var memoryWarning: MemoryCheck?
 
+    // TrueCrypt mode (2.0.0 rc5, plan 6.2): no PIM, no hash menu, no
+    // hidden-volume protection. Remembered per vault like the hash: only
+    // when ticked by hand and the unlock worked.
+    @State private var trueCryptMode = false
+    @State private var trueCryptPickedByHand = false
+
     /// The name shown for this vault ("Vault 2" when names are hidden).
     private var vaultLabel: String { vaultStore.label(for: vault) }
 
@@ -53,6 +59,20 @@ struct UnlockView: View {
     /// Only "Auto" is translated; the others are hash names.
     private func hashTitle(_ choice: HashChoice) -> Text {
         choice.filter == .auto ? Text("Auto") : Text(verbatim: choice.label)
+    }
+
+    private var trueCryptSelection: Binding<Bool> {
+        Binding(
+            get: { trueCryptMode },
+            set: { on in
+                trueCryptMode = on
+                trueCryptPickedByHand = true
+                if !on {
+                    // Unticking forgets it.
+                    vaultStore.setRememberedTrueCrypt(vault.id, on: false)
+                }
+            }
+        )
     }
 
     private var hashSelection: Binding<KdfFilter> {
@@ -84,25 +104,29 @@ struct UnlockView: View {
 
             Section {
                 RevealableSecureField(title: "Password", text: $passphrase, accessibilityIdentifier: "passwordField")
-                TextField("PIM (0 = default)", text: $pimText)
-                    .keyboardType(.numberPad)
+                if !trueCryptMode {
+                    TextField("PIM (0 = default)", text: $pimText)
+                        .keyboardType(.numberPad)
+                }
                 if isBiometricAvailable && !isBiometricEnrolled && offersFaceID {
                     Toggle("Enable Face ID for this vault", isOn: $enableBiometric)
                 }
             }
 
-            Section {
-                Picker("Hash", selection: hashSelection) {
-                    ForEach(hashChoices, id: \.label) { choice in
-                        hashTitle(choice).tag(choice.filter)
+            if !trueCryptMode {
+                Section {
+                    Picker("Hash", selection: hashSelection) {
+                        ForEach(hashChoices, id: \.label) { choice in
+                            hashTitle(choice).tag(choice.filter)
+                        }
+                        if kdf == .pbkdf2Only {
+                            Text("PBKDF2").tag(KdfFilter.pbkdf2Only)
+                        }
                     }
-                    if kdf == .pbkdf2Only {
-                        Text("PBKDF2").tag(KdfFilter.pbkdf2Only)
-                    }
+                    .pickerStyle(.menu)
+                } footer: {
+                    Text("Auto tries every hash, like VeraCrypt. If you know which hash your vault uses, picking it makes unlocking faster.")
                 }
-                .pickerStyle(.menu)
-            } footer: {
-                Text("Auto tries every hash, like VeraCrypt. If you know which hash your vault uses, picking it makes unlocking faster.")
             }
 
             Section {
@@ -119,16 +143,28 @@ struct UnlockView: View {
             }
 
             Section {
-                Toggle("Open the outer volume and protect a hidden one", isOn: $useOuterProtected)
-                if useOuterProtected {
-                    RevealableSecureField(title: "Hidden volume password", text: $hiddenPassphrase)
+                Toggle("TrueCrypt mode", isOn: trueCryptSelection)
+                    .accessibilityIdentifier("trueCryptToggle")
+            } footer: {
+                Text("For volumes made with TrueCrypt 6.0 to 7.1a. They open read-only.")
+            }
+
+            Section {
+                // TrueCrypt volumes open read-only, so there is nothing to
+                // protect; a hidden TrueCrypt volume still opens with its
+                // own password.
+                if !trueCryptMode {
+                    Toggle("Open the outer volume and protect a hidden one", isOn: $useOuterProtected)
+                    if useOuterProtected {
+                        RevealableSecureField(title: "Hidden volume password", text: $hiddenPassphrase)
+                    }
                 }
             } footer: {
                 // The first note shows on every unlock screen, hidden
                 // volume or not, so the screen gives nothing away.
                 VStack(alignment: .leading, spacing: 6) {
                     Text("A hidden volume opens when you type its password in the password field.")
-                    if useOuterProtected {
+                    if useOuterProtected && !trueCryptMode {
                         Text("Unlocks the outer volume read-write while refusing any write that would land in the hidden region.")
                     }
                 }
@@ -160,12 +196,12 @@ struct UnlockView: View {
                         .foregroundStyle(.red)
                     Button("Try anyway") {
                         memoryWarning = nil
-                        Task { await unlock(kdf: kdf) }
+                        Task { await unlock(kdf: kdf, trueCrypt: false) }
                     }
                     Button("Skip Argon2id") {
                         memoryWarning = nil
                         kdf = .pbkdf2Only
-                        Task { await unlock(kdf: .pbkdf2Only) }
+                        Task { await unlock(kdf: .pbkdf2Only, trueCrypt: false) }
                     }
                 }
             }
@@ -217,6 +253,10 @@ struct UnlockView: View {
                let filter = Vault.kdfFilter(forHash: remembered) {
                 kdf = filter
             }
+            // And the TrueCrypt toggle on TrueCrypt mode ticked last time.
+            if vaultStore.rememberedTrueCrypt(for: vault.id) {
+                trueCryptMode = true
+            }
         }
     }
 
@@ -230,7 +270,7 @@ struct UnlockView: View {
             return
         }
         passphrase = credential.passphrase
-        await unlock(viaBiometric: true, kdf: credential.kdf)
+        await unlock(viaBiometric: true, kdf: credential.kdf, trueCrypt: credential.trueCrypt)
     }
 
     /// The Unlock button: check memory first when Argon2id may run, so a
@@ -238,6 +278,11 @@ struct UnlockView: View {
     private func startUnlock() {
         errorMessage = nil
         memoryWarning = nil
+        if trueCryptMode {
+            // TrueCrypt has no Argon2id: nothing to check.
+            Task { await unlock(kdf: .auto, trueCrypt: true) }
+            return
+        }
         if Vault.mayUseArgon2(kdf) {
             let check = Vault.argon2MemoryCheck(pim: UInt32(pimText) ?? 0)
             if !check.enough {
@@ -245,10 +290,12 @@ struct UnlockView: View {
                 return
             }
         }
-        Task { await unlock(kdf: kdf) }
+        Task { await unlock(kdf: kdf, trueCrypt: false) }
     }
 
-    private func unlock(viaBiometric: Bool = false, kdf: KdfFilter) async {
+    /// `trueCrypt` unlocks in TrueCrypt mode (2.0.0 rc5); `kdf` and the PIM
+    /// are not used then.
+    private func unlock(viaBiometric: Bool = false, kdf: KdfFilter, trueCrypt: Bool) async {
         errorMessage = nil
         isUnlocking = true
         let handle = UnlockCancel()
@@ -301,7 +348,15 @@ struct UnlockView: View {
             enableFilesHandoff(on: filesFd != nil && copyModeInfo == nil)
 
             let session: VaultSession
-            if useOuterProtected {
+            if trueCrypt {
+                session = try await Vault.unlockTrueCrypt(
+                    fd: fd,
+                    passphrase: passphrase,
+                    keyfiles: keyfiles,
+                    cancel: handle,
+                    progress: progress
+                )
+            } else if useOuterProtected {
                 session = try await Vault.unlockOuterProtected(
                     fd: fd,
                     outerPassphrase: passphrase,
@@ -331,16 +386,20 @@ struct UnlockView: View {
 
             // A hash picked by hand is remembered for this vault, unless
             // the list keeps nothing. Biometric unlocks keep their own KDF.
-            if !viaBiometric, hashPickedByHand, !listKeepsNothing,
+            if !viaBiometric, !trueCrypt, hashPickedByHand, !listKeepsNothing,
                let label = hashChoices.first(where: { $0.filter == kdf && $0.filter != .auto })?.label {
                 vaultStore.setRememberedHash(vault.id, hash: label)
             }
+            // TrueCrypt mode ticked by hand is remembered the same way.
+            if !viaBiometric, trueCrypt, trueCryptPickedByHand, !listKeepsNothing {
+                vaultStore.setRememberedTrueCrypt(vault.id, on: true)
+            }
 
             if enableBiometric, !isBiometricEnrolled, offersFaceID {
-                // Remember which KDF family opened it, so a Face ID unlock
-                // goes straight there next time.
+                // Remember which KDF family opened it, and TrueCrypt mode,
+                // so a Face ID unlock goes straight there next time.
                 let found: KdfFilter = facts.prf == "Argon2id" ? .argon2idOnly : .pbkdf2Only
-                try? BiometricUnlock.enroll(vaultId: vault.id, passphrase: passphrase, kdf: found)
+                try? BiometricUnlock.enroll(vaultId: vault.id, passphrase: passphrase, kdf: found, trueCrypt: trueCrypt)
             }
 
             passphrase = ""

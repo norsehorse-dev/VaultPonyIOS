@@ -46,14 +46,17 @@ enum BiometricUnlock {
     struct StoredCredential: Sendable {
         let passphrase: String
         let kdf: KdfFilter
+        /// The vault opened in TrueCrypt mode (2.0.0 rc5). False for
+        /// credentials enrolled before rc5.
+        let trueCrypt: Bool
     }
 
     /// Opts a vault in: stores its passphrase (and the KDF family that
     /// opened it) behind biometry. Overwrites any existing stored
     /// credential for this vault.
-    static func enroll(vaultId: UUID, passphrase: String, kdf: KdfFilter = .auto) throws {
+    static func enroll(vaultId: UUID, passphrase: String, kdf: KdfFilter = .auto, trueCrypt: Bool = false) throws {
         guard isAvailable() else { throw BiometricError.unavailable }
-        guard let data = encode(passphrase: passphrase, kdf: kdf).data(using: .utf8) else { throw BiometricError.storeFailed(errSecParam) }
+        guard let data = encode(passphrase: passphrase, kdf: kdf, trueCrypt: trueCrypt).data(using: .utf8) else { throw BiometricError.storeFailed(errSecParam) }
 
         remove(vaultId: vaultId)
 
@@ -106,22 +109,33 @@ enum BiometricUnlock {
         }.value
     }
 
-    // Stored format since 1.1.0: "v2\n<kdf>\n<passphrase>", passphrase last
-    // so any character in it survives. Items enrolled before 1.1.0 hold the
-    // bare passphrase (a single line from a SecureField, so never "v2\n…")
-    // and unlock with .auto.
+    // Stored format since 2.0.0 rc5: "v3\n<kdf>\n<mode>\n<passphrase>",
+    // where <mode> is "truecrypt" or "veracrypt"; passphrase last so any
+    // character in it survives. 1.1.0 to rc4 wrote "v2\n<kdf>\n<passphrase>"
+    // (VeraCrypt mode). Items enrolled before 1.1.0 hold the bare passphrase
+    // (a single line from a SecureField, so never "v2\n…" or "v3\n…") and
+    // unlock with .auto.
     private static let formatV2 = "v2"
+    private static let formatV3 = "v3"
+    private static let trueCryptMode = "truecrypt"
+    private static let veraCryptMode = "veracrypt"
 
-    private static func encode(passphrase: String, kdf: KdfFilter) -> String {
-        "\(formatV2)\n\(kdfName(kdf))\n\(passphrase)"
+    private static func encode(passphrase: String, kdf: KdfFilter, trueCrypt: Bool) -> String {
+        "\(formatV3)\n\(kdfName(kdf))\n\(trueCrypt ? trueCryptMode : veraCryptMode)\n\(passphrase)"
     }
 
     private static func decode(_ stored: String) -> StoredCredential {
+        if stored.hasPrefix(formatV3 + "\n") {
+            let parts = stored.split(separator: "\n", maxSplits: 3, omittingEmptySubsequences: false)
+            if parts.count == 4 {
+                return StoredCredential(passphrase: String(parts[3]), kdf: kdf(named: String(parts[1])), trueCrypt: parts[2] == trueCryptMode)
+            }
+        }
         let parts = stored.split(separator: "\n", maxSplits: 2, omittingEmptySubsequences: false)
         guard parts.count == 3, parts[0] == formatV2 else {
-            return StoredCredential(passphrase: stored, kdf: .auto)
+            return StoredCredential(passphrase: stored, kdf: .auto, trueCrypt: false)
         }
-        return StoredCredential(passphrase: String(parts[2]), kdf: kdf(named: String(parts[1])))
+        return StoredCredential(passphrase: String(parts[2]), kdf: kdf(named: String(parts[1])), trueCrypt: false)
     }
 
     private static func kdfName(_ kdf: KdfFilter) -> String {

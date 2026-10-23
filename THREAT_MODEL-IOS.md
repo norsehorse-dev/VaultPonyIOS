@@ -319,3 +319,47 @@ Reviewed: rc4, code only. On-device checks: the share hand-off from Photos
 and Files (large videos included), the extension's memory use, residue in
 the app group and the app's tmp/ after import, cancel and lock, Now
 Playing with a video open, and thumbnails dropped at lock.
+
+## 11. Camera capture into a vault (2.0.0 rc5)
+
+**Where it is.** "Take photo" and "Record video" are in the browser's add
+menu, only for a writable volume, and only in the main app: neither the
+File Provider nor the Share extension can open the camera, and neither
+declares a camera or microphone usage string.
+
+**Permissions.** The camera is asked for the first time the camera screen
+opens, the microphone only the first time Video is chosen. Without the
+microphone, video records without sound. VaultPony asks for no Photos
+access at all, so nothing can be saved to or read from the photo library.
+
+**Photos stay in memory.** `AVCapturePhotoOutput` returns the JPEG as bytes
+(`fileDataRepresentation()`), which are written into the vault through
+`Vault.writeAt`. No location is added; the JPEG carries the camera's usual
+EXIF fields only.
+
+**Video never touches the disk outside the vault.** Frames and sound from
+`AVCaptureVideoDataOutput` and `AVCaptureAudioDataOutput` go into an
+`AVAssetWriter` created with a content type and no output URL, using the
+Apple HLS profile. It hands back fragmented MP4 in memory through its
+delegate: the init segment, then a segment about every 2 seconds. Each
+segment is appended, in order, to a temporary file in the vault. There is
+no temp file in the app's container, tmp/, caches or the app group at any
+point. AVFoundation's own in-memory buffers are outside VaultPony's
+control, as for playback (section 10).
+
+**Names and partial files.** A capture is written under a hidden
+".vaultpony-<token>.part" name and `replace`d to "IMG_yyyyMMdd_HHmmss.jpg"
+or "VID_yyyyMMdd_HHmmss.mp4" (local time; "name (1)" when taken) only when
+complete, so a crash leaves at worst a hidden partial file inside the vault,
+which the next import into that folder deletes.
+
+**Locks.** A recording or save in progress holds off the auto-lock like a
+copy (D13). Any lock that still happens (Lock vaults, background time
+running out) first stops the recording and removes its temporary file,
+then the camera closes. Going to the background finishes and keeps a
+recording while the vault is still unlocked.
+
+Reviewed: rc5, code only. On-device checks still to do: no new files in
+the app container, tmp/ or Photos after photos and videos; recorded videos
+play in VaultPony and other players; lock and backgrounding during a
+recording.

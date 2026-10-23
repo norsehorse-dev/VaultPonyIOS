@@ -394,6 +394,256 @@
         }
       }
     },
+    "%lld links or special files were skipped." : {
+      "comment" : "Convert result note. Needs plural forms.",
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Link oder spezielle Datei wurde übersprungen."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Links oder spezielle Dateien wurden übersprungen."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld link or special file was skipped."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld links or special files were skipped."
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Se omitió %lld enlace o archivo especial."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Se omitieron %lld enlaces o archivos especiales."
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld lien ou fichier spécial a été ignoré."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld liens ou fichiers spéciaux ont été ignorés."
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld link ou arquivo especial foi pulado."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld links ou arquivos especiais foram pulados."
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Пропущено ссылок и специальных файлов: %lld."
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Пропущено ссылок и специальных файлов: %lld."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Пропущено ссылок и специальных файлов: %lld."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Пропущено ссылок и специальных файлов: %lld."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld names were changed to work on FAT or exFAT." : {
+      "comment" : "Convert result note. Needs plural forms.",
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Name wurde geändert, damit er unter FAT oder exFAT funktioniert."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Namen wurden geändert, damit sie unter FAT oder exFAT funktionieren."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld name was changed to work on FAT or exFAT."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld names were changed to work on FAT or exFAT."
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Se cambió %lld nombre para que funcione en FAT o exFAT."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Se cambiaron %lld nombres para que funcionen en FAT o exFAT."
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld nom a été modifié pour fonctionner sur FAT ou exFAT."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld noms ont été modifiés pour fonctionner sur FAT ou exFAT."
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld nome foi alterado para funcionar em FAT ou exFAT."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld nomes foram alterados para funcionar em FAT ou exFAT."
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Изменено имён для совместимости с FAT или exFAT: %lld."
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Изменено имён для совместимости с FAT или exFAT: %lld."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Изменено имён для совместимости с FAT или exFAT: %lld."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Изменено имён для совместимости с FAT или exFAT: %lld."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld selected" : {
       "comment" : "Count of selected keyfiles (unlock, create, change password) and of selected items in the file browser's selection bar. Needs plural forms.",
       "extractionState" : "stale",
@@ -619,6 +869,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "30 секунд"
+          }
+        }
+      }
+    },
+    "A file is larger than 4 GB, so the new container uses exFAT." : {
+      "comment" : "Convert form note under the filesystem choice.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Datei ist größer als 4 GB, daher verwendet der neue Container exFAT."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un archivo supera los 4 GB, así que el nuevo contenedor usa exFAT."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un fichier dépasse 4 Go, le nouveau conteneur utilise donc exFAT."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um arquivo tem mais de 4 GB, então o novo contêiner usa exFAT."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Один из файлов больше 4 ГБ, поэтому новый контейнер использует exFAT."
           }
         }
       }
@@ -1881,6 +2166,41 @@
         }
       }
     },
+    "Close" : {
+      "comment" : "Camera close button.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schließen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fermer"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fechar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрыть"
+          }
+        }
+      }
+    },
     "Conceals a second volume inside this one. The outer password alone opens the decoy; the hidden password opens the real contents. The outer volume shows no trace of the hidden one." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2091,6 +2411,428 @@
         }
       }
     },
+    "Conversion stopped. The new container is incomplete." : {
+      "comment" : "Convert failure or stop message.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umwandlung abgebrochen. Der neue Container ist unvollständig."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conversión detenida. El nuevo contenedor está incompleto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conversion interrompue. Le nouveau conteneur est incomplet."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conversão interrompida. O novo contêiner está incompleto."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Преобразование остановлено. Новый контейнер неполный."
+          }
+        }
+      }
+    },
+    "Convert" : {
+      "comment" : "Convert form button.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umwandeln"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Convertir"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Convertir"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Converter"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Преобразовать"
+          }
+        }
+      }
+    },
+    "Convert to VeraCrypt" : {
+      "comment" : "Button and screen title: copy a TrueCrypt volume into a new VeraCrypt container.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In VeraCrypt umwandeln"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Convertir a VeraCrypt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Convertir en VeraCrypt"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Converter para VeraCrypt"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Преобразовать в VeraCrypt"
+          }
+        }
+      }
+    },
+    "Converted. %lld files and %lld folders copied and checked." : {
+      "comment" : "Convert result. Each count has its own plural.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umgewandelt. %#@files@ und %#@folders@ kopiert und geprüft."
+          },
+          "substitutions" : {
+            "files" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Datei"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Dateien"
+                    }
+                  }
+                }
+              }
+            },
+            "folders" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Ordner"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Ordner"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Converted. %#@files@ and %#@folders@ copied and checked."
+          },
+          "substitutions" : {
+            "files" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg file"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg files"
+                    }
+                  }
+                }
+              }
+            },
+            "folders" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg folder"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg folders"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Convertido. Se copiaron y comprobaron %#@files@ y %#@folders@."
+          },
+          "substitutions" : {
+            "files" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg archivo"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg archivos"
+                    }
+                  }
+                }
+              }
+            },
+            "folders" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg carpeta"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg carpetas"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conversion terminée. %#@files@ et %#@folders@ copiés et vérifiés."
+          },
+          "substitutions" : {
+            "files" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg fichier"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg fichiers"
+                    }
+                  }
+                }
+              }
+            },
+            "folders" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg dossier"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg dossiers"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conversão concluída. %#@files@ e %#@folders@ copiados e verificados."
+          },
+          "substitutions" : {
+            "files" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg arquivo"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg arquivos"
+                    }
+                  }
+                }
+              }
+            },
+            "folders" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg pasta"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg pastas"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Преобразовано. %#@files@ и %#@folders@ скопированы и проверены."
+          },
+          "substitutions" : {
+            "files" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg файл"
+                    }
+                  },
+                  "few" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg файла"
+                    }
+                  },
+                  "many" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg файлов"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg файла"
+                    }
+                  }
+                }
+              }
+            },
+            "folders" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg папка"
+                    }
+                  },
+                  "few" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg папки"
+                    }
+                  },
+                  "many" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg папок"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg папки"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "Copying %@ of %@" : {
       "comment" : "A heading that shows the number of files copied so far and the total number of files.",
       "isCommentAutoGenerated" : true,
@@ -2170,6 +2912,191 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Копирование %1$lld из %2$lld"
+          }
+        }
+      }
+    },
+    "Copying %lld of %lld files" : {
+      "comment" : "Convert progress: files copied of the total. Plural follows the total.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopiere %1$lld von %#@total@"
+          },
+          "substitutions" : {
+            "total" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Datei"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Dateien"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copying %1$lld of %#@total@"
+          },
+          "substitutions" : {
+            "total" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg file"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg files"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiando %1$lld de %#@total@"
+          },
+          "substitutions" : {
+            "total" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg archivo"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg archivos"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copie de %1$lld sur %#@total@"
+          },
+          "substitutions" : {
+            "total" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg fichier"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg fichiers"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiando %1$lld de %#@total@"
+          },
+          "substitutions" : {
+            "total" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg arquivo"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg arquivos"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Копирование %1$lld из %#@total@"
+          },
+          "substitutions" : {
+            "total" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg файла"
+                    }
+                  },
+                  "few" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg файлов"
+                    }
+                  },
+                  "many" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg файлов"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg файла"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -2488,6 +3415,41 @@
         }
       }
     },
+    "Couldn't save the video." : {
+      "comment" : "Camera error.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Video konnte nicht gespeichert werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo guardar el vídeo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible d'enregistrer la vidéo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível salvar o vídeo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось сохранить видео."
+          }
+        }
+      }
+    },
     "Couldn't show this vault in Files." : {
       "comment" : "Alert message when turning on Files access failed after an unlock. The vault itself is unlocked.",
       "extractionState" : "stale",
@@ -2520,6 +3482,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не удалось показать это хранилище в приложении «Файлы»."
+          }
+        }
+      }
+    },
+    "Counting files…" : {
+      "comment" : "Convert screen while it counts the TrueCrypt volume's files.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien werden gezählt …"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contando archivos…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comptage des fichiers…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contando arquivos…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подсчёт файлов…"
           }
         }
       }
@@ -2995,6 +3992,41 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "Delete new container" : {
+      "comment" : "Convert failure button.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neuen Container löschen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar el nuevo contenedor"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer le nouveau conteneur"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excluir o novo contêiner"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить новый контейнер"
           }
         }
       }
@@ -4068,6 +5100,76 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Имя папки"
+          }
+        }
+      }
+    },
+    "For volumes made with TrueCrypt 6.0 to 7.1a. They open read-only." : {
+      "comment" : "Footer under the TrueCrypt mode toggle.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Für Datenträger, die mit TrueCrypt 6.0 bis 7.1a erstellt wurden. Sie werden schreibgeschützt geöffnet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para volúmenes creados con TrueCrypt 6.0 a 7.1a. Se abren como solo lectura."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pour les volumes créés avec TrueCrypt 6.0 à 7.1a. Ils s'ouvrent en lecture seule."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para volumes criados com o TrueCrypt 6.0 a 7.1a. Eles abrem como somente leitura."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для томов, созданных в TrueCrypt версий от 6.0 до 7.1a. Они открываются только для чтения."
+          }
+        }
+      }
+    },
+    "Format" : {
+      "comment" : "Volume info row: VeraCrypt or TrueCrypt.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formato"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formato"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Формат"
           }
         }
       }
@@ -5212,6 +6314,41 @@
         }
       }
     },
+    "Keep it" : {
+      "comment" : "Convert failure button: keep the incomplete container.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Behalten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conservarlo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le conserver"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manter"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оставить"
+          }
+        }
+      }
+    },
     "Key backup with secret sharing" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -5521,6 +6658,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Надёжно защищено"
+          }
+        }
+      }
+    },
+    "Mode" : {
+      "comment" : "Camera photo/video switch (accessibility label).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modus"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mode"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Режим"
           }
         }
       }
@@ -6463,6 +7635,41 @@
         }
       }
     },
+    "Open new vault" : {
+      "comment" : "Convert result button.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neuen Tresor öffnen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir la nueva bóveda"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir le nouveau coffre"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir o novo cofre"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть новое хранилище"
+          }
+        }
+      }
+    },
     "Open Settings" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -6848,6 +8055,41 @@
         }
       }
     },
+    "Photo" : {
+      "comment" : "Camera mode.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photo"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Фото"
+          }
+        }
+      }
+    },
     "PIM (0 = default)" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -7052,6 +8294,76 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Только чтение"
+          }
+        }
+      }
+    },
+    "Record video" : {
+      "comment" : "Browser add menu and camera record button.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video aufnehmen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grabar vídeo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrer une vidéo"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gravar vídeo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Записать видео"
+          }
+        }
+      }
+    },
+    "Recording without sound. Allow the microphone to record sound." : {
+      "comment" : "Camera message when microphone access is denied.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufnahme ohne Ton. Erlaube den Zugriff auf das Mikrofon, um Ton aufzunehmen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grabando sin sonido. Permite el acceso al micrófono para grabar sonido."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrement sans son. Autorisez le micro pour enregistrer le son."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gravando sem som. Permita o acesso ao microfone para gravar o som."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запись без звука. Разрешите доступ к микрофону, чтобы записывать звук."
           }
         }
       }
@@ -7470,6 +8782,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сохранить здесь"
+          }
+        }
+      }
+    },
+    "Saved to %@" : {
+      "comment" : "Camera confirmation after a capture. The placeholder is a folder or vault name.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gespeichert in %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardado en %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistré dans %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salvo em %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранено в «%@»"
           }
         }
       }
@@ -8208,6 +9555,76 @@
         }
       }
     },
+    "Stop" : {
+      "comment" : "Stop button: stop a recording or a conversion.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stoppen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detener"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arrêter"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Остановить"
+          }
+        }
+      }
+    },
+    "Switch camera" : {
+      "comment" : "Camera button: front or back camera (accessibility label).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kamera wechseln"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambiar cámara"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changer de caméra"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alternar câmera"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переключить камеру"
+          }
+        }
+      }
+    },
     "System" : {
       "localizations" : {
         "de" : {
@@ -8277,6 +9694,41 @@
         }
       }
     },
+    "Take photo" : {
+      "comment" : "Browser add menu and camera shutter: take a photo into the vault.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto aufnehmen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hacer foto"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prendre une photo"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tirar foto"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сделать фото"
+          }
+        }
+      }
+    },
     "The data inside the vault is untouched — only the password that unlocks it changes." : {
       "localizations" : {
         "de" : {
@@ -8342,6 +9794,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "В списке отображаются «Хранилище 1», «Хранилище 2» и так далее. Сохранённая ссылка на каждый файл по-прежнему указывает его расположение, потому что она нужна VaultPony, чтобы снова открыть файл."
+          }
+        }
+      }
+    },
+    "The new container needs to be at least %@." : {
+      "comment" : "Convert form: the size is too small. The placeholder is a file size like 120 MB.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der neue Container muss mindestens %@ groß sein."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El nuevo contenedor debe tener al menos %@."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le nouveau conteneur doit faire au moins %@."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O novo contêiner precisa ter pelo menos %@."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новый контейнер должен быть не меньше %@."
           }
         }
       }
@@ -8561,6 +10048,41 @@
         }
       }
     },
+    "This ext4 volume uses a feature VaultPony can't read yet (%@)." : {
+      "comment" : "Unlock error. The placeholder is an English feature name from the ext4 reader.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser ext4-Datenträger nutzt eine Funktion, die VaultPony noch nicht lesen kann (%@)."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este volumen ext4 usa una función que VaultPony aún no puede leer (%@)."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce volume ext4 utilise une fonctionnalité que VaultPony ne sait pas encore lire (%@)."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este volume ext4 usa um recurso que o VaultPony ainda não consegue ler (%@)."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Этот том ext4 использует функцию, которую VaultPony пока не умеет читать (%@)."
+          }
+        }
+      }
+    },
     "This file is too large to preview yet (%@)." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -8627,6 +10149,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Эта папка"
+          }
+        }
+      }
+    },
+    "This is a hidden TrueCrypt volume. It converts to an ordinary VeraCrypt container; the hidden-volume structure doesn't carry over." : {
+      "comment" : "Convert form note when the TrueCrypt volume is a hidden volume.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dies ist ein versteckter TrueCrypt-Datenträger. Er wird in einen gewöhnlichen VeraCrypt-Container umgewandelt; die Struktur des versteckten Datenträgers wird nicht übernommen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este es un volumen oculto de TrueCrypt. Se convierte en un contenedor VeraCrypt normal; la estructura de volumen oculto no se conserva."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ceci est un volume TrueCrypt caché. Il devient un conteneur VeraCrypt ordinaire ; la structure de volume caché n'est pas conservée."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este é um volume oculto do TrueCrypt. Ele é convertido em um contêiner VeraCrypt comum; a estrutura de volume oculto não é mantida."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это скрытый том TrueCrypt. Он преобразуется в обычный контейнер VeraCrypt; структура скрытого тома не переносится."
           }
         }
       }
@@ -8701,6 +10258,41 @@
         }
       }
     },
+    "This volume was made with a TrueCrypt version before 6.0, which VaultPony can't open." : {
+      "comment" : "Unlock error for TrueCrypt volumes older than 6.0.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Datenträger wurde mit einer TrueCrypt-Version vor 6.0 erstellt. VaultPony kann ihn nicht öffnen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este volumen se creó con una versión de TrueCrypt anterior a la 6.0, que VaultPony no puede abrir."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce volume a été créé avec une version de TrueCrypt antérieure à 6.0, que VaultPony ne sait pas ouvrir."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este volume foi criado com uma versão do TrueCrypt anterior à 6.0, que o VaultPony não consegue abrir."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Этот том создан в TrueCrypt версии ниже 6.0, и VaultPony не может его открыть."
+          }
+        }
+      }
+    },
     "To keep using the same keyfiles, add them again under New keyfiles. Leave New keyfiles empty to stop using keyfiles." : {
       "comment" : "Help under the keyfile rows on the Change Password screen.",
       "localizations" : {
@@ -8766,6 +10358,146 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Чтобы потом открыть скрытое хранилище, введите только скрытый пароль в обычное поле пароля."
+          }
+        }
+      }
+    },
+    "TrueCrypt (read-only)" : {
+      "comment" : "Volume info value for the Format row.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TrueCrypt (schreibgeschützt)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TrueCrypt (solo lectura)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TrueCrypt (lecture seule)"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TrueCrypt (somente leitura)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TrueCrypt (только чтение)"
+          }
+        }
+      }
+    },
+    "TrueCrypt mode" : {
+      "comment" : "Unlock screen toggle, as in VeraCrypt's mount dialog.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TrueCrypt-Modus"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modo TrueCrypt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mode TrueCrypt"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modo TrueCrypt"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Режим TrueCrypt"
+          }
+        }
+      }
+    },
+    "TrueCrypt volume: read-only. Convert it to VeraCrypt to make changes." : {
+      "comment" : "Banner at the top of the file browser for TrueCrypt volumes.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TrueCrypt-Datenträger: schreibgeschützt. Wandle ihn in VeraCrypt um, um Änderungen vorzunehmen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volumen TrueCrypt: solo lectura. Conviértelo a VeraCrypt para hacer cambios."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volume TrueCrypt : lecture seule. Convertissez-le en VeraCrypt pour le modifier."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volume do TrueCrypt: somente leitura. Converta-o para VeraCrypt para fazer alterações."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Том TrueCrypt: только чтение. Чтобы вносить изменения, преобразуйте его в VeraCrypt."
+          }
+        }
+      }
+    },
+    "TrueCrypt volumes open read-only. Convert the volume to VeraCrypt to make changes." : {
+      "comment" : "Error when something tries to write to a TrueCrypt volume.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TrueCrypt-Datenträger werden schreibgeschützt geöffnet. Wandle den Datenträger in VeraCrypt um, um Änderungen vorzunehmen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los volúmenes TrueCrypt se abren como solo lectura. Convierte el volumen a VeraCrypt para hacer cambios."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les volumes TrueCrypt s'ouvrent en lecture seule. Convertissez-le en VeraCrypt pour le modifier."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volumes do TrueCrypt abrem como somente leitura. Converta-o para VeraCrypt para fazer alterações."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тома TrueCrypt открываются только для чтения. Чтобы вносить изменения, преобразуйте том в VeraCrypt."
           }
         }
       }
@@ -9575,6 +11307,80 @@
         }
       }
     },
+    "VaultPony makes a new VeraCrypt container and copies every file into it. The TrueCrypt container is not changed or deleted. Remove it yourself once you've checked the new one." : {
+      "comment" : "Intro text on the Convert to VeraCrypt form.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultPony erstellt einen neuen VeraCrypt-Container und kopiert jede Datei hinein. Der TrueCrypt-Container wird weder geändert noch gelöscht. Entferne ihn selbst, sobald du den neuen geprüft hast."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultPony crea un contenedor VeraCrypt nuevo y copia en él todos los archivos. El contenedor TrueCrypt no se modifica ni se elimina. Elimínalo tú cuando hayas comprobado el nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultPony crée un nouveau conteneur VeraCrypt et y copie tous les fichiers. Le conteneur TrueCrypt n'est ni modifié ni supprimé. Supprimez-le vous-même une fois le nouveau vérifié."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O VaultPony cria um novo contêiner VeraCrypt e copia todos os arquivos para ele. O contêiner TrueCrypt não é alterado nem excluído. Remova-o você mesmo depois de verificar o novo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultPony создаёт новый контейнер VeraCrypt и копирует в него все файлы. Контейнер TrueCrypt не изменяется и не удаляется. Удалите его сами, когда проверите новый."
+          }
+        }
+      }
+    },
+    "VaultPony needs the camera to take photos into the vault." : {
+      "comment" : "Camera access denied message.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultPony braucht die Kamera, um Fotos direkt in den Tresor aufzunehmen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultPony necesita la cámara para hacer fotos directamente en la bóveda."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultPony a besoin de l'appareil photo pour prendre des photos dans le coffre."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O VaultPony precisa da câmera para tirar fotos direto no cofre."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultPony нужен доступ к камере, чтобы снимать фото прямо в хранилище."
+          }
+        }
+      }
+    },
+    "VeraCrypt" : {
+      "comment" : "Volume info value for the Format row. A product name.",
+      "shouldTranslate" : false
+    },
     "Verify With Password" : {
       "localizations" : {
         "de" : {
@@ -9639,6 +11445,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Версия"
+          }
+        }
+      }
+    },
+    "Video" : {
+      "comment" : "Camera mode.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vídeo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vidéo"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vídeo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видео"
           }
         }
       }

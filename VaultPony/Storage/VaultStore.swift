@@ -19,13 +19,18 @@ struct SavedVault: Identifiable, Codable, Hashable {
     /// label ("SHA-512"), so the menu starts on it next time (2.0.0 rc4,
     /// D21). Never what Auto found, never from a failed unlock.
     var rememberedHash: String?
+    /// TrueCrypt mode, ticked by hand on the unlock screen for a successful
+    /// unlock, so the toggle starts on next time (2.0.0 rc5, plan 6.2). Kept
+    /// like `rememberedHash`; nil (never set, or entries from before rc5)
+    /// means off.
+    var rememberedTrueCrypt: Bool?
     /// Added while the vault list keeps nothing ("Don't keep" or no-trace
     /// mode): held in memory only, never written to recents.json, and gone
     /// when the vault locks or the user goes back to the list.
     var isTransient = false
 
     private enum CodingKeys: String, CodingKey {
-        case id, displayName, bookmarkData, lastOpened, lastFilesystem, rememberedHash
+        case id, displayName, bookmarkData, lastOpened, lastFilesystem, rememberedHash, rememberedTrueCrypt
     }
 }
 
@@ -62,6 +67,7 @@ final class VaultStore {
             lastOpened: nil,
             lastFilesystem: nil,
             rememberedHash: nil,
+            rememberedTrueCrypt: nil,
             isTransient: mode == .dontKeep
         )
         vaults.insert(vault, at: 0)
@@ -90,6 +96,20 @@ final class VaultStore {
         guard let index = vaults.firstIndex(where: { $0.id == id }),
               vaults[index].rememberedHash != hash else { return }
         vaults[index].rememberedHash = hash
+        save()
+    }
+
+    func rememberedTrueCrypt(for id: UUID) -> Bool {
+        vaults.first { $0.id == id }?.rememberedTrueCrypt == true
+    }
+
+    /// Stores TrueCrypt mode on (ticked by hand, unlock succeeded) or
+    /// clears it (unticked).
+    func setRememberedTrueCrypt(_ id: UUID, on: Bool) {
+        let value: Bool? = on ? true : nil
+        guard let index = vaults.firstIndex(where: { $0.id == id }),
+              vaults[index].rememberedTrueCrypt != value else { return }
+        vaults[index].rememberedTrueCrypt = value
         save()
     }
 

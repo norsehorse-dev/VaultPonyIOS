@@ -67,12 +67,18 @@ struct ShareImportView: View {
         }
     }
 
+    /// Vaults a share can be saved into. One last opened in TrueCrypt mode
+    /// opens read-only, so it isn't offered (2.0.0 rc5).
+    private var shareTargets: [SavedVault] {
+        vaultStore.vaults.filter { $0.rememberedTrueCrypt != true }
+    }
+
     private var vaultList: some View {
         NavigationStack {
             List {
-                if !vaultStore.vaults.isEmpty {
+                if !shareTargets.isEmpty {
                     Section {
-                        ForEach(vaultStore.vaults) { vault in
+                        ForEach(shareTargets) { vault in
                             Button {
                                 shareInbox.awaitingUnlock = true
                                 shareInbox.vaultToUnlock = vault
@@ -99,7 +105,7 @@ struct ShareImportView: View {
                         Label("Open Vault", systemImage: "doc.badge.plus")
                     }
                 } header: {
-                    if vaultStore.vaults.isEmpty {
+                    if shareTargets.isEmpty {
                         Text("Unlock a vault to save these files.")
                     }
                 }

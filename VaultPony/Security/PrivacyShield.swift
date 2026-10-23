@@ -17,3 +17,30 @@ struct PrivacyShield: View {
         }
     }
 }
+
+/// The same shield for sheets and full-screen covers (2.0.0 rc5): the root
+/// view's overlay sits under anything presented on top of it, so a sheet's
+/// folder names, the camera preview or the convert screen would otherwise
+/// show in the app switcher. Needs `AppPrefs` and `SessionRegistry` in the
+/// environment, as every presented vault screen already has.
+private struct PrivacyShieldModifier: ViewModifier {
+    @Environment(SessionRegistry.self) private var sessionRegistry
+    @Environment(AppPrefs.self) private var appPrefs
+    @Environment(\.scenePhase) private var scenePhase
+
+    func body(content: Content) -> some View {
+        content.overlay {
+            if scenePhase != .active && sessionRegistry.session != nil && appPrefs.privacyScreenEnabled {
+                PrivacyShield()
+                    .transition(.opacity)
+            }
+        }
+    }
+}
+
+extension View {
+    /// Covers this presented screen in the app switcher, like the root view.
+    func privacyShielded() -> some View {
+        modifier(PrivacyShieldModifier())
+    }
+}

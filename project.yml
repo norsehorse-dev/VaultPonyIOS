@@ -63,6 +63,10 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         NSFaceIDUsageDescription: "VaultPony uses Face ID to unlock vaults you've enrolled for biometric access."
+        # Camera capture into an unlocked vault (2.0.0 rc5, plan 5.6). Main
+        # app only; neither extension declares these.
+        NSCameraUsageDescription: "VaultPony uses the camera to take photos and videos straight into an unlocked vault. Nothing is saved to Photos."
+        NSMicrophoneUsageDescription: "VaultPony records sound with videos you take into a vault."
         # vaultpony://share?token=<UUID> from the share extension (2.0.0 rc4).
         CFBundleURLTypes:
           - CFBundleURLName: dev.norsehorse.vaultpony

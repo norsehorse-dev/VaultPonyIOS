@@ -83,15 +83,35 @@ final class SessionRegistry {
     /// "Show in Files" was asked for but couldn't be turned on.
     var filesError: String?
 
+    /// The volume opened read-only (TrueCrypt, ext4, NTFS), so a local
+    /// copy of it was never written and goes at lock without asking.
+    private var openedReadOnly = false
+
+    /// "Convert to VeraCrypt" (2.0.0 rc5, plan 6.2). RootView shows it over
+    /// the whole app, so it outlives a lock that leaves the vault's screens.
+    private(set) var activeConvert: ConvertJob?
+
+    /// The open session was unlocked somewhere other than the unlock screen
+    /// ("Open new vault" after a conversion): HomeView shows its browser.
+    private(set) var showSessionOnHome = false
+
+    /// The camera (2.0.0 rc5) drops an unfinished video here, before the
+    /// keys go. Called on the main actor at the start of every lock of an
+    /// open session.
+    @ObservationIgnored var cameraWillLock: (@MainActor () -> Void)?
+
     /// `filesFd` (a dup of the container fd, owned from here on) asks for
     /// Files access too.
-    func adopt(_ session: VaultSession, vaultId: UUID, facts: VolumeFacts, copyModeInfo: CopyModeInfo? = nil, filesFd: Int32? = nil) {
+    /// `showInBrowser` asks HomeView to show the vault's browser.
+    func adopt(_ session: VaultSession, vaultId: UUID, facts: VolumeFacts, copyModeInfo: CopyModeInfo? = nil, filesFd: Int32? = nil, showInBrowser: Bool = false) {
         self.session = session
         self.vaultId = vaultId
         self.facts = facts
         self.space = nil
         self.copyModeInfo = copyModeInfo
         self.isCopyMode = copyModeInfo != nil
+        self.openedReadOnly = !facts.writable
+        self.showSessionOnHome = showInBrowser
         holdCount = 0
         lockPending = false
         if let filesFd {
@@ -125,12 +145,18 @@ final class SessionRegistry {
         _ = try? FilesGate.shared.perform(session, write: false) { try session.flush() }
     }
 
-    func lock() {
+    /// `keepingTransient` is a vault about to be adopted ("Open new vault"
+    /// after a conversion): its in-memory list entry stays.
+    func lock(keepingTransient keep: UUID? = nil) {
         lockTask?.cancel()
         lockTask = nil
         lockPending = false
         holdCount = 0
         let hadSession = session != nil
+        if hadSession {
+            letGoBeforeLock()
+        }
+        showSessionOnHome = false
         clearDecryptedState(sessionWasOpen: hadSession)
         if filesShared {
             // Teardown asks the extension to store any save still waiting
@@ -149,13 +175,19 @@ final class SessionRegistry {
         session?.lock()
         session = nil
         if let copyModeInfo, let vaultId {
-            pendingWriteBack = PendingWriteBack(
-                vaultId: vaultId,
-                localCopyRelativePath: copyModeInfo.relativePath,
-                bookmark: copyModeInfo.bookmark,
-                displayName: copyModeInfo.displayName
-            )
+            if openedReadOnly {
+                // Nothing could have changed it: no "Save Changes?".
+                FdOpener.discardLocalCopy(copyModeInfo.relativePath)
+            } else {
+                pendingWriteBack = PendingWriteBack(
+                    vaultId: vaultId,
+                    localCopyRelativePath: copyModeInfo.relativePath,
+                    bookmark: copyModeInfo.bookmark,
+                    displayName: copyModeInfo.displayName
+                )
+            }
         }
+        openedReadOnly = false
         vaultId = nil
         facts = nil
         space = nil
@@ -168,10 +200,29 @@ final class SessionRegistry {
             VaultStore.shared.vaultLocked(
                 lockedVaultId,
                 removeIt: AppPrefs.shared.vaultListMode == .dontKeep,
-                unlockedId: nil
+                unlockedId: keep
             )
         }
         refreshQuickAction()
+    }
+
+    /// The camera discards a video it was recording and a conversion stops
+    /// and locks its new container, while the vault is still open (2.0.0
+    /// rc5). Every lock path comes through here.
+    private func letGoBeforeLock() {
+        let camera = cameraWillLock
+        let convert = activeConvert
+        if Thread.isMainThread {
+            MainActor.assumeIsolated {
+                camera?()
+                convert?.sourceWillLock()
+            }
+        } else {
+            Task { @MainActor in
+                camera?()
+                convert?.sourceWillLock()
+            }
+        }
     }
 
     /// What 2.0.0 rc4 keeps in memory or on disk from an open vault goes
@@ -420,6 +471,16 @@ final class SessionRegistry {
                 }
             }
         }
+    }
+
+    // MARK: - Convert to VeraCrypt (2.0.0 rc5)
+
+    func startConvert(_ job: ConvertJob) {
+        activeConvert = job
+    }
+
+    func endConvert() {
+        activeConvert = nil
     }
 
     // MARK: - Bulk transfers

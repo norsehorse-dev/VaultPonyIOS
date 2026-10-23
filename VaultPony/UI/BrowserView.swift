@@ -91,6 +91,12 @@ struct BrowserView: View {
     @State private var folderExportAwaitingDestination: FolderExport?
 
     @State private var showVolumeInfo = false
+    /// "Convert to VeraCrypt" tapped in Volume Info: starts once the sheet
+    /// has closed (2.0.0 rc5).
+    @State private var convertAfterVolumeInfo = false
+
+    // Camera (2.0.0 rc5, plan 5.6).
+    @State private var cameraMode: CameraMode?
 
     // Search (2.0.0 rc4).
     @State private var searchText = ""
@@ -165,6 +171,9 @@ struct BrowserView: View {
         content
             .safeAreaInset(edge: .top, spacing: 0) {
                 VStack(spacing: 0) {
+                    if sessionRegistry.facts?.truecrypt == true {
+                        trueCryptBanner
+                    }
                     if sessionRegistry.isCopyMode {
                         copyModeBanner
                     }
@@ -321,10 +330,37 @@ struct BrowserView: View {
                     ShareSheet(activityItems: [exportURL])
                 }
             }
-            .sheet(isPresented: $showVolumeInfo) {
-                VolumeInfoView()
-                    .environment(sessionRegistry)
-                    .environment(\.locale, appPrefs.locale)
+            .sheet(isPresented: $showVolumeInfo, onDismiss: {
+                if convertAfterVolumeInfo {
+                    convertAfterVolumeInfo = false
+                    startConvert()
+                }
+            }) {
+                VolumeInfoView(onConvert: {
+                    convertAfterVolumeInfo = true
+                    showVolumeInfo = false
+                })
+                .environment(sessionRegistry)
+                .environment(appPrefs)
+                .environment(\.locale, appPrefs.locale)
+                .privacyShielded()
+            }
+            .fullScreenCover(item: $cameraMode, onDismiss: {
+                // Show what the camera saved.
+                Task {
+                    await load()
+                    await sessionRegistry.refreshSpace()
+                }
+            }) { mode in
+                CameraView(
+                    initialMode: mode,
+                    folder: path,
+                    folderLabel: cameraFolderLabel
+                )
+                .environment(sessionRegistry)
+                .environment(appPrefs)
+                .environment(\.locale, appPrefs.locale)
+                .privacyShielded()
             }
             .sheet(isPresented: $showMovePicker) {
                 VaultFolderPicker(
@@ -340,7 +376,9 @@ struct BrowserView: View {
                     onCancel: { showMovePicker = false }
                 )
                 .environment(sessionRegistry)
+                .environment(appPrefs)
                 .environment(\.locale, appPrefs.locale)
+                .privacyShielded()
             }
             .onChange(of: showExportSheet) { _, isShowing in
                 // The share sheet is our only signal the export is done with
@@ -457,6 +495,23 @@ struct BrowserView: View {
             }
             .disabled(!canWrite)
 
+            // Camera (2.0.0 rc5): only into a volume that can be written.
+            if canWrite {
+                Button {
+                    cameraMode = .photo
+                } label: {
+                    Label("Take photo", systemImage: "camera")
+                }
+                .disabled(sessionRegistry.activeTransfer != nil)
+
+                Button {
+                    cameraMode = .video
+                } label: {
+                    Label("Record video", systemImage: "video")
+                }
+                .disabled(sessionRegistry.activeTransfer != nil)
+            }
+
             Divider()
 
             Button {
@@ -512,6 +567,24 @@ struct BrowserView: View {
     }
 
     // MARK: - Rows
+
+    /// TrueCrypt sessions are read-only (2.0.0 rc5, plan 6.2).
+    private var trueCryptBanner: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "lock.doc")
+            Text("TrueCrypt volume: read-only. Convert it to VeraCrypt to make changes.")
+                .font(.caption)
+            Spacer(minLength: 0)
+            Button("Convert to VeraCrypt") {
+                startConvert()
+            }
+            .font(.caption.bold())
+            .buttonStyle(.bordered)
+            .disabled(sessionRegistry.activeTransfer != nil)
+        }
+        .padding(8)
+        .background(.orange.opacity(0.15))
+    }
 
     private var copyModeBanner: some View {
         HStack {
@@ -724,6 +797,23 @@ struct BrowserView: View {
 
     private func childPath(_ name: String) -> String {
         path == "/" ? "/\(name)" : "\(path)/\(name)"
+    }
+
+    /// "Saved to" after a capture: this folder's name, or the vault's name
+    /// at the root.
+    private var cameraFolderLabel: String {
+        guard path == "/" else { return (path as NSString).lastPathComponent }
+        if let vault = vaultStore.vaults.first(where: { $0.id == sessionRegistry.vaultId }) {
+            return vaultStore.label(for: vault)
+        }
+        return String(localized: "Vault", locale: LanguageOverride.locale)
+    }
+
+    /// "Convert to VeraCrypt" (2.0.0 rc5): RootView shows the conversion
+    /// over the whole app.
+    @MainActor
+    private func startConvert() {
+        ConvertJob.begin(registry: sessionRegistry, vaultStore: vaultStore)
     }
 
     private func load() async {

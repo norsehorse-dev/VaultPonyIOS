@@ -659,7 +659,9 @@ final class FilesVault: @unchecked Sendable {
     /// Core errors as Files errors. Never carries a name or a path.
     static func map(_ error: VaultError) -> Error {
         switch error {
-        case .HiddenVolumeProtected:
+        case .HiddenVolumeProtected, .TrueCryptReadOnly:
+            // TrueCrypt sessions are never writable (2.0.0 rc5); the policy
+            // already says so and this is the backstop.
             return NSError(domain: NSCocoaErrorDomain, code: NSFileWriteVolumeReadOnlyError)
         case .Filesystem(let detail) where detail.localizedCaseInsensitiveContains("space") || detail.localizedCaseInsensitiveContains("full"):
             return NSFileProviderError(.insufficientQuota)

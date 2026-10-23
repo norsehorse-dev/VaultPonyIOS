@@ -21,6 +21,34 @@ struct CreatedVaultSummary: Identifiable, Hashable {
     var id: UUID { vault.id }
 }
 
+/// "Convert to VeraCrypt" (2.0.0 rc5, plan 6.2, D9): what the create form
+/// starts on when it makes the new container for a TrueCrypt volume.
+struct ConvertSetup {
+    /// The new vault's name (the TrueCrypt vault's, without extension).
+    let name: String
+    /// Prefilled size in MiB: the TrueCrypt file's size, or the files plus
+    /// 5% and 8 MiB if that is more.
+    let suggestedMiB: UInt64
+    /// Smallest size accepted: the files plus 8 MiB.
+    let minimumBytes: UInt64
+    /// A file is larger than FAT allows, so only exFAT is offered.
+    let needsExFAT: Bool
+    /// The TrueCrypt volume open is a hidden one.
+    let fromHiddenVolume: Bool
+}
+
+/// The container the form made for a conversion, and what unlocks it. The
+/// vault is already in the vault list.
+struct ConvertTarget {
+    let url: URL
+    let bookmark: Data
+    let vault: SavedVault
+    let passphrase: String
+    let pim: UInt32
+    let keyfiles: [Data]
+    let prf: String
+}
+
 private enum SizeUnit: String, CaseIterable, Identifiable {
     case mb = "MB"
     case gb = "GB"
@@ -42,6 +70,12 @@ struct CreateContainerView: View {
     @Environment(VaultStore.self) private var vaultStore
     @Environment(AppPrefs.self) private var appPrefs
     @Binding var path: NavigationPath
+
+    /// Set for "Convert to VeraCrypt" (2.0.0 rc5): the same form, prefilled,
+    /// without the hidden-volume option. Once the container is made it goes
+    /// to `onConvert` instead of the summary screen.
+    private let convert: ConvertSetup?
+    private let onConvert: ((ConvertTarget) -> Void)?
 
     @State private var name = "MyVault"
     @State private var sizeText = "100"
@@ -71,13 +105,56 @@ struct CreateContainerView: View {
     @State private var errorMessage: String?
     @State private var showExporter = false
 
+    init(path: Binding<NavigationPath>, convert: ConvertSetup? = nil, onConvert: ((ConvertTarget) -> Void)? = nil) {
+        _path = path
+        self.convert = convert
+        self.onConvert = onConvert
+        if let convert {
+            _name = State(initialValue: convert.name)
+            _sizeText = State(initialValue: String(convert.suggestedMiB))
+            if convert.needsExFAT {
+                _filesystem = State(initialValue: Vault.filesystemOptions().first { $0.lowercased() == "exfat" } ?? "exFAT")
+            }
+        }
+    }
+
+    /// FAT can't hold a file over 4 GB, so a conversion that has one only
+    /// offers exFAT.
+    private var offeredFilesystems: [String] {
+        guard convert?.needsExFAT == true else { return filesystemOptions }
+        return filesystemOptions.filter { $0.lowercased() != "fat" }
+    }
+
+    /// The size typed, in bytes, or nil if it isn't a number that fits.
+    private var typedSizeBytes: UInt64? {
+        guard let value = UInt64(sizeText) else { return nil }
+        let (bytes, overflow) = value.multipliedReportingOverflow(by: sizeUnit.bytesPerUnit)
+        return overflow ? nil : bytes
+    }
+
+    /// For a conversion: the smallest size accepted, when the typed size is
+    /// below it.
+    private var conversionMinimumUnmet: UInt64? {
+        guard let convert, let bytes = typedSizeBytes, bytes < convert.minimumBytes else { return nil }
+        return convert.minimumBytes
+    }
+
     var body: some View {
         Form {
+            if let convert {
+                Section {
+                    Text("VaultPony makes a new VeraCrypt container and copies every file into it. The TrueCrypt container is not changed or deleted. Remove it yourself once you've checked the new one.")
+                    if convert.fromHiddenVolume {
+                        Text("This is a hidden TrueCrypt volume. It converts to an ordinary VeraCrypt container; the hidden-volume structure doesn't carry over.")
+                    }
+                }
+            }
+
             Section("Name") {
                 TextField("Vault name", text: $name)
             }
 
-            Section("Size") {
+            Section {
                 HStack {
                     TextField("Size", text: $sizeText)
                         .keyboardType(.numberPad)
@@ -88,6 +165,13 @@ struct CreateContainerView: View {
                     }
                     .pickerStyle(.segmented)
                     .frame(width: 120)
+                }
+            } header: {
+                Text("Size")
+            } footer: {
+                if let minimum = conversionMinimumUnmet {
+                    Text("The new container needs to be at least \(ByteFormat.string(minimum)).")
+                        .foregroundStyle(.red)
                 }
             }
 
@@ -121,26 +205,34 @@ struct CreateContainerView: View {
                     ForEach(prfOptions, id: \.self) { Text($0).tag($0) }
                 }
                 Picker("Filesystem", selection: $filesystem) {
-                    ForEach(filesystemOptions, id: \.self) { Text($0).tag($0) }
+                    ForEach(offeredFilesystems, id: \.self) { Text($0).tag($0) }
                 }
             } header: {
                 Text("Encryption")
             } footer: {
-                if prf == "Argon2id" {
-                    Text("Argon2id is memory-hard: at the default PIM, opening this vault needs about 416 MB of free memory and takes a few seconds. Desktop VeraCrypt opens it from version 1.26.29.")
-                }
-            }
-
-            Section {
-                Toggle("Hidden Volume", isOn: $isHiddenVolume)
-            } footer: {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("To open the hidden vault later, type the hidden password on its own in the normal password field.")
-                    Text("Typing both passwords together opens the outer vault with the hidden area protected, so you can add decoy files safely.")
+                    if prf == "Argon2id" {
+                        Text("Argon2id is memory-hard: at the default PIM, opening this vault needs about 416 MB of free memory and takes a few seconds. Desktop VeraCrypt opens it from version 1.26.29.")
+                    }
+                    if convert?.needsExFAT == true {
+                        Text("A file is larger than 4 GB, so the new container uses exFAT.")
+                    }
                 }
             }
 
-            if isHiddenVolume {
+            // No hidden volume when converting (plan 6.2).
+            if convert == nil {
+                Section {
+                    Toggle("Hidden Volume", isOn: $isHiddenVolume)
+                } footer: {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("To open the hidden vault later, type the hidden password on its own in the normal password field.")
+                        Text("Typing both passwords together opens the outer vault with the hidden area protected, so you can add decoy files safely.")
+                    }
+                }
+            }
+
+            if isHiddenVolume && convert == nil {
                 Section("Hidden Volume Password") {
                     RevealableSecureField(title: "Hidden password", text: $hiddenPassphrase, contentType: .newPassword)
                     RevealableSecureField(title: "Confirm hidden password", text: $confirmHiddenPassphrase, contentType: .newPassword)
@@ -174,11 +266,16 @@ struct CreateContainerView: View {
                 }
             }
         }
-        .navigationTitle("Create Vault")
+        .navigationTitle(convert == nil ? LocalizedStringKey("Create Vault") : LocalizedStringKey("Convert to VeraCrypt"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 if isCreating {
                     ProgressView()
+                } else if convert != nil {
+                    Button("Convert") {
+                        showExporter = true
+                    }
+                    .disabled(!canCreate)
                 } else {
                     Button("Create") {
                         showExporter = true
@@ -210,6 +307,10 @@ struct CreateContainerView: View {
         guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }
         guard let sizeValue = UInt64(sizeText), sizeValue > 0 else { return false }
         guard !passphrase.isEmpty, passphrase == confirmPassphrase else { return false }
+        if let convert {
+            guard let bytes = typedSizeBytes, bytes >= convert.minimumBytes else { return false }
+            return offeredFilesystems.contains(filesystem)
+        }
         if isHiddenVolume {
             guard !hiddenPassphrase.isEmpty, hiddenPassphrase == confirmHiddenPassphrase else { return false }
             guard let hiddenValue = UInt64(hiddenSizeText), hiddenValue > 0 else { return false }
@@ -231,6 +332,26 @@ struct CreateContainerView: View {
 
         do {
             let (fd, bookmark) = try FdOpener.openForImport(url: url, writable: true)
+
+            if let onConvert, convert != nil {
+                // The same creation as below; the conversion screen unlocks
+                // it and copies into it.
+                try await Vault.createNewContainer(
+                    fd: fd,
+                    size: sizeBytes,
+                    passphrase: passphrase,
+                    pim: pim,
+                    keyfiles: keyfiles,
+                    scheme: scheme,
+                    prf: prf,
+                    filesystem: filesystem
+                )
+                let vault = vaultStore.add(bookmarkData: bookmark, displayName: name, mode: appPrefs.effectiveVaultListMode)
+                let target = ConvertTarget(url: url, bookmark: bookmark, vault: shownCopy(of: vault), passphrase: passphrase, pim: pim, keyfiles: keyfiles, prf: prf)
+                clearSecrets()
+                onConvert(target)
+                return
+            }
 
             if isHiddenVolume {
                 guard let hiddenValue = UInt64(hiddenSizeText) else { return }

@@ -50,6 +50,17 @@ struct HomeView: View {
             // typed across an app switch.
             .onChange(of: sessionRegistry.lockGeneration) { _, _ in
                 path = NavigationPath()
+                // "Open new vault" after a conversion locks the TrueCrypt
+                // vault and opens the new one in the same moment.
+                if sessionRegistry.showSessionOnHome, sessionRegistry.session != nil {
+                    path.append(OpenSessionRoute())
+                }
+            }
+            .onChange(of: sessionRegistry.showSessionOnHome) { _, show in
+                guard show, sessionRegistry.session != nil else { return }
+                var fresh = NavigationPath()
+                fresh.append(OpenSessionRoute())
+                path = fresh
             }
             // Back on the list: a vault opened while the list keeps nothing
             // goes unless it is unlocked (2.0.0 rc4, plan 5.4). A share
@@ -71,6 +82,9 @@ struct HomeView: View {
             }
             .navigationDestination(for: SavedVault.self) { vault in
                 UnlockView(vault: vault)
+            }
+            .navigationDestination(for: OpenSessionRoute.self) { _ in
+                VaultSessionView()
             }
             // String.self / FileTarget.self routing moved into
             // VaultSessionView (P6): the unlocked session now owns its
@@ -152,6 +166,10 @@ struct HomeView: View {
         }
     }
 }
+
+/// The browser of a vault that is already unlocked, pushed straight from
+/// Home (2.0.0 rc5: the new vault after "Convert to VeraCrypt").
+struct OpenSessionRoute: Hashable {}
 
 private struct VaultRow: View {
     let vault: SavedVault

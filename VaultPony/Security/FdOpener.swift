@@ -75,6 +75,48 @@ enum FdOpener {
         return (fd, refreshed)
     }
 
+    /// The size of the bookmarked file, or nil if it can't be read (2.0.0
+    /// rc5: "Convert to VeraCrypt" starts the new container at least this
+    /// big).
+    static func fileSize(bookmark: Data) -> UInt64? {
+        var isStale = false
+        guard let url = try? URL(resolvingBookmarkData: bookmark, options: [], relativeTo: nil, bookmarkDataIsStale: &isStale) else {
+            return nil
+        }
+        let scoped = url.startAccessingSecurityScopedResource()
+        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+        guard let size = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize else { return nil }
+        return UInt64(max(size, 0))
+    }
+
+    /// Deletes a container VaultPony just created ("Delete new container"
+    /// after a conversion stopped, 2.0.0 rc5), through the URL the save
+    /// panel returned, or its bookmark if that URL no longer grants access.
+    static func deleteCreatedFile(url: URL, bookmark: Data) throws {
+        var target = url
+        var scoped = target.startAccessingSecurityScopedResource()
+        if !scoped {
+            var isStale = false
+            if let resolved = try? URL(resolvingBookmarkData: bookmark, options: [], relativeTo: nil, bookmarkDataIsStale: &isStale) {
+                target = resolved
+                scoped = target.startAccessingSecurityScopedResource()
+            }
+        }
+        defer { if scoped { target.stopAccessingSecurityScopedResource() } }
+
+        var coordError: NSError?
+        var removeError: Error?
+        NSFileCoordinator().coordinate(writingItemAt: target, options: .forDeleting, error: &coordError) { coordinatedURL in
+            do {
+                try FileManager.default.removeItem(at: coordinatedURL)
+            } catch {
+                removeError = error
+            }
+        }
+        if let coordError { throw coordError }
+        if let removeError { throw removeError }
+    }
+
     /// Downloads an iCloud-dataless file in place before we ever open(2)
     /// it — the core must never see an fd to a dataless file.
     private static func ensureDownloaded(_ url: URL) throws {

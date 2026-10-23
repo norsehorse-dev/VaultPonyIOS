@@ -40,6 +40,14 @@ extension VaultError {
         case .EmptyKeyfile:
             // 2.0.0 rc4: checked by the core before any derivation.
             return String(localized: "A keyfile is empty. VeraCrypt doesn't accept empty keyfiles.", locale: locale)
+        // 2.0.0 rc5: TrueCrypt mode and ext4 (plan 6.2, 6.3).
+        case .TrueCryptReadOnly:
+            return String(localized: "TrueCrypt volumes open read-only. Convert the volume to VeraCrypt to make changes.", locale: locale)
+        case .TrueCryptVersionUnsupported:
+            return String(localized: "This volume was made with a TrueCrypt version before 6.0, which VaultPony can't open.", locale: locale)
+        case .Ext4Unsupported(let detail):
+            // `detail` is English text from the core naming the feature.
+            return String(localized: "This ext4 volume uses a feature VaultPony can't read yet (\(detail)).", locale: locale)
         }
     }
 }

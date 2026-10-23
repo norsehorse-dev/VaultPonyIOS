@@ -12,6 +12,10 @@ struct VolumeInfoView: View {
     @Environment(SessionRegistry.self) private var sessionRegistry
     @Environment(\.dismiss) private var dismiss
 
+    /// "Convert to VeraCrypt" for a TrueCrypt session (2.0.0 rc5). The
+    /// browser closes this sheet and starts the conversion.
+    var onConvert: (() -> Void)? = nil
+
     var body: some View {
         NavigationStack {
             Form {
@@ -26,9 +30,16 @@ struct VolumeInfoView: View {
                         }
                     }
                     Section {
+                        LabeledContent("Format") {
+                            if facts.truecrypt {
+                                Text("TrueCrypt (read-only)")
+                            } else {
+                                Text("VeraCrypt")
+                            }
+                        }
                         LabeledContent("Encryption", value: Vault.schemeLabel(facts.scheme))
                         LabeledContent("Hash", value: facts.prf)
-                        LabeledContent("Filesystem", value: facts.filesystem)
+                        LabeledContent("Filesystem", value: Vault.filesystemLabel(facts.filesystem))
                         if let space = sessionRegistry.space {
                             LabeledContent("Size", value: ByteFormat.string(space.totalBytes))
                             LabeledContent("Free", value: ByteFormat.string(space.freeBytes))
@@ -43,6 +54,14 @@ struct VolumeInfoView: View {
                     } footer: {
                         if facts.maxFileBytes != nil {
                             Text("FAT holds files up to 4 GB each.")
+                        }
+                    }
+                    if facts.truecrypt, let onConvert {
+                        Section {
+                            Button("Convert to VeraCrypt") {
+                                onConvert()
+                            }
+                            .disabled(sessionRegistry.activeTransfer != nil)
                         }
                     }
                 }

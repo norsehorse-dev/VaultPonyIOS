@@ -34,6 +34,7 @@ private struct RootView: View {
             && appPrefs.onboardingDone
             && !appPrefs.replayOnboardingRequested
             && sessionRegistry.activeTransfer == nil
+            && sessionRegistry.activeConvert == nil
             && (sessionRegistry.session != nil || !shareInbox.awaitingUnlock)
     }
 
@@ -89,6 +90,22 @@ private struct RootView: View {
                     .environment(appPrefs)
                     .environment(shareInbox)
                     .environment(\.locale, appPrefs.locale)
+                    .privacyShielded()
+            }
+        }
+        // "Convert to VeraCrypt" (2.0.0 rc5) covers the app, so a lock that
+        // leaves the vault's screens still shows how the copy ended.
+        .fullScreenCover(isPresented: Binding(
+            get: { sessionRegistry.activeConvert != nil },
+            set: { if !$0 { sessionRegistry.endConvert() } }
+        )) {
+            if let job = sessionRegistry.activeConvert {
+                ConvertView(job: job)
+                    .environment(vaultStore)
+                    .environment(sessionRegistry)
+                    .environment(appPrefs)
+                    .environment(\.locale, appPrefs.locale)
+                    .privacyShielded()
             }
         }
         .onChange(of: appPrefs.languageCode) { _, _ in
@@ -105,12 +122,14 @@ private struct RootView: View {
                 // A copy in progress goes first so it can hold off the
                 // auto-lock until its current file is written.
                 sessionRegistry.activeTransfer?.appDidEnterBackground()
+                sessionRegistry.activeConvert?.appDidEnterBackground()
                 sessionRegistry.sceneDidEnterBackground()
             case .active:
                 // Any lock that came due while away happens before a
                 // paused copy decides whether to resume.
                 sessionRegistry.sceneDidBecomeActive()
                 sessionRegistry.activeTransfer?.appDidBecomeActive()
+                sessionRegistry.activeConvert?.appDidBecomeActive()
                 // A share the extension couldn't hand over (2.0.0 rc4).
                 shareInbox.pickUp()
             default:

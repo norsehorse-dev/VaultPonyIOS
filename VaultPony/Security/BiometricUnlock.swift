@@ -129,6 +129,10 @@ enum BiometricUnlock {
         case .auto: return "auto"
         case .pbkdf2Only: return "pbkdf2"
         case .argon2idOnly: return "argon2id"
+        // Enrollment only ever stores the KDF family that opened the vault
+        // (UnlockView). A single hash (2.0.0 rc4) isn't a family; should one
+        // arrive here, the credential unlocks with Auto.
+        case .sha512, .sha256, .blake2s256, .whirlpool, .streebog: return "auto"
         }
     }
 

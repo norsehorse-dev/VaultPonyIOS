@@ -128,7 +128,7 @@ struct RecoveryView: View {
         do {
             let (fd, _) = try FdOpener.openForUnlock(bookmark: vault.bookmarkData, writable: false)
             let backup = try await Vault.backupHeader(fd: fd)
-            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(vault.displayName)-header-backup.bin")
+            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(vaultStore.label(for: vault))-header-backup.bin")
             try backup.write(to: tempURL, options: [.atomic, .completeFileProtection])
             exportURL = tempURL
             showExportSheet = true

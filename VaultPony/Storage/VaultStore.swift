@@ -9,10 +9,24 @@ import Observation
 /// (BiometricUnlock), keyed by this vault's id — not here.
 struct SavedVault: Identifiable, Codable, Hashable {
     var id: UUID
+    /// Empty when the vault list hides names (2.0.0 rc4); the list then
+    /// shows "Vault 1", "Vault 2" and so on (`VaultStore.label(for:)`).
     var displayName: String
     var bookmarkData: Data
     var lastOpened: Date?
     var lastFilesystem: String?
+    /// A hash the user picked by hand on the unlock screen, as its menu
+    /// label ("SHA-512"), so the menu starts on it next time (2.0.0 rc4,
+    /// D21). Never what Auto found, never from a failed unlock.
+    var rememberedHash: String?
+    /// Added while the vault list keeps nothing ("Don't keep" or no-trace
+    /// mode): held in memory only, never written to recents.json, and gone
+    /// when the vault locks or the user goes back to the list.
+    var isTransient = false
+
+    private enum CodingKeys: String, CodingKey {
+        case id, displayName, bookmarkData, lastOpened, lastFilesystem, rememberedHash
+    }
 }
 
 /// Recents list, persisted to a JSON file under Application Support.
@@ -20,6 +34,10 @@ struct SavedVault: Identifiable, Codable, Hashable {
 /// file-protected and backup-excluded.
 @Observable
 final class VaultStore {
+    /// The app's one store. VaultPonyApp puts it in the environment;
+    /// SessionRegistry.lock reaches it here (2.0.0 rc4, "Don't keep").
+    static let shared = VaultStore()
+
     private(set) var vaults: [SavedVault] = []
     private let fileURL: URL
 
@@ -32,12 +50,83 @@ final class VaultStore {
         load()
     }
 
+    /// `mode` is the vault list setting in effect
+    /// (`AppPrefs.effectiveVaultListMode`): "Hide names" stores no name,
+    /// "Don't keep" keeps the entry in memory only.
     @discardableResult
-    func add(bookmarkData: Data, displayName: String) -> SavedVault {
-        let vault = SavedVault(id: UUID(), displayName: displayName, bookmarkData: bookmarkData, lastOpened: nil, lastFilesystem: nil)
+    func add(bookmarkData: Data, displayName: String, mode: VaultListMode) -> SavedVault {
+        let vault = SavedVault(
+            id: UUID(),
+            displayName: mode == .hideNames ? "" : displayName,
+            bookmarkData: bookmarkData,
+            lastOpened: nil,
+            lastFilesystem: nil,
+            rememberedHash: nil,
+            isTransient: mode == .dontKeep
+        )
         vaults.insert(vault, at: 0)
         save()
         return vault
+    }
+
+    /// The name the app shows for a vault: its file name, or "Vault 1",
+    /// "Vault 2" and so on (in list order) when no name is stored.
+    func label(for vault: SavedVault) -> String {
+        if !vault.displayName.isEmpty {
+            return vault.displayName
+        }
+        if let index = vaults.firstIndex(where: { $0.id == vault.id }) {
+            return String(localized: "Vault \(index + 1)", locale: LanguageOverride.locale)
+        }
+        return String(localized: "Vault", locale: LanguageOverride.locale)
+    }
+
+    func rememberedHash(for id: UUID) -> String? {
+        vaults.first { $0.id == id }?.rememberedHash
+    }
+
+    /// Stores (or with nil clears) the hash the user picked by hand.
+    func setRememberedHash(_ id: UUID, hash: String?) {
+        guard let index = vaults.firstIndex(where: { $0.id == id }),
+              vaults[index].rememberedHash != hash else { return }
+        vaults[index].rememberedHash = hash
+        save()
+    }
+
+    /// "Hide names" chosen: wipes every stored display name.
+    func wipeDisplayNames() {
+        for index in vaults.indices {
+            vaults[index].displayName = ""
+        }
+        save()
+    }
+
+    /// "Don't keep" chosen: every entry goes, with its Face ID unlock and
+    /// remembered hash. The vault files are not touched.
+    func removeAll() {
+        for vault in vaults {
+            BiometricUnlock.remove(vaultId: vault.id)
+        }
+        vaults.removeAll()
+        save()
+    }
+
+    /// A vault was locked. With "Don't keep" in effect it leaves the list.
+    /// Transient entries other than `unlockedId` go either way.
+    func vaultLocked(_ id: UUID?, removeIt: Bool, unlockedId: UUID?) {
+        if removeIt, let id, id != unlockedId, vaults.contains(where: { $0.id == id }) {
+            remove(id)
+        }
+        pruneTransient(keeping: unlockedId)
+    }
+
+    /// Drops in-memory entries, except the vault that is unlocked now.
+    func pruneTransient(keeping unlockedId: UUID?) {
+        let gone = vaults.filter { $0.isTransient && $0.id != unlockedId }
+        guard !gone.isEmpty else { return }
+        for vault in gone {
+            remove(vault.id)
+        }
     }
 
     func touch(_ id: UUID, filesystem: String? = nil) {
@@ -70,7 +159,8 @@ final class VaultStore {
     }
 
     private func save() {
-        guard let data = try? JSONEncoder().encode(vaults) else { return }
+        // Transient entries ("Don't keep", no-trace mode) never reach disk.
+        guard let data = try? JSONEncoder().encode(vaults.filter { !$0.isTransient }) else { return }
         try? data.write(to: fileURL, options: [.atomic, .completeFileProtection])
     }
 

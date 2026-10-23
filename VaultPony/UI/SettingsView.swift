@@ -42,6 +42,10 @@ private let settingsLinks: [SettingsLink] = [
 struct SettingsView: View {
     @Environment(AppPrefs.self) private var appPrefs
     @Environment(SessionRegistry.self) private var sessionRegistry
+    @Environment(VaultStore.self) private var vaultStore
+
+    /// "Don't keep" deletes every entry, so it asks first.
+    @State private var confirmDontKeep = false
 
     // Same seconds as AppPrefs.autoLockChoices. No "Never" since 2.0.0.
     private static let autoLockOptions: [(label: String, seconds: TimeInterval)] = [
@@ -90,6 +94,24 @@ struct SettingsView: View {
                 ))
             } footer: {
                 Text("Never write decrypted content outside the vault. Disables the copy-in fallback for containers that can't be edited in place, and asks for confirmation before every export.")
+            }
+
+            // 2.0.0 rc4, plan 5.4. No-trace mode stays separate: while it is
+            // on, newly opened vaults are kept in memory only, and saved
+            // entries are left as they are.
+            Section {
+                Picker("Vault list", selection: Binding(
+                    get: { appPrefs.vaultListMode },
+                    set: { chooseVaultListMode($0) }
+                )) {
+                    Text("Show names").tag(VaultListMode.showNames)
+                    Text("Hide names").tag(VaultListMode.hideNames)
+                    Text("Don't keep").tag(VaultListMode.dontKeep)
+                }
+            } footer: {
+                if appPrefs.vaultListMode == .hideNames {
+                    Text("The list shows Vault 1, Vault 2 and so on. The saved link to each file still records where it is, because VaultPony needs it to open the file again.")
+                }
             }
 
             Section {
@@ -168,6 +190,29 @@ struct SettingsView: View {
         }
         .navigationTitle("Settings")
         .accessibilityIdentifier("settingsScreen")
+        .alert("Remove all vaults from the list?", isPresented: $confirmDontKeep) {
+            Button("Remove", role: .destructive) {
+                vaultStore.removeAll()
+                appPrefs.setVaultListMode(.dontKeep)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("The vault files themselves are not touched. Saved Face ID or fingerprint unlocks for them are removed too.")
+        }
+    }
+
+    private func chooseVaultListMode(_ mode: VaultListMode) {
+        guard mode != appPrefs.vaultListMode else { return }
+        switch mode {
+        case .showNames:
+            appPrefs.setVaultListMode(.showNames)
+        case .hideNames:
+            // Names already stored go now; new entries store none.
+            vaultStore.wipeDisplayNames()
+            appPrefs.setVaultListMode(.hideNames)
+        case .dontKeep:
+            confirmDontKeep = true
+        }
     }
 
     private func openURL(_ string: String) {

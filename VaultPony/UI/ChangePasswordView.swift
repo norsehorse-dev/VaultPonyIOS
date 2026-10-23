@@ -10,6 +10,13 @@ struct ChangePasswordRoute: Hashable {
 /// Re-keys a container's header under a new password/PIM/keyfiles. Works
 /// directly on the fd, no unlocked session involved — mirrors how the
 /// core's own change_password is designed (doc §6).
+/// Which keyfile list the screen's one file picker fills. SwiftUI honors
+/// only one `.fileImporter` per view.
+private enum KeyfilePickerMode {
+    case current
+    case new
+}
+
 struct ChangePasswordView: View {
     let vault: SavedVault
     @Environment(VaultStore.self) private var vaultStore
@@ -18,7 +25,8 @@ struct ChangePasswordView: View {
     @State private var oldPimText = "0"
     @State private var oldKeyfiles: [Data] = []
     @State private var oldKeyfileCount = 0
-    @State private var showOldKeyfilePicker = false
+    @State private var showKeyfilePicker = false
+    @State private var keyfilePickerMode: KeyfilePickerMode = .current
 
     @State private var newPassphrase = ""
     @State private var confirmNewPassphrase = ""
@@ -30,7 +38,6 @@ struct ChangePasswordView: View {
     private let kdfOptions = Vault.hashOptions()
     @State private var newKeyfiles: [Data] = []
     @State private var newKeyfileCount = 0
-    @State private var showNewKeyfilePicker = false
 
     @State private var isChanging = false
     @State private var errorMessage: String?
@@ -42,7 +49,7 @@ struct ChangePasswordView: View {
                 RevealableSecureField(title: "Current password", text: $oldPassphrase)
                 TextField("Current PIM (0 = default)", text: $oldPimText)
                     .keyboardType(.numberPad)
-                keyfileRow(label: "Current keyfiles", count: oldKeyfileCount) { showOldKeyfilePicker = true }
+                keyfileRow(label: "Current keyfiles", count: oldKeyfileCount) { pickKeyfiles(.current) }
             }
 
             Section {
@@ -50,11 +57,14 @@ struct ChangePasswordView: View {
                 RevealableSecureField(title: "Confirm new password", text: $confirmNewPassphrase, contentType: .newPassword)
                 TextField("New PIM (0 = default)", text: $newPimText)
                     .keyboardType(.numberPad)
-                keyfileRow(label: "New keyfiles", count: newKeyfileCount) { showNewKeyfilePicker = true }
+                keyfileRow(label: "New keyfiles", count: newKeyfileCount) { pickKeyfiles(.new) }
             } header: {
                 Text("New Password")
             } footer: {
-                Text("The data inside the vault is untouched — only the password that unlocks it changes.")
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("To keep using the same keyfiles, add them again under New keyfiles. Leave New keyfiles empty to stop using keyfiles.")
+                    Text("The data inside the vault is untouched — only the password that unlocks it changes.")
+                }
             }
 
             Section {
@@ -93,14 +103,21 @@ struct ChangePasswordView: View {
                 }
             }
         }
-        .fileImporter(isPresented: $showOldKeyfilePicker, allowedContentTypes: [.item], allowsMultipleSelection: true) { result in
-            oldKeyfiles = Self.readKeyfiles(result)
-            oldKeyfileCount = oldKeyfiles.count
+        .fileImporter(isPresented: $showKeyfilePicker, allowedContentTypes: [.item], allowsMultipleSelection: true) { result in
+            switch keyfilePickerMode {
+            case .current:
+                oldKeyfiles = Self.readKeyfiles(result)
+                oldKeyfileCount = oldKeyfiles.count
+            case .new:
+                newKeyfiles = Self.readKeyfiles(result)
+                newKeyfileCount = newKeyfiles.count
+            }
         }
-        .fileImporter(isPresented: $showNewKeyfilePicker, allowedContentTypes: [.item], allowsMultipleSelection: true) { result in
-            newKeyfiles = Self.readKeyfiles(result)
-            newKeyfileCount = newKeyfiles.count
-        }
+    }
+
+    private func pickKeyfiles(_ mode: KeyfilePickerMode) {
+        keyfilePickerMode = mode
+        showKeyfilePicker = true
     }
 
     private var canChange: Bool {
@@ -131,6 +148,11 @@ struct ChangePasswordView: View {
                 newKeyfiles: newKeyfiles,
                 newPrf: newKdf
             )
+            if newKdf != nil {
+                // The header now uses another hash; a remembered one would
+                // make the next unlock fail as a wrong password.
+                vaultStore.setRememberedHash(vault.id, hash: nil)
+            }
             succeeded = true
             oldPassphrase = ""
             newPassphrase = ""

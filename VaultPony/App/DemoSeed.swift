@@ -52,7 +52,7 @@ enum DemoSeed {
             session.lock()
 
             let bookmark = try url.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil)
-            vaultStore.add(bookmarkData: bookmark, displayName: displayName)
+            vaultStore.add(bookmarkData: bookmark, displayName: displayName, mode: .showNames)
         } catch {
             // Best-effort: a seeding failure just means screenshots show
             // an empty state, never a crash over demo data.

@@ -26,7 +26,7 @@ struct VolumeInfoView: View {
                         }
                     }
                     Section {
-                        LabeledContent("Encryption", value: facts.scheme)
+                        LabeledContent("Encryption", value: Vault.schemeLabel(facts.scheme))
                         LabeledContent("Hash", value: facts.prf)
                         LabeledContent("Filesystem", value: facts.filesystem)
                         if let space = sessionRegistry.space {

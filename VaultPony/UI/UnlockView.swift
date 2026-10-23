@@ -29,11 +29,45 @@ struct UnlockView: View {
     @State private var errorMessage: String?
     @State private var unlockedFacts: VolumeFacts?
 
-    // Argon2id support (VeraCrypt 1.26.29+). `.auto` matches VeraCrypt;
-    // narrowing skips the other KDF family's cost.
+    // The "Hash" menu (2.0.0 rc4, D21): `.auto` matches VeraCrypt; a single
+    // hash skips every other derivation. "Skip Argon2id" still sets
+    // `.pbkdf2Only`, which the menu then shows as PBKDF2.
     @State private var kdf: KdfFilter = .auto
+    private let hashChoices = Vault.hashMenuChoices()
+    /// Only a hash picked by hand is remembered, never what Auto found.
+    @State private var hashPickedByHand = false
+    @State private var appliedRememberedHash = false
     @State private var cancelHandle: UnlockCancel?
     @State private var memoryWarning: MemoryCheck?
+
+    /// The name shown for this vault ("Vault 2" when names are hidden).
+    private var vaultLabel: String { vaultStore.label(for: vault) }
+
+    /// "Don't keep" or no-trace mode: no hash is remembered (D21).
+    private var listKeepsNothing: Bool { appPrefs.effectiveVaultListMode == .dontKeep }
+
+    /// "Don't keep" deletes the entry and its Face ID unlock at lock, so
+    /// Face ID isn't offered. No-trace mode keeps its pre-rc4 behaviour.
+    private var offersFaceID: Bool { appPrefs.vaultListMode != .dontKeep }
+
+    /// Only "Auto" is translated; the others are hash names.
+    private func hashTitle(_ choice: HashChoice) -> Text {
+        choice.filter == .auto ? Text("Auto") : Text(verbatim: choice.label)
+    }
+
+    private var hashSelection: Binding<KdfFilter> {
+        Binding(
+            get: { kdf },
+            set: { picked in
+                kdf = picked
+                hashPickedByHand = true
+                if picked == .auto {
+                    // Picking Auto forgets a remembered hash.
+                    vaultStore.setRememberedHash(vault.id, hash: nil)
+                }
+            }
+        )
+    }
 
     var body: some View {
         Form {
@@ -52,22 +86,23 @@ struct UnlockView: View {
                 RevealableSecureField(title: "Password", text: $passphrase, accessibilityIdentifier: "passwordField")
                 TextField("PIM (0 = default)", text: $pimText)
                     .keyboardType(.numberPad)
-                if isBiometricAvailable && !isBiometricEnrolled {
+                if isBiometricAvailable && !isBiometricEnrolled && offersFaceID {
                     Toggle("Enable Face ID for this vault", isOn: $enableBiometric)
                 }
             }
 
             Section {
-                Picker("Key derivation", selection: $kdf) {
-                    Text("Auto").tag(KdfFilter.auto)
-                    Text("PBKDF2").tag(KdfFilter.pbkdf2Only)
-                    Text("Argon2id").tag(KdfFilter.argon2idOnly)
+                Picker("Hash", selection: hashSelection) {
+                    ForEach(hashChoices, id: \.label) { choice in
+                        hashTitle(choice).tag(choice.filter)
+                    }
+                    if kdf == .pbkdf2Only {
+                        Text("PBKDF2").tag(KdfFilter.pbkdf2Only)
+                    }
                 }
-                .pickerStyle(.segmented)
-            } header: {
-                Text("Key derivation")
+                .pickerStyle(.menu)
             } footer: {
-                Text("Auto tries every KDF, like VeraCrypt. If you know which one your vault uses, picking it makes unlocking faster.")
+                Text("Auto tries every hash, like VeraCrypt. If you know which hash your vault uses, picking it makes unlocking faster.")
             }
 
             Section {
@@ -142,7 +177,7 @@ struct UnlockView: View {
                 }
             }
         }
-        .navigationTitle(vault.displayName)
+        .navigationTitle(vaultLabel)
         // Leaving mid-unlock would abandon a search whose session could
         // still open behind the user; Cancel below stops it instead.
         .navigationBarBackButtonHidden(isUnlocking)
@@ -174,13 +209,22 @@ struct UnlockView: View {
         .navigationDestination(item: $unlockedFacts) { _ in
             VaultSessionView()
         }
+        .onAppear {
+            // The menu starts on a hash picked by hand last time.
+            guard !appliedRememberedHash else { return }
+            appliedRememberedHash = true
+            if let remembered = vaultStore.rememberedHash(for: vault.id),
+               let filter = Vault.kdfFilter(forHash: remembered) {
+                kdf = filter
+            }
+        }
     }
 
     private func unlockWithBiometric() async {
         errorMessage = nil
         let credential: BiometricUnlock.StoredCredential
         do {
-            credential = try await BiometricUnlock.retrieve(vaultId: vault.id, reason: String(localized: "Unlock \(vault.displayName)"))
+            credential = try await BiometricUnlock.retrieve(vaultId: vault.id, reason: String(localized: "Unlock \(vaultLabel)"))
         } catch {
             errorMessage = String(localized: "Face ID unlock isn't available for this vault right now. Enter your password instead.", locale: LanguageOverride.locale)
             return
@@ -194,7 +238,7 @@ struct UnlockView: View {
     private func startUnlock() {
         errorMessage = nil
         memoryWarning = nil
-        if kdf != .pbkdf2Only {
+        if Vault.mayUseArgon2(kdf) {
             let check = Vault.argon2MemoryCheck(pim: UInt32(pimText) ?? 0)
             if !check.enough {
                 memoryWarning = check
@@ -243,7 +287,7 @@ struct UnlockView: View {
                 }
                 let (copyFd, relativePath) = try FdOpener.openViaCopyIn(bookmark: vault.bookmarkData)
                 fd = copyFd
-                copyModeInfo = CopyModeInfo(relativePath: relativePath, bookmark: vault.bookmarkData, displayName: vault.displayName)
+                copyModeInfo = CopyModeInfo(relativePath: relativePath, bookmark: vault.bookmarkData, displayName: vaultLabel)
             }
 
             if showInFiles, !appPrefs.noTraceMode {
@@ -285,7 +329,14 @@ struct UnlockView: View {
             sessionRegistry.adopt(session, vaultId: vault.id, facts: facts, copyModeInfo: copyModeInfo, filesFd: handedFilesFd)
             vaultStore.touch(vault.id, filesystem: facts.filesystem)
 
-            if enableBiometric, !isBiometricEnrolled {
+            // A hash picked by hand is remembered for this vault, unless
+            // the list keeps nothing. Biometric unlocks keep their own KDF.
+            if !viaBiometric, hashPickedByHand, !listKeepsNothing,
+               let label = hashChoices.first(where: { $0.filter == kdf && $0.filter != .auto })?.label {
+                vaultStore.setRememberedHash(vault.id, hash: label)
+            }
+
+            if enableBiometric, !isBiometricEnrolled, offersFaceID {
                 // Remember which KDF family opened it, so a Face ID unlock
                 // goes straight there next time.
                 let found: KdfFilter = facts.prf == "Argon2id" ? .argon2idOnly : .pbkdf2Only

@@ -1,6 +1,40 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@ files are larger than 4 GB, which FAT can't store. They will be skipped." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien über 4 GB, die FAT nicht speichern kann: %@. Sie werden übersprungen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivos que superan los 4 GB, que FAT no puede almacenar: %@. Se omitirán."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ fichiers dépassent 4 Go, la limite de FAT. Ils seront ignorés."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ arquivos têm mais de 4 GB, o que o FAT não consegue armazenar. Eles serão pulados."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файлов больше 4 ГБ: %@. Они будут пропущены: FAT не может хранить такие файлы."
+          }
+        }
+      }
+    },
     "%@ free of %@" : {
       "localizations" : {
         "de" : {
@@ -76,6 +110,7 @@
       }
     },
     "%lld files are larger than 4 GB, which FAT can't store. They will be skipped." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "variations" : {
@@ -170,12 +205,6 @@
         "ru" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld файл больше 4 ГБ и будет пропущен: FAT не может хранить такие файлы."
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "translated",
@@ -186,6 +215,12 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld файлов больше 4 ГБ и будут пропущены: FAT не может хранить такие файлы."
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld файл больше 4 ГБ и будет пропущен: FAT не может хранить такие файлы."
                 }
               },
               "other" : {
@@ -199,7 +234,133 @@
         }
       }
     },
+    "%lld files to save" : {
+      "comment" : "Header of the folder picker when saving shared files. Needs plural forms.",
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Datei zum Speichern"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Dateien zum Speichern"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld file to save"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld files to save"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld archivo para guardar"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld archivos para guardar"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld fichier à enregistrer"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld fichiers à enregistrer"
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld arquivo para salvar"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld arquivos para salvar"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld файл для сохранения"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld файла для сохранения"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld файлов для сохранения"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld файла для сохранения"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld kept both copies." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -234,11 +395,31 @@
       }
     },
     "%lld selected" : {
+      "comment" : "Count of selected keyfiles (unlock, create, change password) and of selected items in the file browser's selection bar. Needs plural forms.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld ausgewählt"
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld selected"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld selected"
+                }
+              }
+            }
           }
         },
         "es" : {
@@ -476,6 +657,41 @@
         }
       }
     },
+    "A keyfile is empty. VeraCrypt doesn't accept empty keyfiles." : {
+      "comment" : "Error when a chosen keyfile is empty (unlock, create, change password, recovery).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Schlüsseldatei ist leer. VeraCrypt akzeptiert keine leeren Schlüsseldateien."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un archivo clave está vacío. VeraCrypt no acepta archivos clave vacíos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un fichier clé est vide. VeraCrypt n'accepte pas les fichiers clés vides."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um arquivo-chave está vazio. O VeraCrypt não aceita arquivos-chave vazios."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл-ключ пуст. VeraCrypt не принимает пустые файлы-ключи."
+          }
+        }
+      }
+    },
     "A longer delay keeps the vault's key in memory while the app is in the background." : {
       "localizations" : {
         "de" : {
@@ -615,6 +831,7 @@
       }
     },
     "Access" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -684,6 +901,7 @@
       }
     },
     "After 1 hour" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -718,6 +936,7 @@
       }
     },
     "After 1 minute" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -751,7 +970,43 @@
         }
       }
     },
+    "After 5 minutes" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach 5 Minuten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tras 5 minutos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Après 5 minutes"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Após 5 minutos"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Через 5 минут"
+          }
+        }
+      }
+    },
     "After 15 minutes" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -786,6 +1041,7 @@
       }
     },
     "After 30 seconds" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -815,40 +1071,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Через 30 секунд"
-          }
-        }
-      }
-    },
-    "After 5 minutes" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nach 5 Minuten"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tras 5 minutos"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Après 5 minutes"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Após 5 minutos"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Через 5 минут"
           }
         }
       }
@@ -1035,6 +1257,41 @@
         }
       }
     },
+    "Ascending" : {
+      "comment" : "File browser sort order.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufsteigend"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ascendente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Croissant"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crescente"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По возрастанию"
+          }
+        }
+      }
+    },
     "Async PGP messenger" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1100,6 +1357,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Авто"
+          }
+        }
+      }
+    },
+    "Auto tries every hash, like VeraCrypt. If you know which hash your vault uses, picking it makes unlocking faster." : {
+      "comment" : "Footer under the Hash menu on the unlock screen.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisch probiert jeden Hash, wie VeraCrypt. Wenn du weißt, welchen Hash dein Tresor nutzt, entsperrt er mit dieser Auswahl schneller."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automático prueba todos los hashes, como VeraCrypt. Si sabes qué hash usa tu bóveda, elegirlo hace que se desbloquee más rápido."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto essaie chaque hachage, comme VeraCrypt. Si vous savez quel hachage votre coffre utilise, le choisir accélère le déverrouillage."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automático tenta todos os hashes, como o VeraCrypt. Se você sabe qual hash o seu cofre usa, escolhê-lo deixa o desbloqueio mais rápido."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Авто» пробует все хеши, как VeraCrypt. Если вы знаете, какой хеш использует ваше хранилище, выберите его, и разблокировка пройдёт быстрее."
           }
         }
       }
@@ -1242,6 +1534,41 @@
         }
       }
     },
+    "Can't play this file." : {
+      "comment" : "Shown when a video or audio file in the vault can't be played.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Datei kann nicht abgespielt werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede reproducir este archivo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de lire ce fichier."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não é possível reproduzir este arquivo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удаётся воспроизвести этот файл."
+          }
+        }
+      }
+    },
     "Cancel" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1278,6 +1605,7 @@
       }
     },
     "Carved from the outer volume's space — must leave enough room for the outer volume's own files." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1483,6 +1811,41 @@
         }
       }
     },
+    "Choose a folder" : {
+      "comment" : "Title of the folder picker when saving shared files into a vault.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner wählen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige una carpeta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir un dossier"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolha uma pasta"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите папку"
+          }
+        }
+      }
+    },
     "Choose your language. You can change it anytime in Settings." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1519,6 +1882,7 @@
       }
     },
     "Conceals a second volume inside this one. The outer password alone opens the decoy; the hidden password opens the real contents. The outer volume shows no trace of the hidden one." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1727,7 +2091,50 @@
         }
       }
     },
+    "Copying %@ of %@" : {
+      "comment" : "A heading that shows the number of files copied so far and the total number of files.",
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopiere %1$@ von %2$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Copying %1$@ of %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiando %1$@ de %2$@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copie de %1$@ sur %2$@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiando %1$@ de %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Копирование %1$@ из %2$@"
+          }
+        }
+      }
+    },
     "Copying %lld of %lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1976,6 +2383,41 @@
         }
       }
     },
+    "Couldn't prepare these items." : {
+      "comment" : "Share extension error: the shared items couldn't be copied.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Elemente konnten nicht vorbereitet werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron preparar estos elementos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de préparer ces éléments."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível preparar estes itens."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось подготовить эти элементы."
+          }
+        }
+      }
+    },
     "Couldn't Save Changes Back" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2048,6 +2490,7 @@
     },
     "Couldn't show this vault in Files." : {
       "comment" : "Alert message when turning on Files access failed after an unlock. The vault itself is unlocked.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2361,6 +2804,41 @@
         }
       }
     },
+    "Date modified" : {
+      "comment" : "File browser sort option.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Änderungsdatum"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fecha de modificación"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date de modification"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data de modificação"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дата изменения"
+          }
+        }
+      }
+    },
     "Delete" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2396,6 +2874,166 @@
         }
       }
     },
+    "Delete %lld items?" : {
+      "comment" : "Alert title before deleting the selected items in the file browser. Needs plural forms.",
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Element löschen?"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Elemente löschen?"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Delete %lld item?"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Delete %lld items?"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "¿Eliminar %lld elemento?"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "¿Eliminar %lld elementos?"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Supprimer %lld élément ?"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Supprimer %lld éléments ?"
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Excluir %lld item?"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Excluir %lld itens?"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Удалить %lld элемент?"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Удалить %lld элемента?"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Удалить %lld элементов?"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Удалить %lld элемента?"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Descending" : {
+      "comment" : "File browser sort order.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Absteigend"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descendente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Décroissant"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decrescente"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По убыванию"
+          }
+        }
+      }
+    },
     "Discard" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2427,6 +3065,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Отменить"
+          }
+        }
+      }
+    },
+    "Don't keep" : {
+      "comment" : "Settings > Vault list option: vaults leave the list when they are locked.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht behalten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No conservar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ne pas conserver"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não manter"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не хранить"
           }
         }
       }
@@ -2743,7 +3416,43 @@
         }
       }
     },
+    "Export Decrypted Files?" : {
+      "comment" : "Alert title in no-trace mode before exporting the selected items.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entschlüsselte Dateien exportieren?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Exportar archivos descifrados?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporter les fichiers déchiffrés ?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exportar arquivos descriptografados?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Экспортировать расшифрованные файлы?"
+          }
+        }
+      }
+    },
     "Export Decrypted Folder?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2778,6 +3487,7 @@
       }
     },
     "Export Folder" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2847,6 +3557,7 @@
       }
     },
     "Export stopped. %lld of %lld files were copied." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2887,6 +3598,7 @@
       }
     },
     "Exported %lld files." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "variations" : {
@@ -2981,12 +3693,6 @@
         "ru" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Экспортирован %lld файл."
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "translated",
@@ -2997,6 +3703,12 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "Экспортировано %lld файлов."
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Экспортирован %lld файл."
                 }
               },
               "other" : {
@@ -3186,6 +3898,7 @@
     },
     "Files Access" : {
       "comment" : "Alert title for problems turning on Show in Files.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -3360,6 +4073,7 @@
       }
     },
     "Free" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -3424,6 +4138,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Начать"
+          }
+        }
+      }
+    },
+    "Grid" : {
+      "comment" : "File browser view option: a grid with image thumbnails.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raster"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuadrícula"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grille"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grade"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сетка"
           }
         }
       }
@@ -3568,6 +4317,7 @@
       }
     },
     "Hidden area protected" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -3636,7 +4386,7 @@
         }
       }
     },
-    "Hidden Volume" : {
+    "Hidden volume" : {
       "extractionState" : "stale",
       "localizations" : {
         "de" : {
@@ -3671,7 +4421,8 @@
         }
       }
     },
-    "Hidden volume" : {
+    "Hidden Volume" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -3880,6 +4631,7 @@
       }
     },
     "Hide a second vault inside the first. Type its password on its own to open it. The outer password gives no sign it exists." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -3909,6 +4661,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Спрячьте второе хранилище внутри первого. Чтобы открыть его, введите только его пароль. Внешний пароль не выдаёт его существования."
+          }
+        }
+      }
+    },
+    "Hide names" : {
+      "comment" : "Settings > Vault list option: show Vault 1, Vault 2 and so on instead of file names.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Namen verbergen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar nombres"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer les noms"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar nomes"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрывать имена"
           }
         }
       }
@@ -3982,6 +4769,7 @@
       }
     },
     "How long the vault stays unlocked with the app in the background." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4085,6 +4873,7 @@
       }
     },
     "Immediately" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4154,6 +4943,7 @@
       }
     },
     "Import Folder" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4188,6 +4978,7 @@
       }
     },
     "Import stopped. %lld of %lld files were copied." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4228,6 +5019,7 @@
       }
     },
     "Imported %lld files." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "variations" : {
@@ -4322,12 +5114,6 @@
         "ru" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Импортирован %lld файл."
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "translated",
@@ -4338,6 +5124,12 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "Импортировано %lld файлов."
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Импортирован %lld файл."
                 }
               },
               "other" : {
@@ -4352,6 +5144,7 @@
       }
     },
     "Keep Both" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4590,8 +5383,44 @@
         }
       }
     },
+    "List" : {
+      "comment" : "File browser view option: a list of items.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liste"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lista"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liste"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lista"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Список"
+          }
+        }
+      }
+    },
     "Lock" : {
       "comment" : "Toolbar button in an unlocked vault's file list. Locks the vault and returns to the vault list.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4627,6 +5456,7 @@
     },
     "Lock vaults" : {
       "comment" : "Home Screen quick action on the app icon. Locks every unlocked vault.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4725,6 +5555,111 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Другие приложения Pony"
+          }
+        }
+      }
+    },
+    "Move" : {
+      "comment" : "File browser selection mode: move the selected items to another folder.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verschieben"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mover"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déplacer"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mover"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переместить"
+          }
+        }
+      }
+    },
+    "Move here" : {
+      "comment" : "Button in the folder picker: move the selected items into this folder.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hierher verschieben"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mover aquí"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déplacer ici"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mover para cá"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переместить сюда"
+          }
+        }
+      }
+    },
+    "Move to" : {
+      "comment" : "Title of the folder picker when moving selected items.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verschieben nach"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mover a"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déplacer vers"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mover para"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переместить в"
           }
         }
       }
@@ -5111,6 +6046,41 @@
         }
       }
     },
+    "No matches" : {
+      "comment" : "Empty state when a file browser search finds nothing.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Treffer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin resultados"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun résultat"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum resultado"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ничего не найдено"
+          }
+        }
+      }
+    },
     "No Vaults Yet" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -5215,6 +6185,41 @@
         }
       }
     },
+    "No-trace mode is on. Exporting these items writes decrypted copies outside the vault." : {
+      "comment" : "Alert message in no-trace mode before exporting the selected items.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der spurenlose Modus ist aktiviert. Beim Exportieren dieser Elemente werden entschlüsselte Kopien außerhalb des Tresors geschrieben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El modo sin rastro está activado. Exportar estos elementos escribe copias descifradas fuera de la bóveda."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le mode sans trace est activé. L'exportation de ces éléments écrit des copies déchiffrées en dehors du coffre."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O modo sem rastro está ativado. Exportar estes itens grava cópias descriptografadas fora do cofre."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Включён режим без следов. Экспорт этих элементов создаёт расшифрованные копии за пределами хранилища."
+          }
+        }
+      }
+    },
     "None" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -5286,6 +6291,7 @@
       }
     },
     "Not Enough Space" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -5315,6 +6321,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Недостаточно места"
+          }
+        }
+      }
+    },
+    "Nothing to save." : {
+      "comment" : "Share extension error: the share held nothing VaultPony can save.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nichts zu speichern."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay nada que guardar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rien à enregistrer."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nada para salvar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нечего сохранять."
           }
         }
       }
@@ -5458,6 +6499,7 @@
       }
     },
     "Open the outer volume and protect a hidden one" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -5527,6 +6569,7 @@
     },
     "Open VaultPony to unlock this vault." : {
       "comment" : "Shown inside the Files app when a VaultPony location is no longer unlocked. Title.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -5840,6 +6883,41 @@
         }
       }
     },
+    "Preparing…" : {
+      "comment" : "Share extension: shown while the shared items are being copied.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wird vorbereitet …"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparando…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Préparation…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparando…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подготовка…"
+          }
+        }
+      }
+    },
     "Preview Not Available" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -6047,6 +7125,76 @@
         }
       }
     },
+    "Remove" : {
+      "comment" : "Destructive button: remove every vault from the list.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entfernen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quitar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retirer"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remover"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить"
+          }
+        }
+      }
+    },
+    "Remove all vaults from the list?" : {
+      "comment" : "Alert title when choosing Don't keep for the vault list.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Tresore aus der Liste entfernen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Quitar todas las bóvedas de la lista?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retirer tous les coffres de la liste ?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remover todos os cofres da lista?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить все хранилища из списка?"
+          }
+        }
+      }
+    },
     "Rename" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -6083,6 +7231,7 @@
       }
     },
     "Renamed %lld to fit the vault's filesystem." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -6117,6 +7266,7 @@
       }
     },
     "Replace" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -6289,6 +7439,41 @@
         }
       }
     },
+    "Save here" : {
+      "comment" : "Button in the folder picker: save the shared files into this folder.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hier speichern"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar aquí"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrer ici"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salvar aqui"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранить здесь"
+          }
+        }
+      }
+    },
     "Saves the container's 128 KiB header — encrypted, but keeps accepting the current password forever. Guard it like the container itself." : {
       "localizations" : {
         "de" : {
@@ -6358,6 +7543,146 @@
         }
       }
     },
+    "Search" : {
+      "comment" : "Placeholder of the search field in the file browser.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suchen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rechercher"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pesquisar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поиск"
+          }
+        }
+      }
+    },
+    "Searching…" : {
+      "comment" : "Shown while the whole vault is being searched.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche läuft …"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscando…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recherche…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pesquisando…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поиск…"
+          }
+        }
+      }
+    },
+    "Select" : {
+      "comment" : "File browser toolbar button: start selecting several items.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auswählen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleccionar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sélectionner"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selecionar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбрать"
+          }
+        }
+      }
+    },
+    "Select all" : {
+      "comment" : "File browser selection mode: select every item in the folder.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle auswählen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleccionar todo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tout sélectionner"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selecionar tudo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбрать все"
+          }
+        }
+      }
+    },
     "Settings" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -6395,6 +7720,7 @@
     },
     "Show in Files" : {
       "comment" : "Toggle on the unlock screen. Makes the unlocked vault available in the iOS Files app (and to other apps through it) until it locks.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -6430,6 +7756,7 @@
     },
     "Show in Files isn't available for this vault, because its location doesn't allow editing in place." : {
       "comment" : "Alert message after unlocking with Show in Files on, when the vault had to be opened as a local copy.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -6459,6 +7786,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Функция «Показывать в Файлах» недоступна для этого хранилища, так как его расположение не позволяет редактировать на месте."
+          }
+        }
+      }
+    },
+    "Show names" : {
+      "comment" : "Settings > Vault list option: show each vault's file name (default).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Namen anzeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar nombres"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher les noms"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar nomes"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывать имена"
           }
         }
       }
@@ -6637,6 +7999,7 @@
       }
     },
     "Skipped %lld." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -6671,6 +8034,7 @@
       }
     },
     "Some Files Already Exist" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -6735,6 +8099,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Произошла внутренняя ошибка. Попробуйте ещё раз."
+          }
+        }
+      }
+    },
+    "Sort by" : {
+      "comment" : "File browser submenu: the order of items.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sortieren nach"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordenar por"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trier par"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordenar por"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сортировка"
           }
         }
       }
@@ -6912,6 +8311,41 @@
         }
       }
     },
+    "The list shows Vault 1, Vault 2 and so on. The saved link to each file still records where it is, because VaultPony needs it to open the file again." : {
+      "comment" : "Footer under Settings > Vault list while Hide names is chosen.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Liste zeigt Tresor 1, Tresor 2 und so weiter. Der gespeicherte Verweis auf jede Datei hält weiterhin fest, wo sie liegt, weil VaultPony ihn braucht, um die Datei erneut zu öffnen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La lista muestra Bóveda 1, Bóveda 2, etc. El enlace guardado a cada archivo sigue registrando dónde está, porque VaultPony lo necesita para volver a abrir el archivo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La liste affiche Coffre 1, Coffre 2, etc. Le lien enregistré vers chaque fichier indique toujours son emplacement, car VaultPony en a besoin pour rouvrir le fichier."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A lista mostra Cofre 1, Cofre 2 e assim por diante. O link salvo para cada arquivo ainda registra onde ele está, porque o VaultPony precisa dele para abrir o arquivo de novo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В списке отображаются «Хранилище 1», «Хранилище 2» и так далее. Сохранённая ссылка на каждый файл по-прежнему указывает его расположение, потому что она нужна VaultPony, чтобы снова открыть файл."
+          }
+        }
+      }
+    },
     "The Pony Family" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -6943,6 +8377,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Семейство Pony"
+          }
+        }
+      }
+    },
+    "The vault files themselves are not touched. Saved Face ID or fingerprint unlocks for them are removed too." : {
+      "comment" : "Alert message when choosing Don't keep for the vault list.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Tresordateien selbst bleiben unberührt. Gespeicherte Entsperrungen per Face ID oder Fingerabdruck für sie werden ebenfalls entfernt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los archivos de las bóvedas no se modifican. También se eliminan los desbloqueos con Face ID o huella dactilar guardados para ellas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les fichiers des coffres eux-mêmes ne sont pas modifiés. Les déverrouillages par Face ID ou empreinte digitale enregistrés pour ces coffres sont également supprimés."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os arquivos dos cofres em si não são alterados. Os desbloqueios por Face ID ou impressão digital salvos para eles também são removidos."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сами файлы хранилищ не затрагиваются. Сохранённая для них разблокировка по Face ID или отпечатку пальца тоже удаляется."
           }
         }
       }
@@ -7022,6 +8491,41 @@
         }
       }
     },
+    "This can't be undone." : {
+      "comment" : "Alert message before deleting the selected items in the file browser.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dies kann nicht rückgängig gemacht werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta acción no se puede deshacer."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette action est irréversible."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Isso não pode ser desfeito."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это действие нельзя отменить."
+          }
+        }
+      }
+    },
     "This container requires a newer format version than VaultPony supports." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -7058,6 +8562,7 @@
       }
     },
     "This file is too large to preview yet (%@)." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -7087,6 +8592,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Этот файл пока слишком большой для предпросмотра (%@)."
+          }
+        }
+      }
+    },
+    "This folder" : {
+      "comment" : "Search scope in the file browser: search only the current folder.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Ordner"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta carpeta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce dossier"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta pasta"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эта папка"
           }
         }
       }
@@ -7157,6 +8697,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Расположение этого хранилища не поддерживает редактирование на месте, а режим без следов отключает резервный вариант с локальной копией. Попробуйте другое место хранения или отключите режим без следов в настройках."
+          }
+        }
+      }
+    },
+    "To keep using the same keyfiles, add them again under New keyfiles. Leave New keyfiles empty to stop using keyfiles." : {
+      "comment" : "Help under the keyfile rows on the Change Password screen.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um weiterhin dieselben Schlüsseldateien zu verwenden, füge sie unter „Neue Schlüsseldateien“ erneut hinzu. Lass „Neue Schlüsseldateien“ leer, um keine Schlüsseldateien mehr zu verwenden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para seguir usando los mismos archivos clave, vuelve a añadirlos en Nuevos archivos clave. Deja Nuevos archivos clave vacío para dejar de usar archivos clave."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pour continuer à utiliser les mêmes fichiers clés, ajoutez-les de nouveau sous Nouveaux fichiers clés. Laissez Nouveaux fichiers clés vide pour ne plus utiliser de fichiers clés."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para continuar usando os mesmos arquivos-chave, adicione-os de novo em Novos arquivos-chave. Deixe Novos arquivos-chave vazio para deixar de usar arquivos-chave."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чтобы продолжить использовать те же файлы-ключи, добавьте их снова в разделе «Новые файлы-ключи». Оставьте раздел «Новые файлы-ключи» пустым, чтобы перестать использовать файлы-ключи."
           }
         }
       }
@@ -7232,6 +8807,7 @@
     },
     "Turn on Show in Files when you unlock it." : {
       "comment" : "Shown inside the Files app under 'Open VaultPony to unlock this vault.'",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -7400,6 +8976,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Разблокировать %@"
+          }
+        }
+      }
+    },
+    "Unlock a vault to save these files." : {
+      "comment" : "Shown above the vault list when files were shared to VaultPony and no vault is unlocked.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entsperre einen Tresor, um diese Dateien zu speichern."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desbloquea una bóveda para guardar estos archivos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déverrouillez un coffre pour enregistrer ces fichiers."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desbloqueie um cofre para salvar estes arquivos."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разблокируйте хранилище, чтобы сохранить эти файлы."
           }
         }
       }
@@ -7577,6 +9188,41 @@
         }
       }
     },
+    "Vault %lld" : {
+      "comment" : "Name shown in the vault list (and on the unlock screen) when Settings > Vault list is set to Hide names. The number is the vault's 1-based position in the list.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tresor %lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bóveda %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coffre %lld"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cofre %lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хранилище %lld"
+          }
+        }
+      }
+    },
     "Vault Created" : {
       "localizations" : {
         "de" : {
@@ -7646,6 +9292,41 @@
         }
       }
     },
+    "Vault list" : {
+      "comment" : "Settings row: what the Home screen's list of vaults keeps.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tresorliste"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lista de bóvedas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liste des coffres"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lista de cofres"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Список хранилищ"
+          }
+        }
+      }
+    },
     "Vault name" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -7687,6 +9368,7 @@
     },
     "VaultPony couldn't remove every file it showed in Files. They will be removed the next time you open VaultPony." : {
       "comment" : "Alert message (title: Files Access) when locking left decrypted copies behind in VaultPony's Files storage. They are deleted at the next launch.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -7961,7 +9643,43 @@
         }
       }
     },
+    "View" : {
+      "comment" : "File browser menu holding the List/Grid and sort options.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ansicht"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vista"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affichage"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visualizar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вид"
+          }
+        }
+      }
+    },
     "Volume Info" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -8026,6 +9744,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Веб-сайт"
+          }
+        }
+      }
+    },
+    "Whole vault" : {
+      "comment" : "Search scope in the file browser: search every folder of the vault.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ganzer Tresor"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toda la bóveda"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tout le coffre"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cofre inteiro"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всё хранилище"
           }
         }
       }

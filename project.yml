@@ -63,6 +63,11 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         NSFaceIDUsageDescription: "VaultPony uses Face ID to unlock vaults you've enrolled for biometric access."
+        # vaultpony://share?token=<UUID> from the share extension (2.0.0 rc4).
+        CFBundleURLTypes:
+          - CFBundleURLName: dev.norsehorse.vaultpony
+            CFBundleURLSchemes:
+              - vaultpony
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.norsehorse.vaultpony
@@ -76,6 +81,7 @@ targets:
         embed: false
       - target: VaultPonyFileProvider
       - target: VaultPonyFileProviderUI
+      - target: VaultPonyShare
 
   # Files access (2.0.0 rc3, plan 4.2): the non-replicated File Provider
   # extension. It links the same core and never sees a password.
@@ -97,6 +103,8 @@ targets:
       path: VaultPonyFileProvider/Info.plist
       properties:
         CFBundleDisplayName: VaultPony
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.fileprovider-nonui
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).FileProviderExtension
@@ -131,6 +139,8 @@ targets:
       path: VaultPonyFileProviderUI/Info.plist
       properties:
         CFBundleDisplayName: VaultPony
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.fileprovider-actionsui
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ActionViewController
@@ -139,6 +149,44 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.norsehorse.vaultpony.FileProviderUI
         PRODUCT_NAME: VaultPonyFileProviderUI
+        TARGETED_DEVICE_FAMILY: "1,2"
+        APPLICATION_EXTENSION_API_ONLY: YES
+
+  # Share into a vault (2.0.0 rc4, plan 5.1): stages shared items in the
+  # app group and opens the app. Never links the core, never sees a vault.
+  VaultPonyShare:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: VaultPonyShare
+      - path: Shared/ShareStaging.swift
+      - path: VaultPony/Resources/Localizable.xcstrings
+    entitlements:
+      path: VaultPonyShare/VaultPonyShare.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.dev.norsehorse.vaultpony
+    info:
+      path: VaultPonyShare/Info.plist
+      properties:
+        CFBundleDisplayName: VaultPony
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
+          NSExtensionAttributes:
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsAttachmentsWithMaxCount: 100
+              NSExtensionActivationSupportsFileWithMaxCount: 100
+              NSExtensionActivationSupportsImageWithMaxCount: 100
+              NSExtensionActivationSupportsMovieWithMaxCount: 100
+              NSExtensionActivationSupportsText: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.norsehorse.vaultpony.Share
+        PRODUCT_NAME: VaultPonyShare
         TARGETED_DEVICE_FAMILY: "1,2"
         APPLICATION_EXTENSION_API_ONLY: YES
 

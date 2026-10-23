@@ -4,9 +4,9 @@ import UIKit
 @main
 struct VaultPonyApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    @State private var vaultStore = VaultStore()
+    @State private var vaultStore = VaultStore.shared
     @State private var sessionRegistry = SessionRegistry.shared
-    @State private var appPrefs = AppPrefs()
+    @State private var appPrefs = AppPrefs.shared
 
     var body: some Scene {
         WindowGroup {
@@ -14,6 +14,7 @@ struct VaultPonyApp: App {
                 .environment(vaultStore)
                 .environment(sessionRegistry)
                 .environment(appPrefs)
+                .environment(ShareInbox.shared)
                 .environment(\.locale, appPrefs.locale)
         }
     }
@@ -23,7 +24,18 @@ private struct RootView: View {
     @Environment(VaultStore.self) private var vaultStore
     @Environment(SessionRegistry.self) private var sessionRegistry
     @Environment(AppPrefs.self) private var appPrefs
+    @Environment(ShareInbox.self) private var shareInbox
     @Environment(\.scenePhase) private var scenePhase
+
+    /// A claimed share asks where to go once onboarding is done, no copy is
+    /// running, and the user isn't on their way to unlock a vault for it.
+    private var showsShare: Bool {
+        shareInbox.pending != nil
+            && appPrefs.onboardingDone
+            && !appPrefs.replayOnboardingRequested
+            && sessionRegistry.activeTransfer == nil
+            && (sessionRegistry.session != nil || !shareInbox.awaitingUnlock)
+    }
 
     var body: some View {
         ZStack {
@@ -47,6 +59,37 @@ private struct RootView: View {
         }
         .onAppear {
             sessionRegistry.autoLockSeconds = appPrefs.autoLockSeconds
+            shareInbox.pickUp()
+        }
+        // From the share extension (2.0.0 rc4). Only a UUID token is
+        // accepted; the staged folder moves into the app at once. A URL
+        // that arrives before the app is active (returning from the share
+        // sheet) waits: the auto-lock that may run on becoming active would
+        // delete a share claimed now. The pick-up after
+        // sceneDidBecomeActive claims it instead.
+        .onOpenURL { url in
+            if scenePhase == .active {
+                shareInbox.handle(url)
+            }
+        }
+        .sheet(isPresented: Binding(
+            get: { showsShare },
+            set: { isShown in
+                // Swiped away: cancelled. Not when the sheet closed because
+                // the user went to unlock a vault or the import started.
+                if !isShown, !shareInbox.awaitingUnlock, shareInbox.pending != nil {
+                    shareInbox.discard()
+                }
+            }
+        )) {
+            if let share = shareInbox.pending {
+                ShareImportView(share: share)
+                    .environment(vaultStore)
+                    .environment(sessionRegistry)
+                    .environment(appPrefs)
+                    .environment(shareInbox)
+                    .environment(\.locale, appPrefs.locale)
+            }
         }
         .onChange(of: appPrefs.languageCode) { _, _ in
             sessionRegistry.refreshQuickAction()
@@ -68,6 +111,8 @@ private struct RootView: View {
                 // paused copy decides whether to resume.
                 sessionRegistry.sceneDidBecomeActive()
                 sessionRegistry.activeTransfer?.appDidBecomeActive()
+                // A share the extension couldn't hand over (2.0.0 rc4).
+                shareInbox.pickUp()
             default:
                 break
             }
@@ -163,6 +208,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         QuickActions.sync(unlocked: false)
         // Nothing is unlocked at launch, so any Files domain is a leftover.
         Task { await FilesBridge.shared.sweep() }
+        // A share claimed by a run that ended before importing it.
+        ShareInbox.shared.removeAllClaimed()
         return true
     }
 

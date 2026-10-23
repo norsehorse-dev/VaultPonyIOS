@@ -123,6 +123,20 @@ enum ImportWalker {
         return (items, sources)
     }
 
+    /// Plans an import of `items` into the vault folder `destination`,
+    /// listing the vault folders it meets off the main thread.
+    static func plan(session: VaultSession, items: [TransferItem], destination: String, policy: CollisionPolicy, maxFileBytes: UInt64?, clusterBytes: UInt64) async -> TransferPlan {
+        // The lookups are gated calls; for a vault shown in Files the app
+        // must not be suspended while one holds the gate's file lock.
+        await Vault.whileShared(session) {
+            await Task.detached {
+                TransferPlanner.plan(items: items, into: destination, policy: policy, maxFileBytes: maxFileBytes, clusterBytes: clusterBytes) { folder in
+                    ((try? Vault.listBlocking(session, path: folder)) ?? []).map { ExistingEntry(name: $0.name, isDirectory: $0.isDir) }
+                }
+            }.value
+        }
+    }
+
     /// The plan as run order: clean leftovers out of the folders that
     /// already exist, then each new folder and file in the order the walk
     /// found them.
@@ -150,7 +164,10 @@ enum ExportWalker {
     /// every folder and file exclusively, so nothing on disk is overwritten.
     static func steps(session: VaultSession, vaultFolder: String, localFolder: URL) async throws -> [TransferStep] {
         var steps: [TransferStep] = [.localFolder(url: localFolder)]
+        // Temp files of a copy or a Files save in progress never leave the
+        // vault.
         let entries = try await Vault.list(session, path: vaultFolder)
+            .filter { !FilesNaming.isHiddenFromListing($0.name) }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
         var used: Set<String> = []
         for entry in entries {
@@ -329,16 +346,20 @@ final class BulkTransfer {
     @ObservationIgnored private var finished = false
     @ObservationIgnored private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
     @ObservationIgnored private var resumeWaiter: CheckedContinuation<Void, Never>?
+    @ObservationIgnored private var onFinish: (() -> Void)?
 
     /// `scopedURLs` are security-scoped URLs this transfer started
-    /// accessing; it stops accessing them when it ends.
-    init(kind: Kind, steps: [TransferStep], counts: Counts, session: VaultSession, registry: SessionRegistry, scopedURLs: [URL]) {
+    /// accessing; it stops accessing them when it ends. `onFinish` runs
+    /// when it ends, however it ends (a shared import deletes its staged
+    /// files there).
+    init(kind: Kind, steps: [TransferStep], counts: Counts, session: VaultSession, registry: SessionRegistry, scopedURLs: [URL], onFinish: (() -> Void)? = nil) {
         self.kind = kind
         self.steps = steps
         self.counts = counts
         self.session = session
         self.registry = registry
         self.scopedURLs = scopedURLs
+        self.onFinish = onFinish
         let files = steps.filter(\.isFile)
         self.fileTotal = files.count
         self.bytesTotal = files.reduce(0) { $0 + $1.size }
@@ -524,6 +545,9 @@ final class BulkTransfer {
         registry?.transferFinished(summary(for: stop))
         releaseLock()
         endBackgroundWindow()
+        let done = onFinish
+        onFinish = nil
+        done?()
     }
 
     private func summary(for stop: StopReason?) -> TransferSummary {

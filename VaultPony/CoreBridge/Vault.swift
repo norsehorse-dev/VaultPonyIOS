@@ -56,7 +56,8 @@ enum Vault {
     /// For a vault shown in Files, the gate's file lock lives in the shared
     /// app group; iOS kills an app suspended while holding one (0xdead10cc).
     /// A background task keeps the app running until the call is done.
-    private static func whileShared<T>(_ session: VaultSession, _ work: () async throws -> T) async throws -> T {
+    /// Also used around `listBlocking` callers (the import planner).
+    static func whileShared<T>(_ session: VaultSession, _ work: () async throws -> T) async rethrows -> T {
         guard FilesGate.shared.isShared(session) else { return try await work() }
         let task = await MainActor.run { () -> UIBackgroundTaskIdentifier in
             var id = UIBackgroundTaskIdentifier.invalid
@@ -107,6 +108,14 @@ enum Vault {
     }
     static func readAt(_ session: VaultSession, path: String, offset: UInt64, len: UInt32) async throws -> Data {
         try await read(session) { try session.readAt(path: path, offset: offset, len: len) }
+    }
+
+    /// `list` for synchronous code that is already off the main thread (the
+    /// import planner's folder lookups). Gated like every other call; the
+    /// caller must run inside `whileShared` so the app isn't suspended
+    /// holding the gate (ImportWalker.plan does).
+    static func listBlocking(_ session: VaultSession, path: String) throws -> [DirEntry] {
+        try FilesGate.shared.perform(session, write: false) { try session.list(path: path) }
     }
 
     // MARK: - P2: write path
@@ -175,6 +184,28 @@ enum Vault {
     static func encryptionSchemeOptions() -> [String] { encryptionSchemes() }
     static func hashOptions() -> [String] { hashes() }
     static func filesystemOptions() -> [String] { filesystems() }
+
+    // MARK: - 2.0.0 rc4: hash menu and scheme names (D16, D21)
+    //
+    // Same naming rule: none of these shares a name with the generated
+    // globals (hashChoices, kdfFilterForPrf, kdfFilterMayUseArgon2,
+    // schemeDisplayName).
+
+    /// The unlock screen's "Hash" menu: Auto, then each hash in VeraCrypt's
+    /// order. Only "Auto" is translated; the rest are hash names.
+    static func hashMenuChoices() -> [HashChoice] { hashChoices() }
+
+    /// The single-hash filter for a hash name (a menu label, or
+    /// `VolumeFacts.prf`), or nil.
+    static func kdfFilter(forHash name: String) -> KdfFilter? { kdfFilterForPrf(prf: name) }
+
+    /// Whether an unlock under `filter` may run Argon2id, so the memory
+    /// check runs first.
+    static func mayUseArgon2(_ filter: KdfFilter) -> Bool { kdfFilterMayUseArgon2(filter: filter) }
+
+    /// What the user sees for a scheme ("AES-Twofish-Serpent" for the core's
+    /// "AES(Twofish(Serpent))"). The core keeps taking the registry name.
+    static func schemeLabel(_ name: String) -> String { schemeDisplayName(name: name) }
 
     // MARK: - P4: custody — change password, header backup/restore
     //

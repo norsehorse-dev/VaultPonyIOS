@@ -130,6 +130,8 @@ final class SessionRegistry {
         lockTask = nil
         lockPending = false
         holdCount = 0
+        let hadSession = session != nil
+        clearDecryptedState(sessionWasOpen: hadSession)
         if filesShared {
             // Teardown asks the extension to store any save still waiting
             // and lock, then posts the Darwin notification as a fallback.
@@ -142,7 +144,7 @@ final class SessionRegistry {
             heartbeatTask = nil
             Task { @MainActor in await FilesBridge.shared.teardown() }
         }
-        let hadSession = session != nil
+        let lockedVaultId = vaultId
         try? session?.flush()
         session?.lock()
         session = nil
@@ -161,8 +163,39 @@ final class SessionRegistry {
         isCopyMode = false
         if hadSession {
             lockGeneration += 1
+            // A vault list that keeps nothing drops what just locked, here
+            // rather than in a view, so every lock path does it.
+            VaultStore.shared.vaultLocked(
+                lockedVaultId,
+                removeIt: AppPrefs.shared.vaultListMode == .dontKeep,
+                unlockedId: nil
+            )
         }
         refreshQuickAction()
+    }
+
+    /// What 2.0.0 rc4 keeps in memory or on disk from an open vault goes
+    /// before its keys: grid thumbnails, players streaming from it, and a
+    /// share waiting to be imported (its staged plaintext). A lock with no
+    /// vault open leaves a share alone: the user may be about to unlock one
+    /// for it.
+    private func clearDecryptedState(sessionWasOpen: Bool) {
+        ThumbnailCache.shared.removeAll()
+        if Thread.isMainThread {
+            MainActor.assumeIsolated {
+                MediaPlayback.stopAll()
+                if sessionWasOpen {
+                    ShareInbox.shared.removeAllClaimed()
+                }
+            }
+        } else {
+            Task { @MainActor in
+                MediaPlayback.stopAll()
+                if sessionWasOpen {
+                    ShareInbox.shared.removeAllClaimed()
+                }
+            }
+        }
     }
 
     /// The Home Screen quick action: locks now, whatever the auto-lock

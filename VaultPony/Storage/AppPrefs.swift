@@ -1,19 +1,51 @@
 import Foundation
 import Observation
 
+/// What the Home screen's vault list keeps (2.0.0 rc4, plan 5.4).
+enum VaultListMode: String, CaseIterable {
+    /// File names, as before 2.0.0.
+    case showNames
+    /// "Vault 1", "Vault 2" and so on; no display names are stored.
+    case hideNames
+    /// Vaults leave the list when they lock, with their Face ID unlock and
+    /// remembered hash. Entries live in memory only.
+    case dontKeep
+}
+
+/// The browser's layout and order (2.0.0 rc4, plan 5.3), for every vault.
+enum BrowserLayout: String, CaseIterable {
+    case list
+    case grid
+}
+
+enum BrowserSort: String, CaseIterable {
+    case name
+    case size
+    case dateModified
+}
+
 private struct AppPrefsData: Codable {
     var autoLockSeconds: TimeInterval
     var privacyScreenEnabled: Bool
     var noTraceMode: Bool
     var onboardingDone: Bool
     var languageCode: String?
+    // 2.0.0 rc4. Stored as raw strings; an unknown value reads as the default.
+    var vaultListMode: String?
+    var browserLayout: String?
+    var browserSort: String?
+    var browserAscending: Bool?
 
-    init(autoLockSeconds: TimeInterval, privacyScreenEnabled: Bool, noTraceMode: Bool, onboardingDone: Bool, languageCode: String?) {
+    init(autoLockSeconds: TimeInterval, privacyScreenEnabled: Bool, noTraceMode: Bool, onboardingDone: Bool, languageCode: String?, vaultListMode: String?, browserLayout: String?, browserSort: String?, browserAscending: Bool?) {
         self.autoLockSeconds = autoLockSeconds
         self.privacyScreenEnabled = privacyScreenEnabled
         self.noTraceMode = noTraceMode
         self.onboardingDone = onboardingDone
         self.languageCode = languageCode
+        self.vaultListMode = vaultListMode
+        self.browserLayout = browserLayout
+        self.browserSort = browserSort
+        self.browserAscending = browserAscending
     }
 
     init(from decoder: Decoder) throws {
@@ -23,6 +55,10 @@ private struct AppPrefsData: Codable {
         noTraceMode = try container.decode(Bool.self, forKey: .noTraceMode)
         onboardingDone = try container.decodeIfPresent(Bool.self, forKey: .onboardingDone) ?? false
         languageCode = try container.decodeIfPresent(String.self, forKey: .languageCode)
+        vaultListMode = try? container.decodeIfPresent(String.self, forKey: .vaultListMode)
+        browserLayout = try? container.decodeIfPresent(String.self, forKey: .browserLayout)
+        browserSort = try? container.decodeIfPresent(String.self, forKey: .browserSort)
+        browserAscending = try? container.decodeIfPresent(Bool.self, forKey: .browserAscending)
     }
 }
 
@@ -66,6 +102,10 @@ enum LanguageOverride {
 /// SwiftUI view tree that need the same value threaded in manually.
 @Observable
 final class AppPrefs {
+    /// The app's one set of prefs. VaultPonyApp puts it in the environment;
+    /// SessionRegistry.lock reads the vault list setting here (2.0.0 rc4).
+    static let shared = AppPrefs()
+
     /// Default "Immediately" (2.0.0). A value already saved is kept.
     private(set) var autoLockSeconds: TimeInterval = 0
 
@@ -82,6 +122,23 @@ final class AppPrefs {
     private(set) var onboardingDone: Bool = false
     private(set) var replayOnboardingRequested: Bool = false
     private(set) var languageCode: String?
+
+    /// The vault list setting as chosen (2.0.0 rc4). See
+    /// `effectiveVaultListMode` for what applies.
+    private(set) var vaultListMode: VaultListMode = .showNames
+    private(set) var browserLayout: BrowserLayout = .list
+    private(set) var browserSort: BrowserSort = .name
+    private(set) var browserAscending: Bool = true
+
+    /// What applies to a vault opened now. No-trace mode is broader than the
+    /// vault list setting: while it is on, newly opened vaults are kept in
+    /// memory only (they leave at lock) and no hash is remembered. Entries
+    /// saved before it was turned on, and their Face ID unlocks, are left
+    /// alone; only an explicit "Don't keep" deletes them (SessionRegistry
+    /// reads `vaultListMode` for that).
+    var effectiveVaultListMode: VaultListMode {
+        noTraceMode ? .dontKeep : vaultListMode
+    }
 
     var locale: Locale {
         languageCode.map { Locale(identifier: $0) } ?? Locale.autoupdatingCurrent
@@ -128,6 +185,26 @@ final class AppPrefs {
         save()
     }
 
+    func setVaultListMode(_ mode: VaultListMode) {
+        vaultListMode = mode
+        save()
+    }
+
+    func setBrowserLayout(_ layout: BrowserLayout) {
+        browserLayout = layout
+        save()
+    }
+
+    func setBrowserSort(_ sort: BrowserSort) {
+        browserSort = sort
+        save()
+    }
+
+    func setBrowserAscending(_ ascending: Bool) {
+        browserAscending = ascending
+        save()
+    }
+
     func setOnboardingDone(_ done: Bool) {
         onboardingDone = done
         save()
@@ -158,13 +235,27 @@ final class AppPrefs {
         noTraceMode = decoded.noTraceMode
         onboardingDone = decoded.onboardingDone
         languageCode = decoded.languageCode
+        vaultListMode = decoded.vaultListMode.flatMap(VaultListMode.init(rawValue:)) ?? .showNames
+        browserLayout = decoded.browserLayout.flatMap(BrowserLayout.init(rawValue:)) ?? .list
+        browserSort = decoded.browserSort.flatMap(BrowserSort.init(rawValue:)) ?? .name
+        browserAscending = decoded.browserAscending ?? true
         if autoLockSeconds != decoded.autoLockSeconds {
             save()
         }
     }
 
     private func save() {
-        let payload = AppPrefsData(autoLockSeconds: autoLockSeconds, privacyScreenEnabled: privacyScreenEnabled, noTraceMode: noTraceMode, onboardingDone: onboardingDone, languageCode: languageCode)
+        let payload = AppPrefsData(
+            autoLockSeconds: autoLockSeconds,
+            privacyScreenEnabled: privacyScreenEnabled,
+            noTraceMode: noTraceMode,
+            onboardingDone: onboardingDone,
+            languageCode: languageCode,
+            vaultListMode: vaultListMode.rawValue,
+            browserLayout: browserLayout.rawValue,
+            browserSort: browserSort.rawValue,
+            browserAscending: browserAscending
+        )
         guard let data = try? JSONEncoder().encode(payload) else { return }
         try? data.write(to: fileURL, options: [.atomic, .completeFileProtection])
     }

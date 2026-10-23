@@ -244,3 +244,78 @@ What changes:
 Reviewed: rc3, code only. The on-device checks (extension memory, idle
 kill, fd passing, storage locations, residue after lock) are part of the
 rc3 device test.
+
+## 10. Share into a vault, thumbnails, playback, vault list (2.0.0 rc4)
+
+**Share extension (`VaultPonyShare`, plan 5.1).** "Save to VaultPony" in
+the share sheet runs in the sharing app's context. It never opens a vault,
+never links the core and never sees a password or key. It copies each
+shared item, file to file (`loadFileRepresentation`, never a whole file in
+memory), into `<app group>/Share/<random UUID>/files/`, writes a manifest
+holding only the file names, then opens VaultPony with
+`vaultpony://share?token=<UUID>`. Shared text that came without a file is
+saved as "Shared text.txt". Items that can't be staged are left out.
+
+- **Plaintext on disk until claimed.** The shared files sit unencrypted in
+  the app group from the moment the extension stages them until the app
+  claims them. Everything staged has `FileProtectionType.complete` (folders
+  and files) and is excluded from backup. The app claims a share as soon as
+  it hears of it: the folder is moved (not copied) into the app's own
+  temporary directory, with complete protection, before anything else runs.
+  The claimed copy is deleted when the import ends, when the user cancels,
+  whenever an unlocked vault locks, and at the next launch if the app was
+  killed first. A link that arrives while the app is still coming to the
+  front is not claimed at once: the share stays staged until the app is
+  active (and any auto-lock due on return has run), then the pick-up
+  claims it.
+- **Sweep.** If the extension couldn't open the app, the share stays staged.
+  On every launch and return to the foreground the app picks up a staged
+  share younger than 10 minutes and deletes older ones. A share the user
+  never comes back for therefore stays on disk (complete protection) until
+  the next time VaultPony runs.
+- **The URL.** Any app can open `vaultpony://share?token=...`. The app
+  accepts only a UUID token, uses it only to name a folder under the app
+  group's `Share/` directory, and only imports after the user picks a vault
+  and a folder. The worst another app can do is make VaultPony look for a
+  folder that isn't there.
+- **Import.** The files go through the existing bulk import (temporary
+  names, keep-both on collisions, space check, auto-lock hold). Nothing
+  about the share is written to the vault list or app prefs.
+
+**Grid thumbnails (plan 5.3).** Images up to 20 MB are read through
+`Vault.readAt` and downsampled in memory with ImageIO
+(`kCGImageSourceShouldCache` off). Thumbnails live only in an in-memory
+cache of about 32 MB that is cleared at every lock; they are never written
+to disk, and VaultPony provides none to Files.
+
+**Search (plan 5.3).** "Whole vault" walks the tree in memory through the
+gated `Vault.list`, stops when the search changes, the screen goes or the
+vault locks, and never shows the temporary names Files or an import use.
+
+**Playback (plan 5.2).** Video and audio stream from the vault through an
+`AVAssetResourceLoaderDelegate` that answers each byte range with
+`Vault.readAt`; no temp file is written. The asset URL carries a random id,
+not the file name. The player controller has Now Playing updates and
+picture in picture turned off, and VaultPony sets no
+`MPNowPlayingInfoCenter` info and no remote commands, so no title or
+artwork reaches the Lock Screen or Control Center. AVFoundation's own
+in-memory buffers are outside VaultPony's control. Players stop at lock.
+
+**Vault list (plan 5.4).** Settings > Vault list: "Show names" (the
+default), "Hide names" (the list shows "Vault 1", "Vault 2"; stored names
+are wiped and new entries store none, but the security-scoped bookmark
+still records where each file is, which the footer says), and "Don't keep"
+(after a confirmation every entry is deleted with its Face ID credential;
+from then on entries live in memory only, never in `recents.json`, and a
+vault leaves the list when it locks). No-trace mode stays a separate,
+broader setting: while it is on, vaults opened are kept in memory only and
+leave the list at lock, but entries saved before, and their Face ID
+unlocks, are left alone (only "Don't keep" deletes them). A hash
+picked by hand on the unlock screen is remembered with the entry (as its
+name, never a key or password), never what Auto found, never from a failed
+unlock, and never while the list keeps nothing.
+
+Reviewed: rc4, code only. On-device checks: the share hand-off from Photos
+and Files (large videos included), the extension's memory use, residue in
+the app group and the app's tmp/ after import, cancel and lock, Now
+Playing with a video open, and thumbnails dropped at lock.

@@ -37,6 +37,9 @@ extension VaultError {
             return String(localized: "Unlock cancelled.", locale: locale)
         case .PasswordTooShortForPim(let minLen, let defaultPim):
             return String(localized: "A PIM below \(Int(defaultPim)) needs a password of at least \(Int(minLen)) characters.", locale: locale)
+        case .EmptyKeyfile:
+            // 2.0.0 rc4: checked by the core before any derivation.
+            return String(localized: "A keyfile is empty. VeraCrypt doesn't accept empty keyfiles.", locale: locale)
         }
     }
 }

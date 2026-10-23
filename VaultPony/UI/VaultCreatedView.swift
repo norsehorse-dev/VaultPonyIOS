@@ -24,7 +24,7 @@ struct VaultCreatedView: View {
             VStack(alignment: .leading, spacing: 8) {
                 DetailRow(label: "Name", value: summary.vault.displayName)
                 DetailRow(label: "Size", value: ByteCountFormatter.string(fromByteCount: Int64(summary.sizeBytes), countStyle: .file))
-                DetailRow(label: "Encryption", value: "\(summary.scheme) / \(summary.prf)")
+                DetailRow(label: "Encryption", value: "\(Vault.schemeLabel(summary.scheme)) / \(summary.prf)")
                 DetailRow(label: "Filesystem", value: summary.filesystem)
                 if summary.isHidden, let hiddenSize = summary.hiddenSizeBytes {
                     DetailRow(label: "Hidden Volume", value: ByteCountFormatter.string(fromByteCount: Int64(hiddenSize), countStyle: .file))

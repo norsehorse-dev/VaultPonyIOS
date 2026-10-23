@@ -40,6 +40,7 @@ private enum SizeUnit: String, CaseIterable, Identifiable {
 /// hand over the fd (doc §3).
 struct CreateContainerView: View {
     @Environment(VaultStore.self) private var vaultStore
+    @Environment(AppPrefs.self) private var appPrefs
     @Binding var path: NavigationPath
 
     @State private var name = "MyVault"
@@ -112,7 +113,9 @@ struct CreateContainerView: View {
 
             Section {
                 Picker("Scheme", selection: $scheme) {
-                    ForEach(schemeOptions, id: \.self) { Text($0).tag($0) }
+                    // VeraCrypt's names ("AES-Twofish-Serpent"); the core
+                    // still gets the registry name (2.0.0 rc4, D16).
+                    ForEach(schemeOptions, id: \.self) { Text(verbatim: Vault.schemeLabel($0)).tag($0) }
                 }
                 Picker("Hash", selection: $prf) {
                     ForEach(prfOptions, id: \.self) { Text($0).tag($0) }
@@ -243,8 +246,8 @@ struct CreateContainerView: View {
                     prf: prf,
                     filesystem: filesystem
                 )
-                let vault = vaultStore.add(bookmarkData: bookmark, displayName: name)
-                let summary = CreatedVaultSummary(vault: vault, sizeBytes: sizeBytes, scheme: scheme, prf: prf, filesystem: filesystem, isHidden: true, hiddenSizeBytes: hiddenSizeBytes)
+                let vault = vaultStore.add(bookmarkData: bookmark, displayName: name, mode: appPrefs.effectiveVaultListMode)
+                let summary = CreatedVaultSummary(vault: shownCopy(of: vault), sizeBytes: sizeBytes, scheme: scheme, prf: prf, filesystem: filesystem, isHidden: true, hiddenSizeBytes: hiddenSizeBytes)
                 clearSecrets()
                 path.append(summary)
             } else {
@@ -258,8 +261,8 @@ struct CreateContainerView: View {
                     prf: prf,
                     filesystem: filesystem
                 )
-                let vault = vaultStore.add(bookmarkData: bookmark, displayName: name)
-                let summary = CreatedVaultSummary(vault: vault, sizeBytes: sizeBytes, scheme: scheme, prf: prf, filesystem: filesystem, isHidden: false, hiddenSizeBytes: nil)
+                let vault = vaultStore.add(bookmarkData: bookmark, displayName: name, mode: appPrefs.effectiveVaultListMode)
+                let summary = CreatedVaultSummary(vault: shownCopy(of: vault), sizeBytes: sizeBytes, scheme: scheme, prf: prf, filesystem: filesystem, isHidden: false, hiddenSizeBytes: nil)
                 clearSecrets()
                 path.append(summary)
             }
@@ -270,6 +273,16 @@ struct CreateContainerView: View {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    /// With the vault list hiding names nothing is stored, but the summary
+    /// right after creating still shows the name just typed.
+    private func shownCopy(of vault: SavedVault) -> SavedVault {
+        var shown = vault
+        if shown.displayName.isEmpty {
+            shown.displayName = name
+        }
+        return shown
     }
 
     private func clearSecrets() {

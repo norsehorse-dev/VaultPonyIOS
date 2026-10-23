@@ -49,7 +49,10 @@ struct VaultSessionView: View {
                 }
             } detail: {
                 if let selectedFile {
+                    // A new identity per file, so picking another file in
+                    // the list loads it instead of keeping the last one.
                     ViewerView(path: selectedFile.path, name: selectedFile.name)
+                        .id(selectedFile.path)
                 } else {
                     ContentUnavailableView(
                         "No File Selected",

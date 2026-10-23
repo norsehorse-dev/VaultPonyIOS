@@ -23,6 +23,18 @@ struct ViewerView: View {
     private static let maxInlineBytes: UInt64 = 32 << 20
 
     var body: some View {
+        if MediaPlayback.isPlayable(name) {
+            // Video and audio stream from the vault (2.0.0 rc4); nothing is
+            // loaded whole.
+            MediaPlayerView(path: path, name: name)
+                .navigationTitle(name)
+                .navigationBarTitleDisplayMode(.inline)
+        } else {
+            document
+        }
+    }
+
+    private var document: some View {
         Group {
             if isLoading {
                 ProgressView()

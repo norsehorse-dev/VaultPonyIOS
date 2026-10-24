@@ -1,4 +1,29 @@
-Argon2id-Unterstützung. Tresore, die mit VeraCrypt 1.26.29 oder neuer mit Argon2id erstellt wurden, lassen sich jetzt öffnen, neue Tresore können Argon2id nutzen, und beim Ändern des Passworts lässt sich ein Tresor auf Argon2id umstellen oder zurück.
-Beim Entsperren gibt es eine Auswahl der Schlüsselableitung (Automatisch, PBKDF2, Argon2id), eine Abbrechen-Taste und eine Speicherprüfung vor Argon2id. Die Face-ID-Entsperrung merkt sich, welche ein Tresor nutzt.
-Eine PIM unter dem Standardwert erfordert jetzt ein Passwort mit mindestens 20 Zeichen, wie in VeraCrypt.
-Jedes Passwortfeld hat eine Taste zum Anzeigen und Verbergen.
+VaultPony 2.0.0 macht VaultPony zu einem Tresor für den Alltag, nicht nur zu einem Lesegerät für VeraCrypt.
+
+Dateien: Aktiviere beim Entsperren „In Dateien anzeigen“, dann erscheint der Tresor in der App „Dateien“. Solange er entsperrt bleibt, können du und andere Apps darin Dateien öffnen, bearbeiten und speichern. Sobald der Tresor gesperrt wird, verschwindet er wieder.
+
+Automatische Sperre: Sofort oder nach einer Verzögerung von bis zu 1 Stunde. „Nie“ gibt es nicht mehr; wer es eingestellt hatte, hat jetzt 1 Stunde. Die Schnellaktion „Tresore sperren“ auf dem Home-Bildschirm und die Taste „Sperren“ im Dateibrowser sperren alles auf einmal.
+
+Entsperren:
+- Ein Hash-Menü mit der Liste aus VeraCrypt. Wähle den Hash, den dein Tresor nutzt, dann geht das Entsperren schneller; deine Auswahl wird pro Tresor gespeichert.
+- TrueCrypt-Modus für Datenträger, die mit TrueCrypt 6.0 bis 7.1a erstellt wurden. Sie werden schreibgeschützt geöffnet, und „In VeraCrypt umwandeln“ kopiert einen davon in einen neuen VeraCrypt-Container und prüft dabei jede Datei. Die TrueCrypt-Datei wird nie verändert.
+- ext4-Datenträger (auch ext2 und ext3) werden schreibgeschützt geöffnet.
+- Verschlüsselungsalgorithmen tragen die Namen aus VeraCrypt, etwa AES-Twofish-Serpent.
+
+Versteckte Datenträger: Die Bildschirme zum Erstellen und Entsperren erklären klar, wie sich ein versteckter Datenträger öffnet und was die Schutzoption bewirkt. Der Dateibrowser kennzeichnet eine Sitzung mit verstecktem oder geschütztem Datenträger; beim normalen Entsperren des äußeren Datenträgers wird nichts angezeigt.
+
+Im Tresor:
+- Viele Dateien oder ganze Ordner importieren und exportieren, vorher mit Prüfung von Speicherplatz und der Grenze von 4 GB, mit angepassten Namen für FAT und exFAT und bei gleichen Namen mit der Wahl zwischen „Beide behalten“, „Überspringen“ und „Ersetzen“.
+- Anzeige des freien Speicherplatzes und eine Übersicht „Datenträger-Info“.
+- Rasteransicht mit Miniaturen, die nur im Arbeitsspeicher erzeugt werden, Sortieren, Suche in diesem Ordner oder im ganzen Tresor, und „Auswählen“ zum Löschen, Exportieren oder Verschieben.
+- Videos und Audio werden direkt im Tresor abgespielt, ohne Anzeige auf dem Sperrbildschirm oder unter „Jetzt läuft“.
+- Aus jeder App in einen Tresor teilen.
+- Fotos und Videos direkt in den geöffneten Ordner aufnehmen. In „Fotos“ wird nichts gespeichert, und VaultPony fragt erst bei der ersten Nutzung nach Zugriff auf Kamera und Mikrofon.
+
+Einstellungen: Die Tresorliste kann Namen anzeigen, sie verbergen (Tresor 1, Tresor 2 ...) oder gar nicht gespeichert werden („Nicht behalten“). Dabei werden auch gespeicherte Face-ID-Entsperrungen entfernt. Passwortfelder unterstützen das automatische Ausfüllen von Passwörtern. „Passwort ändern“ kommt jetzt mit Schlüsseldateien zurecht.
+
+Kompatibilität: Bei einem Passwort mit mehr als 64 Zeichen werden Schlüsseldateien jetzt so eingemischt wie in VeraCrypt, sodass sich diese Tresore in VeraCrypt öffnen lassen. Tresore, die mit früheren Versionen so erstellt wurden, lassen sich weiterhin öffnen; nutze „Passwort ändern“ (du kannst dasselbe Passwort wieder eintragen), dann öffnen sie sich auch in VeraCrypt. Leere Schlüsseldateien werden abgelehnt, wie in VeraCrypt.
+
+Privatsphäre: Der Sichtschutz im App-Wechsler verdeckt jetzt auch eingeblendete Fenster, die Kamera und „Umwandeln“.
+
+Übersetzt in Deutsch, Spanisch, Französisch, Russisch und brasilianisches Portugiesisch.

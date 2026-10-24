@@ -1,4 +1,29 @@
-Compatibilidad con Argon2id. Ya se abren las bóvedas creadas con Argon2id en VeraCrypt 1.26.29 o posterior, las bóvedas nuevas pueden usar Argon2id y al cambiar la contraseña se puede pasar una bóveda a Argon2id o volver atrás.
-Al desbloquear hay una opción de derivación de clave (Automático, PBKDF2, Argon2id), un botón Cancelar y una comprobación de memoria antes de ejecutar Argon2id. El desbloqueo con Face ID recuerda cuál usa cada bóveda.
-Un PIM menor que el predeterminado ahora requiere una contraseña de al menos 20 caracteres, como en VeraCrypt.
-Cada campo de contraseña tiene un botón para mostrarla u ocultarla.
+VaultPony 2.0.0 convierte VaultPony en una bóveda para el día a día, no solo en un lector de VeraCrypt.
+
+Archivos: marca «Mostrar en Archivos» al desbloquear y la bóveda aparecerá en la app Archivos mientras siga desbloqueada, para abrir, editar y guardar archivos en ella desde allí o desde otras apps. Desaparece cuando la bóveda se bloquea.
+
+Bloqueo automático: Inmediatamente o un retraso de hasta 1 hora. «Nunca» ya no existe; si lo tenías, ahora es 1 hora. La acción rápida «Bloquear bóvedas» de la pantalla de inicio y un botón Bloquear en el explorador de archivos lo bloquean todo a la vez.
+
+Desbloqueo:
+- Un menú Hash con la lista de VeraCrypt. Elige el hash que usa tu bóveda para desbloquearla más rápido; la elección se recuerda para cada bóveda.
+- Modo TrueCrypt para volúmenes creados con TrueCrypt 6.0 a 7.1a. Se abren como solo lectura, y Convertir a VeraCrypt copia el volumen en un nuevo contenedor VeraCrypt y comprueba cada archivo. El archivo TrueCrypt nunca se modifica.
+- Los volúmenes ext4 (también ext2 y ext3) se abren como solo lectura.
+- Los cifrados aparecen con los nombres de VeraCrypt, como AES-Twofish-Serpent.
+
+Volúmenes ocultos: las pantallas de creación y de desbloqueo explican con claridad cómo se abre un volumen oculto y qué hace la opción de protección. El explorador de archivos indica si la sesión es oculta o protegida; un desbloqueo normal del volumen externo no muestra nada.
+
+En una bóveda:
+- Importa y exporta muchos archivos o carpetas enteras, con una comprobación previa del espacio y del límite de 4 GB, nombres corregidos para FAT y exFAT, y las opciones Conservar ambos, Omitir o Reemplazar cuando un nombre ya existe.
+- Espacio libre y un panel de Información del volumen.
+- Vista de cuadrícula con miniaturas generadas en memoria, ordenación, búsqueda en esta carpeta o en toda la bóveda, y Seleccionar para eliminar, exportar o mover.
+- El vídeo y el audio se reproducen dentro de la bóveda, sin que aparezca nada en la pantalla bloqueada ni en Ahora suena.
+- Comparte desde cualquier app a una bóveda.
+- Haz fotos y graba vídeo directamente en la carpeta abierta. No se guarda nada en Fotos, y VaultPony solo pide acceso a la cámara y al micrófono la primera vez que los usas.
+
+Ajustes: la lista de bóvedas puede mostrar los nombres, ocultarlos (Bóveda 1, Bóveda 2...) o no conservarse («No conservar»), lo que también elimina los desbloqueos con Face ID guardados. Los campos de contraseña funcionan con Autorrelleno de contraseñas. Cambiar contraseña admite archivos clave.
+
+Compatibilidad: con una contraseña de más de 64 caracteres, los archivos clave ahora se combinan como en VeraCrypt, así que esas bóvedas se abren en VeraCrypt. Las bóvedas creadas así en versiones anteriores se siguen abriendo; cambia la contraseña (sirve la misma) y también se abrirán en VeraCrypt. Los archivos clave vacíos se rechazan, como en VeraCrypt.
+
+Privacidad: la pantalla de privacidad del selector de apps ahora también oculta los paneles, la cámara y Convertir.
+
+Traducido al alemán, español, francés, ruso y portugués de Brasil.

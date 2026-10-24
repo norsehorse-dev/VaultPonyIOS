@@ -1,4 +1,29 @@
-Suporte a Argon2id. Cofres criados com Argon2id no VeraCrypt 1.26.29 ou posterior agora abrem, novos cofres podem usar Argon2id, e a troca de senha pode passar um cofre para Argon2id ou voltar.
-O desbloqueio tem uma escolha de derivação de chave (Automático, PBKDF2, Argon2id), um botão Cancelar e uma verificação de memória antes de rodar o Argon2id. O desbloqueio por Face ID lembra qual cada cofre usa.
-Um PIM abaixo do padrão agora exige uma senha de pelo menos 20 caracteres, como no VeraCrypt.
-Todo campo de senha tem um botão para mostrar ou ocultar.
+O VaultPony 2.0.0 transforma o VaultPony em um cofre para o dia a dia, e não apenas um leitor de VeraCrypt.
+
+Arquivos: marque "Mostrar em Arquivos" ao desbloquear, e o cofre aparece no app Arquivos para você e outros apps abrirem, editarem e salvarem nele enquanto ele estiver desbloqueado. Ele some quando o cofre é bloqueado.
+
+Bloqueio automático: Imediatamente, ou um intervalo de até 1 hora. A opção "Nunca" foi removida; se você a usava, agora ela é 1 hora. Uma ação rápida "Bloquear cofres" na Tela de Início e um botão Bloquear no navegador de arquivos bloqueiam tudo de uma vez.
+
+Desbloqueio:
+- Um menu Hash com a lista do VeraCrypt. Escolha o hash que o seu cofre usa para desbloquear mais rápido; sua escolha é lembrada para cada cofre.
+- Modo TrueCrypt para volumes criados com o TrueCrypt 6.0 a 7.1a. Eles abrem como somente leitura, e Converter para VeraCrypt copia um deles para um novo contêiner VeraCrypt, verificando cada arquivo. O arquivo TrueCrypt nunca é alterado.
+- Volumes ext4 (e também ext2 e ext3) abrem como somente leitura.
+- As cifras aparecem com os nomes do VeraCrypt, como AES-Twofish-Serpent.
+
+Volumes ocultos: as telas de criação e de desbloqueio explicam com clareza como um volume oculto é aberto e o que a opção de proteção faz. O navegador de arquivos indica quando a sessão é de um volume oculto ou protegido; um desbloqueio comum do volume externo não mostra nada.
+
+No cofre:
+- Importe e exporte vários arquivos ou pastas inteiras, com verificação prévia de espaço e do limite de 4 GB, nomes ajustados para FAT e exFAT, e a opção de manter ambos, pular ou substituir quando houver conflito de nomes.
+- Espaço livre e um painel Informações do volume.
+- Visualização em grade com miniaturas geradas na memória, ordenação, pesquisa nesta pasta ou no cofre inteiro, e Selecionar para excluir, exportar ou mover.
+- Vídeo e áudio são reproduzidos dentro do cofre, sem nada aparecer na Tela Bloqueada nem em Reproduzindo.
+- Compartilhe de qualquer app para um cofre.
+- Tire fotos e grave vídeos direto na pasta aberta. Nada é salvo em Fotos, e o VaultPony só pede acesso à câmera e ao microfone quando você os usa pela primeira vez.
+
+Configurações: a lista de cofres pode mostrar os nomes, ocultá-los (Cofre 1, Cofre 2...) ou não ser mantida (“Não manter”), o que também remove os desbloqueios por Face ID salvos. Os campos de senha funcionam com o Preenchimento Automático de Senhas. Alterar senha agora lida com arquivos-chave.
+
+Compatibilidade: com uma senha de mais de 64 caracteres, os arquivos-chave agora são combinados como no VeraCrypt, então esses cofres abrem no VeraCrypt. Cofres criados assim em versões anteriores continuam abrindo; altere a senha (a mesma serve) e eles também passam a abrir no VeraCrypt. Arquivos-chave vazios são recusados, como no VeraCrypt.
+
+Privacidade: a cobertura do alternador de apps agora também oculta painéis, a câmera e a tela Converter.
+
+Traduzido para alemão, espanhol, francês, russo e português do Brasil.

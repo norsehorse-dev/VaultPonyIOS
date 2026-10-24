@@ -17,7 +17,7 @@ settings:
     GENERATE_INFOPLIST_FILE: YES
     DEVELOPMENT_TEAM: 4AVJZV35G8
     # One place for the version: the app and both extensions must match.
-    MARKETING_VERSION: "1.1.0"
+    MARKETING_VERSION: "2.0.0"
     CURRENT_PROJECT_VERSION: "2"
 
 aggregateTargets:

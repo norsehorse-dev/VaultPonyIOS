@@ -1,4 +1,29 @@
-Prise en charge d’Argon2id. Les coffres créés avec Argon2id dans VeraCrypt 1.26.29 ou ultérieur s’ouvrent désormais, les nouveaux coffres peuvent utiliser Argon2id, et un changement de mot de passe peut faire passer un coffre à Argon2id ou revenir en arrière.
-Le déverrouillage propose un choix de dérivation de clé (Auto, PBKDF2, Argon2id), un bouton Annuler et une vérification de la mémoire avant d’exécuter Argon2id. Le déverrouillage par Face ID retient celle qu’utilise chaque coffre.
-Un PIM inférieur à la valeur par défaut exige désormais un mot de passe d’au moins 20 caractères, comme dans VeraCrypt.
-Chaque champ de mot de passe a un bouton pour l’afficher ou le masquer.
+VaultPony 2.0.0 fait de VaultPony un coffre pour tous les jours, et plus seulement un lecteur VeraCrypt.
+
+Fichiers : cochez « Afficher dans Fichiers » au déverrouillage, et le coffre apparaît dans l’app Fichiers. Vous et d’autres apps pouvez alors y ouvrir, modifier et enregistrer des fichiers tant qu’il reste déverrouillé. Il disparaît quand le coffre se verrouille.
+
+Verrouillage automatique : Immédiatement, ou un délai allant jusqu’à 1 heure. L’option « Jamais » disparaît ; si vous l’utilisiez, elle passe à 1 heure. Une action rapide « Verrouiller les coffres » sur l’écran d’accueil et un bouton Verrouiller dans le navigateur de fichiers verrouillent tout d’un coup.
+
+Déverrouillage :
+- Un menu Hachage reprenant la liste de VeraCrypt. Choisissez le hachage qu’utilise votre coffre pour déverrouiller plus vite ; votre choix est retenu pour chaque coffre.
+- Mode TrueCrypt pour les volumes créés avec TrueCrypt 6.0 à 7.1a. Ils s’ouvrent en lecture seule, et Convertir en VeraCrypt en copie un dans un nouveau conteneur VeraCrypt en vérifiant chaque fichier. Le fichier TrueCrypt n’est jamais modifié.
+- Les volumes ext4 (ainsi qu’ext2 et ext3) s’ouvrent en lecture seule.
+- Les algorithmes de chiffrement s’affichent sous leurs noms VeraCrypt, comme AES-Twofish-Serpent.
+
+Volumes cachés : les écrans de création et de déverrouillage expliquent clairement comment s’ouvre un volume caché et ce que fait l’option de protection. Le navigateur de fichiers signale une session cachée ou protégée ; un simple déverrouillage du volume externe n’affiche rien.
+
+Dans un coffre :
+- Importez et exportez de nombreux fichiers ou des dossiers entiers, avec une vérification préalable de l’espace et de la limite de 4 Go, des noms corrigés pour FAT et exFAT, et le choix entre conserver les deux, passer ou remplacer en cas de conflit de noms.
+- L’espace libre et une fiche Infos du volume.
+- Vue en grille avec des vignettes générées en mémoire, tri, recherche dans ce dossier ou dans tout le coffre, et Sélectionner pour supprimer, exporter ou déplacer.
+- Les vidéos et l’audio se lisent dans le coffre, sans rien afficher sur l’écran verrouillé ni dans À l’écoute.
+- Partagez depuis n’importe quelle app vers un coffre.
+- Prenez des photos et enregistrez des vidéos directement dans le dossier ouvert. Rien n’est enregistré dans Photos, et VaultPony ne demande l’accès à l’appareil photo et au micro qu’à leur première utilisation.
+
+Réglages : la liste des coffres peut afficher les noms, les masquer (Coffre 1, Coffre 2...) ou ne pas être conservée (« Ne pas conserver »), ce qui supprime aussi les déverrouillages par Face ID enregistrés. Les champs de mot de passe fonctionnent avec le remplissage automatique des mots de passe. Modifier le mot de passe prend en charge les fichiers clés.
+
+Compatibilité : avec un mot de passe de plus de 64 caractères, les fichiers clés sont désormais combinés comme le fait VeraCrypt, et ces coffres s’ouvrent donc dans VeraCrypt. Les coffres créés ainsi avec les versions précédentes s’ouvrent toujours ; modifiez le mot de passe (vous pouvez garder le même) et ils s’ouvriront aussi dans VeraCrypt. Les fichiers clés vides sont refusés, comme dans VeraCrypt.
+
+Confidentialité : l’écran de confidentialité du sélecteur d’apps masque désormais aussi les fiches, l’appareil photo et Convertir.
+
+Traduit en allemand, espagnol, français, russe et portugais brésilien.

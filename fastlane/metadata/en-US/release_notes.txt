@@ -1,4 +1,29 @@
-Argon2id support. Vaults created with Argon2id in VeraCrypt 1.26.29 or later now open, new vaults can use Argon2id, and a password change can move a vault to Argon2id or back.
-Unlocking has a key derivation choice (Auto, PBKDF2, Argon2id), a Cancel button, and a memory check before running Argon2id. Face ID unlock remembers which one a vault uses.
-A PIM below the default now needs a password of at least 20 characters, as in VeraCrypt.
-Every password field has a show/hide button.
+VaultPony 2.0.0 turns VaultPony into an everyday vault, not just a VeraCrypt reader.
+
+Files: tick "Show in Files" when you unlock, and the vault appears in the Files app for you and other apps to open, edit and save into while it stays unlocked. It disappears when the vault locks.
+
+Auto-lock: Immediately, or a delay of up to 1 hour. "Never" is gone; if you had it, it is now 1 hour. A "Lock vaults" Home Screen quick action and a Lock button in the browser lock everything at once.
+
+Unlocking:
+- A Hash menu with VeraCrypt's list. Pick the hash your vault uses to unlock faster; your pick is remembered per vault.
+- TrueCrypt mode for volumes made with TrueCrypt 6.0 to 7.1a. They open read-only, and Convert to VeraCrypt copies one into a new VeraCrypt container, checking every file. The TrueCrypt file is never changed.
+- ext4 volumes (also ext2 and ext3) open read-only.
+- Ciphers show under VeraCrypt's names, like AES-Twofish-Serpent.
+
+Hidden volumes: the create and unlock screens say plainly how a hidden volume opens and what the protect option does. The browser labels a hidden or protected session; a plain outer unlock shows nothing.
+
+In a vault:
+- Import and export many files or whole folders, with a space and 4 GB check first, names fixed for FAT and exFAT, and keep both, skip or replace on a name clash.
+- Free space and a Volume Info sheet.
+- Grid view with thumbnails made in memory, sort, search this folder or the whole vault, and Select to delete, export or move.
+- Video and audio play inside the vault, with nothing on the Lock Screen or in Now Playing.
+- Share from any app into a vault.
+- Take photos and record video straight into the open folder. Nothing is saved to Photos, and VaultPony asks for camera and microphone access only when you first use them.
+
+Settings: the vault list can show names, hide them (Vault 1, Vault 2...), or not be kept at all ("Don't keep"), which also removes saved Face ID unlocks. Password fields work with Password AutoFill. Change Password handles keyfiles.
+
+Compatibility: with a password longer than 64 characters, keyfiles now mix the way VeraCrypt does, so those vaults open in VeraCrypt. Vaults made that way in earlier versions still open; change the password (the same one works) and they open in VeraCrypt too. Empty keyfiles are refused, as in VeraCrypt.
+
+Privacy: the app switcher cover now also hides sheets, the camera and Convert.
+
+Translated into German, Spanish, French, Russian and Brazilian Portuguese.
